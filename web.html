@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Esquiva los bloques</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #111827;
+    color: white;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    min-height: 100vh;
+}
+
+.contenedor {
+    text-align: center;
+}
+
+h1 {
+    margin-bottom: 10px;
+}
+
+#informacion {
+    width: 400px;
+
+    display: flex;
+    justify-content: space-between;
+
+    margin: 15px auto;
+
+    font-size: 20px;
+}
+
+#juego {
+
+    position: relative;
+
+    width: 400px;
+    height: 600px;
+
+    background:
+        linear-gradient(#1e293b, #0f172a);
+
+    border: 3px solid white;
+
+    overflow: hidden;
+
+    margin: auto;
+}
+
+/* JUGADOR */
+
+#jugador {
+
+    position: absolute;
+
+    width: 40px;
+    height: 40px;
+
+    background: #22c55e;
+
+    bottom: 20px;
+    left: 180px;
+
+    border-radius: 8px;
+
+    box-shadow:
+        0 0 15px #22c55e;
+}
+
+/* OBSTÁCULOS */
+
+.obstaculo {
+
+    position: absolute;
+
+    width: 40px;
+    height: 40px;
+
+    background: #ef4444;
+
+    top: -40px;
+
+    border-radius: 6px;
+
+    box-shadow:
+        0 0 15px #ef4444;
+}
+
+/* BOTÓN */
+
+button {
+
+    background: #22c55e;
+
+    color: white;
+
+    border: none;
+
+    padding: 12px 25px;
+
+    font-size: 18px;
+
+    border-radius: 8px;
+
+    cursor: pointer;
+}
+
+button:hover {
+
+    background: #16a34a;
+
+}
+
+/* MENSAJE */
+
+#mensaje {
+
+    margin-top: 15px;
+
+    font-size: 18px;
+
+}
+
+/* CONTROLES */
+
+.controles {
+
+    margin-top: 15px;
+
+    color: #cbd5e1;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="contenedor">
+
+    <h1>🎮 Esquiva los bloques</h1>
+
+    <div id="informacion">
+
+        <span>
+            Puntos:
+            <b id="puntos">0</b>
+        </span>
+
+        <span>
+            Récord:
+            <b id="record">0</b>
+        </span>
+
+    </div>
+
+    <div id="juego">
+
+        <div id="jugador"></div>
+
+    </div>
+
+    <div class="controles">
+
+        ⬅️ A / Flecha izquierda
+
+        &nbsp;&nbsp;&nbsp;
+
+        Flecha derecha / D ➡️
+
+    </div>
+
+    <br>
+
+    <button onclick="iniciarJuego()">
+        ▶️ Iniciar juego
+    </button>
+
+        <div id="mensaje"></div>
+
+</div>
+
+
+<script>
+
+/* ==================================
+   VARIABLES
+================================== */
+
+const juego =
+    document.getElementById("juego");
+
+const jugador =
+    document.getElementById("jugador");
+
+const puntosTexto =
+    document.getElementById("puntos");
+
+const recordTexto =
+    document.getElementById("record");
+
+const mensaje =
+    document.getElementById("mensaje");
+
+
+let jugadorX = 180;
+
+let puntos = 0;
+
+let record =
+    localStorage.getItem("record") || 0;
+
+let jugando = false;
+
+let velocidad = 4;
+
+let obstaculos = [];
+
+let intervaloObstaculos;
+
+let animacion;
+
+
+/* ==================================
+   MÚSICA
+================================== */
+
+let audioContext = null;
+
+let musicaActiva = false;
+
+let intervaloMusica = null;
+
+let posicionNota = 0;
+
+
+/*
+    Melodía sencilla
+*/
+
+const notas = [
+
+    261.63, // DO
+
+    293.66, // RE
+
+    329.63, // MI
+
+    392.00, // SOL
+
+    329.63, // MI
+
+    293.66, // RE
+
+    261.63, // DO
+
+    196.00  // SOL
+
+];
+
+
+/* ==================================
+   MOSTRAR RÉCORD
+================================== */
+
+recordTexto.textContent = record;
+
+
+/* ==================================
+   ACTIVAR MÚSICA
+================================== */
+
+function activarMusica() {
+
+    if (musicaActiva) {
+
+        musicaActiva = false;
+
+        clearInterval(intervaloMusica);
+
+        return;
+    }
+
+
+    audioContext =
+        new (
+            window.AudioContext ||
+            window.webkitAudioContext
+        )();
+
+
+    musicaActiva = true;
+
+    posicionNota = 0;
+
+
+    intervaloMusica =
+        setInterval(reproducirNota, 400);
+}
+
+
+/* ==================================
+   REPRODUCIR NOTA
+================================== */
+
+function reproducirNota() {
+
+    if (!musicaActiva)
+        return;
+
+
+    const oscilador =
+        audioContext.createOscillator();
+
+
+    const ganancia =
+        audioContext.createGain();
+
+
+    oscilador.type = "square";
+
+
+    oscilador.frequency.value =
+        notas[posicionNota];
+
+
+    ganancia.gain.setValueAtTime(
+        0.04,
+        audioContext.currentTime
+    );
+
+
+    ganancia.gain.exponentialRampToValueAtTime(
+
+        0.001,
+
+        audioContext.currentTime + 0.35
+
+    );
+
+
+    oscilador.connect(ganancia);
+
+    ganancia.connect(
+        audioContext.destination
+    );
+
+
+    oscilador.start();
+
+
+    oscilador.stop(
+
+        audioContext.currentTime + 0.35
+
+    );
+
+
+    posicionNota++;
+
+
+    if (
+        posicionNota >= notas.length
+    ) {
+
+        posicionNota = 0;
+
+    }
+
+}
+
+
+/* ==================================
+   MOVIMIENTO DEL JUGADOR
+================================== */
+
+document.addEventListener(
+    "keydown",
+    function(event) {
+
+        if (!jugando)
+            return;
+
+
+        if (
+            event.key === "ArrowLeft" ||
+            event.key.toLowerCase() === "a"
+        ) {
+
+            jugadorX -= 25;
+
+        }
+
+
+        if (
+            event.key === "ArrowRight" ||
+            event.key.toLowerCase() === "d"
+        ) {
+
+            jugadorX += 25;
+
+        }
+
+
+        /*
+            Evitar salir del juego
+        */
+
+        if (jugadorX < 0) {
+
+            jugadorX = 0;
+
+        }
+
+
+        if (jugadorX > 360) {
+
+            jugadorX = 360;
+
+        }
+
+
+        jugador.style.left =
+            jugadorX + "px";
+
+    }
+);
+
+
+/* ==================================
+   INICIAR JUEGO
+================================== */
+
+function iniciarJuego() {
+
+    /*
+        Iniciar música automáticamente
+    */
+
+    if (!musicaActiva) {
+
+        activarMusica();
+
+    }
+
+
+    /*
+        Limpiar obstáculos
+    */
+
+    obstaculos.forEach(
+        o => o.element.remove()
+    );
+
+
+    obstaculos = [];
+
+
+    /*
+        Reiniciar variables
+    */
+
+    puntos = 0;
+
+    velocidad = 4;
+
+    jugadorX = 180;
+
+
+    puntosTexto.textContent =
+        puntos;
+
+
+    jugador.style.left =
+        jugadorX + "px";
+
+
+    jugando = true;
+
+
+    mensaje.textContent = "";
+
+
+    clearInterval(
+        intervaloObstaculos
+    );
+
+
+    cancelAnimationFrame(
+        animacion
+    );
+
+
+    /*
+        Crear obstáculos
+    */
+
+    intervaloObstaculos =
+        setInterval(
+            crearObstaculo,
+            800
+        );
+
+
+    moverObstaculos();
+}
+
+
+/* ==================================
+   CREAR OBSTÁCULO
+================================== */
+
+function crearObstaculo() {
+
+    if (!jugando)
+        return;
+
+
+    const obstaculo =
+        document.createElement("div");
+
+
+    obstaculo.classList.add(
+        "obstaculo"
+    );
+
+
+    /*
+        Posición aleatoria
+    */
+
+    const x =
+        Math.floor(
+            Math.random() * 360
+        );
+
+
+    obstaculo.style.left =
+        x + "px";
+
+
+    obstaculo.style.top =
+        "-40px";
+
+
+    juego.appendChild(
+        obstaculo
+    );
+
+
+    obstaculos.push({
+
+        element: obstaculo,
+
+        y: -40,
+
+        x: x,
+
+        contado: false
+
+    });
+
+}
+
+
+/* ==================================
+   MOVER OBSTÁCULOS
+================================== */
+
+function moverObstaculos() {
+
+    if (!jugando)
+        return;
+
+
+    for (
+        let i = obstaculos.length - 1;
+        i >= 0;
+        i--
+    ) {
+
+        const obstaculo =
+            obstaculos[i];
+
+
+        /*
+            Mover hacia abajo
+        */
+
+        obstaculo.y += velocidad;
+
+
+        obstaculo.element.style.top =
+            obstaculo.y + "px";
+
+
+        /*
+            Comprobar colisión
+        */
+
+        if (
+            colisiona(
+                jugador,
+                obstaculo.element
+            )
+        ) {
+
+            terminarJuego();
+
+            return;
+
+        }
+
+
+        /*
+            Conseguir punto
+        */
+
+        if (
+            !obstaculo.contado &&
+            obstaculo.y > 560
+        ) {
+
+            obstaculo.contado = true;
+
+
+            puntos++;
+
+
+            puntosTexto.textContent =
+                puntos;
+
+
+            /*
+                Aumentar dificultad
+            */
+
+            if (
+                puntos % 5 === 0
+            ) {
+
+                velocidad += 0.5;
+
+            }
+
+        }
+
+
+        /*
+            Eliminar obstáculos
+        */
+
+        if (
+            obstaculo.y > 620
+        ) {
+
+            obstaculo.element.remove();
+
+
+            obstaculos.splice(
+                i,
+                1
+            );
+
+        }
+
+    }
+
+
+    animacion =
+        requestAnimationFrame(
+            moverObstaculos
+        );
+}
+
+
+/* ==================================
+   COLISIONES
+================================== */
+
+function colisiona(a, b) {
+
+    const rectA =
+        a.getBoundingClientRect();
+
+    const rectB =
+        b.getBoundingClientRect();
+
+
+    return !(
+        rectA.right < rectB.left ||
+
+        rectA.left > rectB.right ||
+
+        rectA.bottom < rectB.top ||
+
+        rectA.top > rectB.bottom
+    );
+}
+
+
+/* ==================================
+   GAME OVER
+================================== */
+
+function terminarJuego() {
+
+    jugando = false;
+
+
+    clearInterval(
+        intervaloObstaculos
+    );
+
+
+    cancelAnimationFrame(
+        animacion
+    );
+
+
+    /*
+        Nuevo récord
+    */
+
+    if (puntos > record) {
+
+        record = puntos;
+
+
+        localStorage.setItem(
+            "record",
+            record
+        );
+
+
+        recordTexto.textContent =
+            record;
+
+
+        mensaje.textContent =
+            "🏆 ¡NUEVO RÉCORD! " +
+            puntos +
+            " puntos.";
+
+    }
+    else {
+
+        mensaje.textContent =
+            "💥 GAME OVER — " +
+            puntos +
+            " puntos.";
+
+    }
+
+}
+
+</script>
+
+</body>
+</html>
