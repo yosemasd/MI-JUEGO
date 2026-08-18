@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Pelota Caótica</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    touch-action: none;
+    user-select: none;
+}
+
+body {
+    margin: 0;
+    overflow: hidden;
+    background: #111827;
+    font-family: Arial, sans-serif;
+}
+
+canvas {
+    display: block;
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(#38bdf8, #dbeafe);
+}
+
+#ui {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    right: 15px;
+    display: flex;
+    justify-content: space-between;
+    color: white;
+    font-weight: bold;
+    font-size: 20px;
+    text-shadow: 2px 2px 3px #000;
+    pointer-events: none;
+}
+
+#menu,
+#gameOver {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0,0,0,.65);
+    color: white;
+    text-align: center;
+}
+
+#gameOver {
+    display: none;
+}
+
+h1 {
+    font-size: 48px;
+    margin: 10px;
+}
+
+p {
+    font-size: 20px;
+}
+
+button {
+    border: 0;
+    border-radius: 15px;
+    padding: 16px 35px;
+    font-size: 22px;
+    font-weight: bold;
+    background: #22c55e;
+    color: white;
+    box-shadow: 0 5px 0 #15803d;
+    cursor: pointer;
+}
+
+button:active {
+    transform: translateY(4px);
+    box-shadow: 0 1px 0 #15803d;
+}
+
+#controls {
+    position: fixed;
+    bottom: 25px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 25px;
+}
+
+.control {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background: rgba(0,0,0,.35);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 40px;
+    border: 2px solid rgba(255,255,255,.5);
+}
+
+#pause {
+    position: fixed;
+    top: 65px;
+    right: 15px;
+    padding: 8px 15px;
+    font-size: 16px;
+    background: rgba(0,0,0,.4);
+    box-shadow: none;
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="game"></canvas>
+
+<div id="ui">
+    <div>⭐ Puntos: <span id="score">0</span></div>
+    <div>🏆 Récord: <span id="best">0</span></div>
+</div>
+
+<button id="pause">⏸️</button>
+
+<div id="menu">
+    <h1>⚽ PELOTA CAÓTICA</h1>
+    <p>Esquiva los obstáculos y recoge monedas.</p>
+    <p>PC: usa ← → o A/D</p>
+    <p>Móvil: usa los botones de abajo.</p>
+    <button id="start">JUGAR</button>
+</div>
+
+<div id="gameOver">
+    <h1>💥 GAME OVER</h1>
+    <p>Puntuación: <span id="finalScore">0</span></p>
+    <p>Récord: <span id="finalBest">0</span></p>
+    <button id="restart">VOLVER A JUGAR</button>
+</div>
+
+<div id="controls">
+    <div class="control" id="left">⬅️</div>
+    <div class="control" id="right">➡️</div>
+</div>
+
+<script>
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+
+const scoreText = document.getElementById("score");
+const bestText = document.getElementById("best");
+
+let W, H;
+
+function resize() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+}
+
+resize();
+window.addEventListener("resize", resize);
+
+let player;
+let obstacles = [];
+let coins = [];
+let powerups = [];
+
+let score = 0;
+let best = Number(localStorage.getItem("pelotaBest")) || 0;
+let speed = 4;
+let gameRunning = false;
+let paused = false;
+
+let leftPressed = false;
+let rightPressed = false;
+
+let shield = false;
+let magnet = false;
+
+bestText.textContent = best;
+
+/* =========================
+   SONIDOS
+========================= */
+
+let audioCtx = null;
+
+function audioStart() {
+    if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+}
+
+function sound(freq, duration, type = "sine") {
+    if (!audioCtx) return;
+
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+
+    osc.type = type;
+    osc.frequency.value = freq;
+
+    gain.gain.setValueAtTime(.08, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(.001, audioCtx.currentTime + duration);
+
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    osc.start();
+    osc.stop(audioCtx.currentTime + duration);
+}
+
+function coinSound() {
+    sound(900, .08);
+    setTimeout(() => sound(1300, .1), 70);
+}
+
+function hitSound() {
+    sound(120, .25, "sawtooth");
+}
+
+function powerSound() {
+    sound(500, .1);
+    setTimeout(() => sound(800, .1), 100);
+}
+
+/* =========================
+   JUGADOR
+========================= */
+
+function createPlayer() {
+    player = {
+        x: W / 2,
+        y: H - 130,
+        r: 25,
+        vx: 0,
+        speed: 0.8,
+        maxSpeed: 8
+    };
+}
+
+/* =========================
+   OBJETOS
+========================= */
+
+function createObstacle() {
+    const size = 30 + Math.random() * 40;
+
+    obstacles.push({
+        x: Math.random() * (W - size),
+        y: -size,
+        w: size,
+        h: size,
+        speed: speed + Math.random() * 2,
+        rotation: Math.random() * Math.PI
+    });
+}
+
+function createCoin() {
+    coins.push({
+        x: 30 + Math.random() * (W - 60),
+        y: -30,
+        r: 12,
+        speed: speed
+    });
+}
+
+function createPowerup() {
+    const types = ["shield", "magnet"];
+
+    powerups.push({
+        x: 30 + Math.random() * (W - 60),
+        y: -30,
+        r: 15,
+        type: types[Math.floor(Math.random() * types.length)],
+        speed: speed
+    });
+}
+
+/* =========================
+   COLISIONES
+========================= */
+
+function circleRectCollision(circle, rect) {
+
+    const closestX = Math.max(rect.x, Math.min(circle.x, rect.x + rect.w));
+    const closestY = Math.max(rect.y, Math.min(circle.y, rect.y + rect.h));
+
+    const dx = circle.x - closestX;
+    const dy = circle.y - closestY;
+
+    return dx * dx + dy * dy < circle.r * circle.r;
+}
+
+/* =========================
+   INICIAR
+========================= */
+
+function startGame() {
+
+    audioStart();
+
+    score = 0;
+    speed = 4;
+
+    obstacles = [];
+    coins = [];
+    powerups = [];
+
+    shield = false;
+    magnet = false;
+
+    createPlayer();
+
+    gameRunning = true;
+    paused = false;
+
+    document.getElementById("menu").style.display = "none";
+    document.getElementById("gameOver").style.display = "none";
+
+    scoreText.textContent = "0";
+}
+
+/* =========================
+   GAME OVER
+========================= */
+
+function gameOver() {
+
+    gameRunning = false;
+
+    hitSound();
+
+    if (score > best) {
+        best = score;
+        localStorage.setItem("pelotaBest", best);
+    }
+
+    document.getElementById("finalScore").textContent = score;
+    document.getElementById("finalBest").textContent = best;
+
+    bestText.textContent = best;
+
+    document.getElementById("gameOver").style.display = "flex";
+}
+
+/* =========================
+   ACTUALIZAR
+========================= */
+
+let frame = 0;
+
+function update() {
+
+    if (!gameRunning || paused) return;
+
+    frame++;
+
+    /* Movimiento */
+
+    if (leftPressed) {
+        player.vx -= player.speed;
+    }
+
+    if (rightPressed) {
+        player.vx += player.speed;
+    }
+
+    if (!leftPressed && !rightPressed) {
+        player.vx *= .85;
+    }
+
+    player.vx = Math.max(
+        -player.maxSpeed,
+        Math.min(player.maxSpeed, player.vx)
+    );
+
+    player.x += player.vx;
+
+    if (player.x < player.r) {
+        player.x = player.r;
+        player.vx *= -.5;
+    }
+
+    if (player.x > W - player.r) {
+        player.x = W - player.r;
+        player.vx *= -.5;
+    }
+
+    /* Dificultad */
+
+    if (frame % 600 === 0) {
+        speed += .5;
+    }
+
+    /* Generar objetos */
+
+    if (frame % Math.max(25, Math.floor(70 - speed * 5)) === 0) {
+        createObstacle();
+    }
+
+    if (frame % 90 === 0) {
+        createCoin();
+    }
+
+    if (frame % 600 === 0) {
+        createPowerup();
+    }
+
+    /* Obstáculos */
+
+    for (let i = obstacles.length - 1; i >= 0; i--) {
+
+        const o = obstacles[i];
+
+        o.y += o.speed;
+
+        o.rotation += .03;
+
+        if (circleRectCollision(player, o)) {
+
+            if (shield) {
+                shield = false;
+                obstacles.splice(i, 1);
+                sound(250, .15);
+                continue;
+            }
+
+            gameOver();
+            return;
+        }
+
+        if (o.y > H + 100) {
+            obstacles.splice(i, 1);
+            score++;
+        }
+    }
+
+    /* Monedas */
+
+    for (let i = coins.length - 1; i >= 0; i--) {
+
+        const c = coins[i];
+
+        c.y += c.speed;
+
+        if (magnet) {
+
+            const dx = player.x - c.x;
+            const dy = player.y - c.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance < 180) {
+                c.x += dx * .08;
+                c.y += dy * .08;
+            }
+        }
+
+        const dx = player.x - c.x;
+        const dy = player.y - c.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance < player.r + c.r) {
+
+            score += 10;
+            coins.splice(i, 1);
+
+            coinSound();
+
+            continue;
+        }
+
+        if (c.y > H + 50) {
+            coins.splice(i, 1);
+        }
+    }
+
+    /* Powerups */
+
+    for (let i = powerups.length - 1; i >= 0; i--) {
+
+        const p = powerups[i];
+
+        p.y += p.speed;
+
+        const dx = player.x - p.x;
+        const dy = player.y - p.y;
+
+        if (Math.sqrt(dx * dx + dy * dy) < player.r + p.r) {
+
+            if (p.type === "shield") {
+                shield = true;
+            }
+
+            if (p.type === "magnet") {
+                magnet = true;
+
+                setTimeout(() => {
+                    magnet = false;
+                }, 7000);
+            }
+
+            powerSound();
+
+            powerups.splice(i, 1);
+
+            continue;
+        }
+
+        if (p.y > H + 50) {
+            powerups.splice(i, 1);
+        }
+    }
+
+    scoreText.textContent = score;
+}
+
+/* =========================
+   DIBUJAR
+========================= */
+
+function drawBackground() {
+
+    ctx.fillStyle = "#38bdf8";
+    ctx.fillRect(0, 0, W, H);
+
+    /* Nubes */
+
+    ctx.fillStyle = "rgba(255,255,255,.7)";
+
+    for (let i = 0; i < 6; i++) {
+
+        const x = (i * 220 + frame * .2) % (W + 200) - 100;
+        const y = 80 + i * 70;
+
+        ctx.beginPath();
+        ctx.arc(x, y, 25, 0, Math.PI * 2);
+        ctx.arc(x + 30, y - 10, 35, 0, Math.PI * 2);
+        ctx.arc(x + 65, y, 25, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    /* Suelo */
+
+    ctx.fillStyle = "#22c55e";
+    ctx.fillRect(0, H - 40, W, 40);
+}
+
+function drawPlayer() {
+
+    ctx.save();
+
+    ctx.translate(player.x, player.y);
+
+    /* Sombra */
+
+    ctx.fillStyle = "rgba(0,0,0,.2)";
+    ctx.beginPath();
+    ctx.ellipse(0, 28, 28, 8, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    /* Escudo */
+
+    if (shield) {
+
+        ctx.strokeStyle = "#22d3ee";
+        ctx.lineWidth = 5;
+
+        ctx.beginPath();
+        ctx.arc(0, 0, 34, 0, Math.PI * 2);
+        ctx.stroke();
+    }
+
+    /* Pelota */
+
+    const gradient = ctx.createRadialGradient(
+        -8, -8, 5,
+        0, 0, 30
+    );
+
+    gradient.addColorStop(0, "#ffffff");
+    gradient.addColorStop(.25, "#facc15");
+    gradient.addColorStop(1, "#f97316");
+
+    ctx.fillStyle = gradient;
+
+    ctx.beginPath();
+    ctx.arc(0, 0, player.r, 0, Math.PI * 2);
+    ctx.fill();
+
+    /* Cara */
+
+    ctx.fillStyle = "#111";
+
+    ctx.beginPath();
+    ctx.arc(-9, -5, 3, 0, Math.PI * 2);
+    ctx.arc(9, -5, 3, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.strokeStyle = "#111";
+    ctx.lineWidth = 3;
+
+    ctx.beginPath();
+    ctx.arc(0, 3, 10, 0, Math.PI);
+    ctx.stroke();
+
+    ctx.restore();
+}
+
+function drawObstacles() {
+
+    obstacles.forEach(o => {
+
+        ctx.save();
+
+        ctx.translate(o.x + o.w / 2, o.y + o.h / 2);
+        ctx.rotate(o.rotation);
+
+        ctx.fillStyle = "#7c3aed";
+        ctx.fillRect(-o.w / 2, -o.h / 2, o.w, o.h);
+
+        ctx.strokeStyle = "#4c1d95";
+        ctx.lineWidth = 4;
+        ctx.strokeRect(-o.w / 2, -o.h / 2, o.w, o.h);
+
+        ctx.restore();
+    });
+}
+
+function drawCoins() {
+
+    coins.forEach(c => {
+
+        ctx.fillStyle = "#facc15";
+        ctx.strokeStyle = "#ca8a04";
+        ctx.lineWidth = 3;
+
+        ctx.beginPath();
+        ctx.arc(c.x, c.y, c.r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = "#fff7ae";
+        ctx.font = "bold 14px Arial";
+        ctx.textAlign = "center";
+        ctx.fillText("★", c.x, c.y + 5);
+    });
+}
+
+function drawPowerups() {
+
+    powerups.forEach(p => {
+
+        ctx.fillStyle =
+            p.type === "shield" ? "#06b6d4" : "#ec4899";
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = "white";
+        ctx.font = "bold 18px Arial";
+        ctx.textAlign = "center";
+
+        ctx.fillText(
+            p.type === "shield" ? "🛡" : "🧲",
+            p.x,
+            p.y + 6
+        );
+    });
+}
+
+function draw() {
+
+    drawBackground();
+    drawCoins();
+    drawPowerups();
+    drawObstacles();
+
+    if (player) {
+        drawPlayer();
+    }
+
+    if (paused && gameRunning) {
+
+        ctx.fillStyle = "rgba(0,0,0,.5)";
+        ctx.fillRect(0, 0, W, H);
+
+        ctx.fillStyle = "white";
+        ctx.font = "bold 50px Arial";
+        ctx.textAlign = "center";
+        ctx.fillText("PAUSA", W / 2, H / 2);
+    }
+}
+
+/* =========================
+   BUCLE
+========================= */
+
+function loop() {
+
+    update();
+    draw();
+
+    requestAnimationFrame(loop);
+}
+
+loop();
+
+/* =========================
+   TECLADO
+========================= */
+
+document.addEventListener("keydown", e => {
+
+    if (e.key === "ArrowLeft" || e.key.toLowerCase() === "a") {
+        leftPressed = true;
+    }
+
+    if (e.key === "ArrowRight" || e.key.toLowerCase() === "d") {
+        rightPressed = true;
+    }
+
+    if (e.key === " ") {
+        paused = !paused;
+    }
+});
+
+document.addEventListener("keyup", e => {
+
+    if (e.key === "ArrowLeft" || e.key.toLowerCase() === "a") {
+        leftPressed = false;
+    }
+
+    if (e.key === "ArrowRight" || e.key.toLowerCase() === "d") {
+        rightPressed = false;
+    }
+});
+
+/* =========================
+   CONTROLES TÁCTILES
+========================= */
+
+function touchControl(element, direction) {
+
+    element.addEventListener("touchstart", e => {
+
+        e.preventDefault();
+
+        if (direction === "left") {
+            leftPressed = true;
+        }
+
+        if (direction === "right") {
+            rightPressed = true;
+        }
+    });
+
+    element.addEventListener("touchend", e => {
+
+        e.preventDefault();
+
+        if (direction === "left") {
+            leftPressed = false;
+        }
+
+        if (direction === "right") {
+            rightPressed = false;
+        }
+    });
+}
+
+touchControl(
+    document.getElementById("left"),
+    "left"
+);
+
+touchControl(
+    document.getElementById("right"),
+    "right"
+);
+
+/* =========================
+   BOTONES
+========================= */
+
+document.getElementById("start").onclick = startGame;
+
+document.getElementById("restart").onclick = startGame;
+
+document.getElementById("pause").onclick = () => {
+
+    if (gameRunning) {
+        paused = !paused;
+    }
+};
+
+</script>
+
+</body>
+</html>
