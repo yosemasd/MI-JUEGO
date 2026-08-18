@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Gato Espacial</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: #050510;
+    color: white;
+    font-family: Arial, sans-serif;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    min-height: 100vh;
+    overflow: hidden;
+}
+
+#game {
+    position: relative;
+
+    width: 400px;
+    height: 600px;
+
+    max-width: 95vw;
+    max-height: 90vh;
+
+    overflow: hidden;
+
+    border: 4px solid white;
+    border-radius: 18px;
+
+    background:
+        radial-gradient(circle at 20% 20%, white 1px, transparent 2px),
+        radial-gradient(circle at 70% 35%, white 1px, transparent 2px),
+        radial-gradient(circle at 40% 70%, white 1px, transparent 2px),
+        radial-gradient(circle at 85% 80%, white 1px, transparent 2px),
+        linear-gradient(#08001c, #170044);
+}
+
+/* ESTRELLAS */
+
+.star {
+    position: absolute;
+    width: 3px;
+    height: 3px;
+    background: white;
+    border-radius: 50%;
+    opacity: 0.8;
+}
+
+/* PUNTUACIÓN */
+
+#score {
+    position: absolute;
+
+    top: 12px;
+    left: 15px;
+
+    font-size: 23px;
+    font-weight: bold;
+
+    z-index: 10;
+}
+
+/* GATO */
+
+#player {
+    position: absolute;
+
+    width: 55px;
+    height: 55px;
+
+    left: 172px;
+    bottom: 25px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    font-size: 45px;
+
+    z-index: 5;
+
+    user-select: none;
+}
+
+/* METEORITOS */
+
+.meteor {
+    position: absolute;
+
+    width: 50px;
+    height: 50px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    font-size: 42px;
+
+    z-index: 3;
+
+    user-select: none;
+}
+
+/* PANTALLA INICIAL */
+
+#startScreen,
+#gameOver {
+
+    position: absolute;
+
+    inset: 0;
+
+    background: rgba(0, 0, 0, 0.82);
+
+    display: flex;
+    flex-direction: column;
+
+    justify-content: center;
+    align-items: center;
+
+    text-align: center;
+
+    z-index: 20;
+}
+
+#gameOver {
+    display: none;
+}
+
+h1 {
+    margin: 0 10px 15px;
+
+    font-size: 40px;
+}
+
+#gameOver h1 {
+    color: #ff4444;
+}
+
+p {
+    font-size: 18px;
+    margin: 7px;
+}
+
+button {
+    margin-top: 22px;
+
+    padding: 13px 28px;
+
+    border: none;
+    border-radius: 12px;
+
+    font-size: 20px;
+    font-weight: bold;
+
+    cursor: pointer;
+
+    background: white;
+    color: black;
+}
+
+button:hover {
+    transform: scale(1.06);
+}
+
+/* AVISO DE CONTROLES */
+
+.controls {
+    margin-top: 10px;
+    font-size: 15px;
+    opacity: 0.8;
+}
+
+</style>
+</head>
+
+<body>
+
+<div id="game">
+
+    <div id="score">
+        Puntos: 0
+    </div>
+
+    <div id="player">
+        🐱
+    </div>
+
+
+    <!-- PANTALLA INICIAL -->
+
+    <div id="startScreen">
+
+        <h1>🐱 Gato Espacial</h1>
+
+        <p>
+            ¡Esquiva los meteoritos!
+        </p>
+
+        <p class="controls">
+            ← → o A / D para moverte
+        </p>
+
+        <button onclick="startGame()">
+            🚀 EMPEZAR
+        </button>
+
+    </div>
+
+
+    <!-- GAME OVER -->
+
+    <div id="gameOver">
+
+        <h1>💥 ¡HAS PERDIDO!</h1>
+
+        <p id="finalScore">
+            Puntos: 0
+        </p>
+
+        <button onclick="restartGame()">
+            🔄 JUGAR OTRA VEZ
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- MÚSICA -->
+
+<audio id="backgroundMusic" loop preload="auto">
+    <source src="musica.mp3" type="audio/mpeg">
+</audio>
+
+
+<script>
+
+/* =====================================
+   ELEMENTOS
+===================================== */
+
+const game =
+    document.getElementById("game");
+
+const player =
+    document.getElementById("player");
+
+const scoreText =
+    document.getElementById("score");
+
+const startScreen =
+    document.getElementById("startScreen");
+
+const gameOver =
+    document.getElementById("gameOver");
+
+const finalScore =
+    document.getElementById("finalScore");
+
+const music =
+    document.getElementById("backgroundMusic");
+
+
+/* =====================================
+   VARIABLES
+===================================== */
+
+let playerX = 172;
+
+let score = 0;
+
+let gameRunning = false;
+
+let meteors = [];
+
+let meteorSpeed = 3;
+
+let spawnTime = 800;
+
+let lastSpawn = 0;
+
+let lastTime = 0;
+
+let audioContext;
+
+
+/* =====================================
+   GENERAR ESTRELLAS
+===================================== */
+
+for (let i = 0; i < 35; i++) {
+
+    const star =
+        document.createElement("div");
+
+    star.className = "star";
+
+    star.style.left =
+        Math.random() * 100 + "%";
+
+    star.style.top =
+        Math.random() * 100 + "%";
+
+    star.style.opacity =
+        Math.random();
+
+    game.appendChild(star);
+}
+
+
+/* =====================================
+   SISTEMA DE SONIDO
+===================================== */
+
+function initAudio() {
+
+    if (!audioContext) {
+
+        audioContext =
+            new (
+                window.AudioContext ||
+                window.webkitAudioContext
+            )();
+
+    }
+
+}
+
+
+/* =====================================
+   SONIDO GENÉRICO
+===================================== */
+
+function playSound(
+    frequency,
+    duration,
+    type = "sine",
+    volume = 0.08
+) {
+
+    initAudio();
+
+    const oscillator =
+        audioContext.createOscillator();
+
+    const gain =
+        audioContext.createGain();
+
+
+    oscillator.type = type;
+
+    oscillator.frequency.value =
+        frequency;
+
+
+    gain.gain.setValueAtTime(
+        volume,
+        audioContext.currentTime
+    );
+
+
+    gain.gain.exponentialRampToValueAtTime(
+        0.001,
+        audioContext.currentTime + duration
+    );
+
+
+    oscillator.connect(gain);
+
+    gain.connect(
+        audioContext.destination
+    );
+
+
+    oscillator.start();
+
+    oscillator.stop(
+        audioContext.currentTime + duration
+    );
+}
+
+
+/* =====================================
+   SONIDO DE MOVIMIENTO
+===================================== */
+
+function moveSound() {
+
+    playSound(
+        500,
+        0.08,
+        "square",
+        0.04
+    );
+
+}
+
+
+/* =====================================
+   SONIDO AL PASAR METEORITO
+===================================== */
+
+function dodgeSound() {
+
+    playSound(
+        800,
+        0.12,
+        "sine",
+        0.035
+    );
+
+}
+
+
+/* =====================================
+   SONIDO DE DERROTA
+===================================== */
+
+function loseSound() {
+
+    initAudio();
+
+    playSound(
+        180,
+        0.4,
+        "sawtooth",
+        0.12
+    );
+
+    setTimeout(() => {
+
+        playSound(
+            100,
+            0.6,
+            "sawtooth",
+            0.10
+        );
+
+    }, 180);
+
+}
+
+
+/* =====================================
+   MOVIMIENTO DEL GATO
+===================================== */
+
+document.addEventListener(
+    "keydown",
+    function(event) {
+
+        if (!gameRunning) {
+            return;
+        }
+
+
+        if (
+            event.key === "ArrowLeft" ||
+            event.key.toLowerCase() === "a"
+        ) {
+
+            playerX -= 30;
+
+            moveSound();
+
+        }
+
+
+        if (
+            event.key === "ArrowRight" ||
+            event.key.toLowerCase() === "d"
+        ) {
+
+            playerX += 30;
+
+            moveSound();
+
+        }
+
+
+        /* LÍMITE IZQUIERDO */
+
+        if (playerX < 0) {
+
+            playerX = 0;
+
+        }
+
+
+        /* LÍMITE DERECHO */
+
+        if (
+            playerX >
+            game.clientWidth -
+            player.offsetWidth
+        ) {
+
+            playerX =
+                game.clientWidth -
+                player.offsetWidth;
+
+        }
+
+
+        player.style.left =
+            playerX + "px";
+
+    }
+);
+
+
+/* =====================================
+   CREAR METEORITO
+===================================== */
+
+function createMeteor() {
+
+    const meteor =
+        document.createElement("div");
+
+    meteor.className = "meteor";
+
+    meteor.textContent = "☄️";
+
+
+    const maxX =
+        game.clientWidth - 50;
+
+
+    const x =
+        Math.random() * maxX;
+
+
+    meteor.style.left =
+        x + "px";
+
+    meteor.style.top =
+        "-60px";
+
+
+    game.appendChild(meteor);
+
+
+    meteors.push({
+
+        element: meteor,
+
+        x: x,
+
+        y: -60,
+
+        counted: false
+
+    });
+
+}
+
+
+/* =====================================
+   COLISIÓN
+===================================== */
+
+function collision(
+    rect1,
+    rect2
+) {
+
+    return !(
+        rect1.right < rect2.left ||
+        rect1.left > rect2.right ||
+        rect1.bottom < rect2.top ||
+        rect1.top > rect2.bottom
+    );
+
+}
+
+
+/* =====================================
+   PERDER
+===================================== */
+
+function loseGame() {
+
+    if (!gameRunning) {
+        return;
+    }
+
+
+    gameRunning = false;
+
+
+    /* PARAR MÚSICA */
+
+    music.pause();
+
+    music.currentTime = 0;
+
+
+    /* SONIDO */
+
+    loseSound();
+
+
+    /* PUNTUACIÓN */
+
+    finalScore.textContent =
+        "Puntos: " + score;
+
+
+    gameOver.style.display =
+        "flex";
+
+}
+
+
+/* =====================================
+   EMPEZAR
+===================================== */
+
+function startGame() {
+
+    initAudio();
+
+
+    if (
+        audioContext.state ===
+        "suspended"
+    ) {
+
+        audioContext.resume();
+
+    }
+
+
+    /* MÚSICA */
+
+    music.currentTime = 0;
+
+    music.volume = 0.35;
+
+    music.play().catch(
+        function(error) {
+
+            console.log(
+                "No se pudo reproducir la música:",
+                error
+            );
+
+        }
+    );
+
+
+    startScreen.style.display =
+        "none";
+
+
+    gameOver.style.display =
+        "none";
+
+
+    score = 0;
+
+    scoreText.textContent =
+        "Puntos: 0";
+
+
+    playerX = 172;
+
+    player.style.left =
+        playerX + "px";
+
+
+    meteorSpeed = 3;
+
+    spawnTime = 800;
+
+
+    /* ELIMINAR METEORITOS */
+
+    meteors.forEach(
+        meteor => meteor.element.remove()
+    );
+
+    meteors = [];
+
+
+    gameRunning = true;
+
+
+    lastTime =
+        performance.now();
+
+    lastSpawn =
+        performance.now();
+
+
+    requestAnimationFrame(
+        gameLoop
+    );
+
+}
+
+
+/* =====================================
+   REINICIAR
+===================================== */
+
+function restartGame() {
+
+    startGame();
+
+}
+
+
+/* =====================================
+   BUCLE DEL JUEGO
+===================================== */
+
+function gameLoop(time) {
+
+    if (!gameRunning) {
+        return;
+    }
+
+
+    const delta =
+        time - lastTime;
+
+
+    lastTime = time;
+
+
+    /* CREAR METEORITOS */
+
+    if (
+        time - lastSpawn >
+        spawnTime
+    ) {
+
+        createMeteor();
+
+        lastSpawn = time;
+
+
+        /* MÁS DIFÍCIL */
+
+        if (spawnTime > 300) {
+
+            spawnTime -= 8;
+
+        }
+
+
+        if (meteorSpeed < 9) {
+
+            meteorSpeed += 0.035;
+
+        }
+
+    }
+
+
+    /* MOVER METEORITOS */
+
+    for (
+        let i = meteors.length - 1;
+        i >= 0;
+        i--
+    ) {
+
+        const meteor =
+            meteors[i];
+
+
+        meteor.y +=
+            meteorSpeed *
+            (delta / 16);
+
+
+        meteor.element.style.top =
+            meteor.y + "px";
+
+
+        /* COLISIÓN */
+
+        const playerRect =
+            player.getBoundingClientRect();
+
+
+        const meteorRect =
+            meteor.element.getBoundingClientRect();
+
+
+        if (
+            collision(
+                playerRect,
+                meteorRect
+            )
+        ) {
+
+            loseGame();
+
+            return;
+
+        }
+
+
+        /* METEORITO SUPERADO */
+
+        if (
+            !meteor.counted &&
+            meteor.y >
+            player.offsetTop +
+            player.offsetHeight
+        ) {
+
+            meteor.counted = true;
+
+            score++;
+
+            scoreText.textContent =
+                "Puntos: " + score;
+
+            dodgeSound();
+
+        }
+
+
+        /* ELIMINAR */
+
+        if (
+            meteor.y >
+            game.clientHeight + 60
+        ) {
+
+            meteor.element.remove();
+
+            meteors.splice(i, 1);
+
+        }
+
+    }
+
+
+    requestAnimationFrame(
+        gameLoop
+    );
+
+}
+
+</script>
+
+</body>
+</html>
