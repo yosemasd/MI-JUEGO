@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
 <title>Esquiva los bloques</title>
 
@@ -10,10 +10,18 @@
 
 * {
     box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    min-height: 100%;
 }
 
 body {
-    margin: 0;
     font-family: Arial, sans-serif;
     background: #111827;
     color: white;
@@ -23,33 +31,41 @@ body {
     align-items: center;
 
     min-height: 100vh;
+
+    overflow-x: hidden;
+    touch-action: manipulation;
 }
 
 .contenedor {
     text-align: center;
+    width: 100%;
+    max-width: 450px;
+    padding: 10px;
 }
 
 h1 {
-    margin-bottom: 10px;
+    margin: 5px 0 10px;
+    font-size: clamp(24px, 7vw, 32px);
 }
 
 #informacion {
-    width: 400px;
+    width: 100%;
+    max-width: 400px;
 
     display: flex;
     justify-content: space-between;
 
-    margin: 15px auto;
+    margin: 10px auto;
 
-    font-size: 20px;
+    font-size: clamp(16px, 5vw, 20px);
 }
 
 #juego {
-
     position: relative;
 
-    width: 400px;
-    height: 600px;
+    width: min(400px, calc(100vw - 20px));
+
+    aspect-ratio: 2 / 3;
 
     background:
         linear-gradient(#1e293b, #0f172a);
@@ -59,12 +75,11 @@ h1 {
     overflow: hidden;
 
     margin: auto;
+
+    touch-action: none;
 }
 
-/* JUGADOR */
-
 #jugador {
-
     position: absolute;
 
     width: 40px;
@@ -73,18 +88,17 @@ h1 {
     background: #22c55e;
 
     bottom: 20px;
-    left: 180px;
+    left: 0;
 
     border-radius: 8px;
 
     box-shadow:
         0 0 15px #22c55e;
+
+    transition: left 0.03s linear;
 }
 
-/* OBSTÁCULOS */
-
 .obstaculo {
-
     position: absolute;
 
     width: 40px;
@@ -100,10 +114,7 @@ h1 {
         0 0 15px #ef4444;
 }
 
-/* BOTÓN */
-
 button {
-
     background: #22c55e;
 
     color: white;
@@ -117,35 +128,100 @@ button {
     border-radius: 8px;
 
     cursor: pointer;
+
+    touch-action: manipulation;
+
+    user-select: none;
+    -webkit-user-select: none;
 }
 
 button:hover {
-
     background: #16a34a;
-
 }
 
-/* MENSAJE */
-
 #mensaje {
-
-    margin-top: 15px;
+    margin-top: 12px;
 
     font-size: 18px;
 
+    min-height: 25px;
 }
 
-/* CONTROLES */
-
-.controles {
-
-    margin-top: 15px;
+.controlesPC {
+    margin-top: 12px;
 
     color: #cbd5e1;
+
+    font-size: 15px;
+}
+
+.controlesMovil {
+    display: flex;
+
+    justify-content: center;
+
+    gap: 25px;
+
+    margin-top: 15px;
+}
+
+.botonMovimiento {
+    width: 90px;
+    height: 60px;
+
+    padding: 0;
+
+    font-size: 32px;
+
+    background: #334155;
+
+    border: 2px solid #64748b;
+
+    border-radius: 12px;
+
+    touch-action: none;
+
+    user-select: none;
+    -webkit-user-select: none;
+
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+}
+
+.botonMovimiento:active {
+    background: #475569;
+
+    transform: scale(0.95);
+}
+
+@media (min-width: 601px) {
+
+    .controlesMovil {
+        display: none;
+    }
+
+}
+
+@media (max-width: 600px) {
+
+    .controlesPC {
+        display: none;
+    }
+
+    .contenedor {
+        padding-top: 5px;
+        padding-bottom: 10px;
+    }
+
+    button {
+        font-size: 17px;
+    }
+
 }
 
 </style>
-
 </head>
 
 <body>
@@ -174,7 +250,7 @@ button:hover {
 
     </div>
 
-    <div class="controles">
+    <div class="controlesPC">
 
         ⬅️ A / Flecha izquierda
 
@@ -184,13 +260,29 @@ button:hover {
 
     </div>
 
+    <div class="controlesMovil">
+
+        <button
+            class="botonMovimiento"
+            id="izquierda">
+            ⬅️
+        </button>
+
+        <button
+            class="botonMovimiento"
+            id="derecha">
+            ➡️
+        </button>
+
+    </div>
+
     <br>
 
-    <button onclick="iniciarJuego()">
+    <button id="botonIniciar">
         ▶️ Iniciar juego
     </button>
 
-        <div id="mensaje"></div>
+    <div id="mensaje"></div>
 
 </div>
 
@@ -216,13 +308,22 @@ const recordTexto =
 const mensaje =
     document.getElementById("mensaje");
 
+const botonIniciar =
+    document.getElementById("botonIniciar");
 
-let jugadorX = 180;
+const botonIzquierda =
+    document.getElementById("izquierda");
+
+const botonDerecha =
+    document.getElementById("derecha");
+
+
+let jugadorX = 0;
 
 let puntos = 0;
 
 let record =
-    localStorage.getItem("record") || 0;
+    Number(localStorage.getItem("record")) || 0;
 
 let jugando = false;
 
@@ -230,9 +331,9 @@ let velocidad = 4;
 
 let obstaculos = [];
 
-let intervaloObstaculos;
+let intervaloObstaculos = null;
 
-let animacion;
+let animacion = null;
 
 
 /* ==================================
@@ -248,36 +349,53 @@ let intervaloMusica = null;
 let posicionNota = 0;
 
 
-/*
-    Melodía sencilla
-*/
-
 const notas = [
 
-    261.63, // DO
-
-    293.66, // RE
-
-    329.63, // MI
-
-    392.00, // SOL
-
-    329.63, // MI
-
-    293.66, // RE
-
-    261.63, // DO
-
-    196.00  // SOL
+    261.63,
+    293.66,
+    329.63,
+    392.00,
+    329.63,
+    293.66,
+    261.63,
+    196.00
 
 ];
 
 
+recordTexto.textContent = record;
+
+
 /* ==================================
-   MOSTRAR RÉCORD
+   POSICIÓN DEL JUGADOR
 ================================== */
 
-recordTexto.textContent = record;
+function colocarJugador() {
+
+    const anchoJuego =
+        juego.clientWidth;
+
+    const anchoJugador =
+        jugador.offsetWidth;
+
+    const maxX =
+        anchoJuego - anchoJugador;
+
+
+    if (jugadorX < 0) {
+        jugadorX = 0;
+    }
+
+
+    if (jugadorX > maxX) {
+        jugadorX = maxX;
+    }
+
+
+    jugador.style.left =
+        jugadorX + "px";
+
+}
 
 
 /* ==================================
@@ -286,21 +404,29 @@ recordTexto.textContent = record;
 
 function activarMusica() {
 
-    if (musicaActiva) {
+    if (!audioContext) {
 
-        musicaActiva = false;
+        audioContext =
+            new (
+                window.AudioContext ||
+                window.webkitAudioContext
+            )();
 
-        clearInterval(intervaloMusica);
-
-        return;
     }
 
 
-    audioContext =
-        new (
-            window.AudioContext ||
-            window.webkitAudioContext
-        )();
+    if (
+        audioContext.state === "suspended"
+    ) {
+
+        audioContext.resume();
+
+    }
+
+
+    if (musicaActiva) {
+        return;
+    }
 
 
     musicaActiva = true;
@@ -308,8 +434,34 @@ function activarMusica() {
     posicionNota = 0;
 
 
+    reproducirNota();
+
+
     intervaloMusica =
-        setInterval(reproducirNota, 400);
+        setInterval(
+            reproducirNota,
+            400
+        );
+
+}
+
+
+/* ==================================
+   DETENER MÚSICA
+================================== */
+
+function detenerMusica() {
+
+    musicaActiva = false;
+
+
+    clearInterval(
+        intervaloMusica
+    );
+
+
+    intervaloMusica = null;
+
 }
 
 
@@ -319,8 +471,14 @@ function activarMusica() {
 
 function reproducirNota() {
 
-    if (!musicaActiva)
+    if (
+        !musicaActiva ||
+        !audioContext
+    ) {
+
         return;
+
+    }
 
 
     const oscilador =
@@ -331,7 +489,8 @@ function reproducirNota() {
         audioContext.createGain();
 
 
-    oscilador.type = "square";
+    oscilador.type =
+        "square";
 
 
     oscilador.frequency.value =
@@ -353,7 +512,10 @@ function reproducirNota() {
     );
 
 
-    oscilador.connect(ganancia);
+    oscilador.connect(
+        ganancia
+    );
+
 
     ganancia.connect(
         audioContext.destination
@@ -364,9 +526,7 @@ function reproducirNota() {
 
 
     oscilador.stop(
-
         audioContext.currentTime + 0.35
-
     );
 
 
@@ -385,15 +545,134 @@ function reproducirNota() {
 
 
 /* ==================================
-   MOVIMIENTO DEL JUGADOR
+   SONIDO GAME OVER
+================================== */
+
+function sonidoGameOver() {
+
+    if (!audioContext) {
+        return;
+    }
+
+
+    if (
+        audioContext.state === "suspended"
+    ) {
+
+        audioContext.resume();
+
+    }
+
+
+    const ahora =
+        audioContext.currentTime;
+
+
+    const notasGameOver = [
+
+        220,
+        165,
+        110
+
+    ];
+
+
+    notasGameOver.forEach(
+
+        function(frecuencia, i) {
+
+            const oscilador =
+                audioContext.createOscillator();
+
+
+            const ganancia =
+                audioContext.createGain();
+
+
+            oscilador.type =
+                "sawtooth";
+
+
+            oscilador.frequency.value =
+                frecuencia;
+
+
+            const inicio =
+                ahora + (i * 0.18);
+
+
+            ganancia.gain.setValueAtTime(
+                0.08,
+                inicio
+            );
+
+
+            ganancia.gain.exponentialRampToValueAtTime(
+
+                0.001,
+
+                inicio + 0.17
+
+            );
+
+
+            oscilador.connect(
+                ganancia
+            );
+
+
+            ganancia.connect(
+                audioContext.destination
+            );
+
+
+            oscilador.start(
+                inicio
+            );
+
+
+            oscilador.stop(
+                inicio + 0.18
+            );
+
+        }
+
+    );
+
+}
+
+
+/* ==================================
+   MOVER JUGADOR
+================================== */
+
+function moverJugador(direccion) {
+
+    if (!jugando) {
+        return;
+    }
+
+
+    jugadorX +=
+        direccion * 20;
+
+
+    colocarJugador();
+
+}
+
+
+/* ==================================
+   TECLADO PC
 ================================== */
 
 document.addEventListener(
     "keydown",
     function(event) {
 
-        if (!jugando)
+        if (!jugando) {
             return;
+        }
 
 
         if (
@@ -401,7 +680,9 @@ document.addEventListener(
             event.key.toLowerCase() === "a"
         ) {
 
-            jugadorX -= 25;
+            event.preventDefault();
+
+            moverJugador(-1);
 
         }
 
@@ -411,33 +692,157 @@ document.addEventListener(
             event.key.toLowerCase() === "d"
         ) {
 
-            jugadorX += 25;
+            event.preventDefault();
+
+            moverJugador(1);
 
         }
-
-
-        /*
-            Evitar salir del juego
-        */
-
-        if (jugadorX < 0) {
-
-            jugadorX = 0;
-
-        }
-
-
-        if (jugadorX > 360) {
-
-            jugadorX = 360;
-
-        }
-
-
-        jugador.style.left =
-            jugadorX + "px";
 
     }
+);
+
+
+/* ==================================
+   CONTROLES TÁCTILES
+================================== */
+
+let intervaloMovimiento = null;
+
+
+function comenzarMovimiento(direccion) {
+
+    if (!jugando) {
+        return;
+    }
+
+
+    moverJugador(direccion);
+
+
+    clearInterval(
+        intervaloMovimiento
+    );
+
+
+    intervaloMovimiento =
+        setInterval(
+            function() {
+
+                moverJugador(
+                    direccion
+                );
+
+            },
+            80
+        );
+
+}
+
+
+function detenerMovimiento() {
+
+    clearInterval(
+        intervaloMovimiento
+    );
+
+    intervaloMovimiento = null;
+
+}
+
+
+/* IZQUIERDA */
+
+botonIzquierda.addEventListener(
+    "touchstart",
+    function(event) {
+
+        event.preventDefault();
+
+        comenzarMovimiento(-1);
+
+    },
+    { passive: false }
+);
+
+
+botonIzquierda.addEventListener(
+    "touchend",
+    function(event) {
+
+        event.preventDefault();
+
+        detenerMovimiento();
+
+    },
+    { passive: false }
+);
+
+
+botonIzquierda.addEventListener(
+    "touchcancel",
+    detenerMovimiento
+);
+
+
+/* DERECHA */
+
+botonDerecha.addEventListener(
+    "touchstart",
+    function(event) {
+
+        event.preventDefault();
+
+        comenzarMovimiento(1);
+
+    },
+    { passive: false }
+);
+
+
+botonDerecha.addEventListener(
+    "touchend",
+    function(event) {
+
+        event.preventDefault();
+
+        detenerMovimiento();
+
+    },
+    { passive: false }
+);
+
+
+botonDerecha.addEventListener(
+    "touchcancel",
+    detenerMovimiento
+);
+
+
+/* RATÓN */
+
+botonIzquierda.addEventListener(
+    "mousedown",
+    function() {
+
+        comenzarMovimiento(-1);
+
+    }
+);
+
+
+botonDerecha.addEventListener(
+    "mousedown",
+    function() {
+
+        comenzarMovimiento(1);
+
+    }
+);
+
+
+document.addEventListener(
+    "mouseup",
+    detenerMovimiento
 );
 
 
@@ -447,20 +852,8 @@ document.addEventListener(
 
 function iniciarJuego() {
 
-    /*
-        Iniciar música automáticamente
-    */
+    activarMusica();
 
-    if (!musicaActiva) {
-
-        activarMusica();
-
-    }
-
-
-    /*
-        Limpiar obstáculos
-    */
 
     obstaculos.forEach(
         o => o.element.remove()
@@ -470,23 +863,21 @@ function iniciarJuego() {
     obstaculos = [];
 
 
-    /*
-        Reiniciar variables
-    */
-
     puntos = 0;
 
     velocidad = 4;
 
-    jugadorX = 180;
+
+    jugadorX =
+        (juego.clientWidth -
+         jugador.offsetWidth) / 2;
 
 
     puntosTexto.textContent =
         puntos;
 
 
-    jugador.style.left =
-        jugadorX + "px";
+    colocarJugador();
 
 
     jugando = true;
@@ -505,10 +896,6 @@ function iniciarJuego() {
     );
 
 
-    /*
-        Crear obstáculos
-    */
-
     intervaloObstaculos =
         setInterval(
             crearObstaculo,
@@ -517,7 +904,18 @@ function iniciarJuego() {
 
 
     moverObstaculos();
+
 }
+
+
+/* ==================================
+   BOTÓN INICIAR
+================================== */
+
+botonIniciar.addEventListener(
+    "click",
+    iniciarJuego
+);
 
 
 /* ==================================
@@ -526,8 +924,9 @@ function iniciarJuego() {
 
 function crearObstaculo() {
 
-    if (!jugando)
+    if (!jugando) {
         return;
+    }
 
 
     const obstaculo =
@@ -539,13 +938,14 @@ function crearObstaculo() {
     );
 
 
-    /*
-        Posición aleatoria
-    */
+    const maxX =
+        juego.clientWidth - 40;
+
 
     const x =
         Math.floor(
-            Math.random() * 360
+            Math.random() *
+            (maxX + 1)
         );
 
 
@@ -564,13 +964,17 @@ function crearObstaculo() {
 
     obstaculos.push({
 
-        element: obstaculo,
+        element:
+            obstaculo,
 
-        y: -40,
+        y:
+            -40,
 
-        x: x,
+        x:
+            x,
 
-        contado: false
+        contado:
+            false
 
     });
 
@@ -583,13 +987,17 @@ function crearObstaculo() {
 
 function moverObstaculos() {
 
-    if (!jugando)
+    if (!jugando) {
         return;
+    }
 
 
     for (
-        let i = obstaculos.length - 1;
+        let i =
+            obstaculos.length - 1;
+
         i >= 0;
+
         i--
     ) {
 
@@ -597,20 +1005,15 @@ function moverObstaculos() {
             obstaculos[i];
 
 
-        /*
-            Mover hacia abajo
-        */
-
-        obstaculo.y += velocidad;
+        obstaculo.y +=
+            velocidad;
 
 
         obstaculo.element.style.top =
             obstaculo.y + "px";
 
 
-        /*
-            Comprobar colisión
-        */
+        /* COLISIÓN */
 
         if (
             colisiona(
@@ -626,13 +1029,16 @@ function moverObstaculos() {
         }
 
 
-        /*
-            Conseguir punto
-        */
+        /* PUNTOS */
+
+        const alturaJuego =
+            juego.clientHeight;
+
 
         if (
             !obstaculo.contado &&
-            obstaculo.y > 560
+            obstaculo.y >
+            alturaJuego - 40
         ) {
 
             obstaculo.contado = true;
@@ -645,10 +1051,6 @@ function moverObstaculos() {
                 puntos;
 
 
-            /*
-                Aumentar dificultad
-            */
-
             if (
                 puntos % 5 === 0
             ) {
@@ -660,12 +1062,11 @@ function moverObstaculos() {
         }
 
 
-        /*
-            Eliminar obstáculos
-        */
+        /* ELIMINAR */
 
         if (
-            obstaculo.y > 620
+            obstaculo.y >
+            alturaJuego + 40
         ) {
 
             obstaculo.element.remove();
@@ -685,6 +1086,7 @@ function moverObstaculos() {
         requestAnimationFrame(
             moverObstaculos
         );
+
 }
 
 
@@ -697,19 +1099,18 @@ function colisiona(a, b) {
     const rectA =
         a.getBoundingClientRect();
 
+
     const rectB =
         b.getBoundingClientRect();
 
 
     return !(
         rectA.right < rectB.left ||
-
         rectA.left > rectB.right ||
-
         rectA.bottom < rectB.top ||
-
         rectA.top > rectB.bottom
     );
+
 }
 
 
@@ -720,6 +1121,9 @@ function colisiona(a, b) {
 function terminarJuego() {
 
     jugando = false;
+
+
+    detenerMovimiento();
 
 
     clearInterval(
@@ -733,7 +1137,21 @@ function terminarJuego() {
 
 
     /*
-        Nuevo récord
+       ⏹️ PARAR MÚSICA
+    */
+
+    detenerMusica();
+
+
+    /*
+       💥 SONIDO DE PARTIDA PERDIDA
+    */
+
+    sonidoGameOver();
+
+
+    /*
+       🏆 RÉCORD
     */
 
     if (puntos > record) {
@@ -767,6 +1185,31 @@ function terminarJuego() {
     }
 
 }
+
+
+/* ==================================
+   CAMBIO DE TAMAÑO
+================================== */
+
+window.addEventListener(
+    "resize",
+    function() {
+
+        colocarJugador();
+
+    }
+);
+
+
+/* ==================================
+   POSICIÓN INICIAL
+================================== */
+
+jugadorX =
+    (juego.clientWidth -
+     jugador.offsetWidth) / 2;
+
+colocarJugador();
 
 </script>
 
