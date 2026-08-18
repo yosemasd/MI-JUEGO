@@ -3,27 +3,32 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
 <title>Pelota Caótica</title>
 
 <style>
 * {
     box-sizing: border-box;
-    touch-action: none;
     user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
 }
 
-body {
+html, body {
     margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
     overflow: hidden;
-    background: #111827;
     font-family: Arial, sans-serif;
+    background: #111827;
 }
 
 canvas {
-    display: block;
-    width: 100vw;
-    height: 100vh;
-    background: linear-gradient(#38bdf8, #dbeafe);
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
 }
 
 #ui {
@@ -34,23 +39,39 @@ canvas {
     display: flex;
     justify-content: space-between;
     color: white;
-    font-weight: bold;
     font-size: 20px;
-    text-shadow: 2px 2px 3px #000;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px #000;
+    z-index: 5;
     pointer-events: none;
 }
 
-#menu,
-#gameOver {
+#pause {
+    position: fixed;
+    top: 55px;
+    right: 15px;
+    z-index: 10;
+    border: 0;
+    border-radius: 12px;
+    padding: 10px 14px;
+    background: rgba(0,0,0,.45);
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.screen {
     position: fixed;
     inset: 0;
+    z-index: 20;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background: rgba(0,0,0,.65);
-    color: white;
     text-align: center;
+    color: white;
+    background: rgba(0,0,0,.72);
+    padding: 20px;
 }
 
 #gameOver {
@@ -58,62 +79,70 @@ canvas {
 }
 
 h1 {
-    font-size: 48px;
-    margin: 10px;
+    margin: 10px 0;
+    font-size: clamp(38px, 8vw, 70px);
 }
 
-p {
-    font-size: 20px;
+.screen p {
+    font-size: 18px;
+    line-height: 1.5;
 }
 
-button {
+.mainButton {
     border: 0;
-    border-radius: 15px;
-    padding: 16px 35px;
-    font-size: 22px;
-    font-weight: bold;
+    border-radius: 16px;
+    padding: 16px 40px;
+    margin-top: 20px;
     background: #22c55e;
     color: white;
-    box-shadow: 0 5px 0 #15803d;
+    font-size: 24px;
+    font-weight: bold;
+    box-shadow: 0 6px 0 #15803d;
     cursor: pointer;
 }
 
-button:active {
-    transform: translateY(4px);
+.mainButton:active {
+    transform: translateY(5px);
     box-shadow: 0 1px 0 #15803d;
 }
 
 #controls {
     position: fixed;
-    bottom: 25px;
+    z-index: 10;
     left: 0;
     right: 0;
+    bottom: 25px;
     display: flex;
     justify-content: space-between;
     padding: 0 25px;
+    pointer-events: none;
 }
 
 .control {
-    width: 90px;
-    height: 90px;
+    width: 85px;
+    height: 85px;
     border-radius: 50%;
-    background: rgba(0,0,0,.35);
-    color: white;
     display: flex;
-    justify-content: center;
     align-items: center;
-    font-size: 40px;
-    border: 2px solid rgba(255,255,255,.5);
+    justify-content: center;
+    background: rgba(0,0,0,.35);
+    border: 2px solid rgba(255,255,255,.6);
+    color: white;
+    font-size: 38px;
+    pointer-events: auto;
 }
 
-#pause {
+#pauseText {
+    display: none;
     position: fixed;
-    top: 65px;
-    right: 15px;
-    padding: 8px 15px;
-    font-size: 16px;
-    background: rgba(0,0,0,.4);
-    box-shadow: none;
+    z-index: 15;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%,-50%);
+    color: white;
+    font-size: 50px;
+    font-weight: bold;
+    text-shadow: 3px 3px 5px #000;
 }
 </style>
 </head>
@@ -123,191 +152,610 @@ button:active {
 <canvas id="game"></canvas>
 
 <div id="ui">
-    <div>⭐ Puntos: <span id="score">0</span></div>
-    <div>🏆 Récord: <span id="best">0</span></div>
+    <div>⭐ <span id="score">0</span></div>
+    <div>🏆 <span id="best">0</span></div>
 </div>
 
 <button id="pause">⏸️</button>
 
-<div id="menu">
+<div id="pauseText">PAUSA</div>
+
+<div id="menu" class="screen">
+
     <h1>⚽ PELOTA CAÓTICA</h1>
-    <p>Esquiva los obstáculos y recoge monedas.</p>
-    <p>PC: usa ← → o A/D</p>
-    <p>Móvil: usa los botones de abajo.</p>
-    <button id="start">JUGAR</button>
+
+    <p>
+        Esquiva los bloques y recoge las monedas.
+        <br>
+        Cada vez será más difícil.
+    </p>
+
+    <p>
+        💻 PC: ← → o A / D
+        <br>
+        📱 Móvil: botones de la pantalla
+    </p>
+
+    <button id="start" class="mainButton">
+        ▶ JUGAR
+    </button>
+
 </div>
 
-<div id="gameOver">
+<div id="gameOver" class="screen">
+
     <h1>💥 GAME OVER</h1>
-    <p>Puntuación: <span id="finalScore">0</span></p>
-    <p>Récord: <span id="finalBest">0</span></p>
-    <button id="restart">VOLVER A JUGAR</button>
+
+    <p>
+        Puntuación:
+        <strong id="finalScore">0</strong>
+    </p>
+
+    <p>
+        Récord:
+        <strong id="finalBest">0</strong>
+    </p>
+
+    <button id="restart" class="mainButton">
+        🔄 VOLVER A JUGAR
+    </button>
+
 </div>
 
 <div id="controls">
+
     <div class="control" id="left">⬅️</div>
+
     <div class="control" id="right">➡️</div>
+
 </div>
 
 <script>
-const canvas = document.getElementById("game");
-const ctx = canvas.getContext("2d");
 
-const scoreText = document.getElementById("score");
-const bestText = document.getElementById("best");
+/* =========================================================
+   DETECTAR PC O MÓVIL
+========================================================= */
 
-let W, H;
+const esMovil =
+    /Android|iPhone|iPad|iPod|Windows Phone/i.test(
+        navigator.userAgent
+    );
 
-function resize() {
-    W = canvas.width = window.innerWidth;
-    H = canvas.height = window.innerHeight;
+if (!esMovil) {
+    document.getElementById("controls").style.display = "none";
 }
 
+
+/* =========================================================
+   CANVAS
+========================================================= */
+
+const canvas =
+    document.getElementById("game");
+
+const ctx =
+    canvas.getContext("2d");
+
+let W = 0;
+let H = 0;
+
+function resize() {
+
+    const dpr =
+        Math.min(
+            window.devicePixelRatio || 1,
+            2
+        );
+
+    W = window.innerWidth;
+    H = window.innerHeight;
+
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+
+    canvas.style.width = W + "px";
+    canvas.style.height = H + "px";
+
+    ctx.setTransform(
+        dpr,
+        0,
+        0,
+        dpr,
+        0,
+        0
+    );
+}
+
+window.addEventListener(
+    "resize",
+    resize
+);
+
 resize();
-window.addEventListener("resize", resize);
+
+
+/* =========================================================
+   INTERFAZ
+========================================================= */
+
+const menu =
+    document.getElementById("menu");
+
+const gameOverScreen =
+    document.getElementById("gameOver");
+
+const scoreElement =
+    document.getElementById("score");
+
+const bestElement =
+    document.getElementById("best");
+
+const finalScore =
+    document.getElementById("finalScore");
+
+const finalBest =
+    document.getElementById("finalBest");
+
+const pauseButton =
+    document.getElementById("pause");
+
+const pauseText =
+    document.getElementById("pauseText");
+
+let best =
+    Number(
+        localStorage.getItem(
+            "pelotaCaoticaBest"
+        )
+    ) || 0;
+
+bestElement.textContent = best;
+
+
+/* =========================================================
+   AUDIO
+========================================================= */
+
+let audioContext = null;
+
+let musicPlaying = false;
+let musicTimer = null;
+let musicStep = 0;
+
+function initAudio() {
+
+    if (!audioContext) {
+
+        audioContext =
+            new (
+                window.AudioContext ||
+                window.webkitAudioContext
+            )();
+    }
+
+    if (
+        audioContext.state ===
+        "suspended"
+    ) {
+
+        audioContext.resume();
+    }
+}
+
+
+/* =========================================================
+   MÚSICA
+========================================================= */
+
+const melody = [
+
+    261.63,
+    329.63,
+    392.00,
+    329.63,
+
+    293.66,
+    349.23,
+    440.00,
+    349.23
+
+];
+
+
+function musicNote() {
+
+    if (!musicPlaying) return;
+
+    const oscillator =
+        audioContext.createOscillator();
+
+    const gain =
+        audioContext.createGain();
+
+    oscillator.type = "square";
+
+    oscillator.frequency.value =
+        melody[
+            musicStep %
+            melody.length
+        ];
+
+    gain.gain.setValueAtTime(
+        0.025,
+        audioContext.currentTime
+    );
+
+    gain.gain.exponentialRampToValueAtTime(
+        0.001,
+        audioContext.currentTime + 0.22
+    );
+
+    oscillator.connect(gain);
+
+    gain.connect(
+        audioContext.destination
+    );
+
+    oscillator.start();
+
+    oscillator.stop(
+        audioContext.currentTime + 0.23
+    );
+
+    musicStep++;
+
+    musicTimer =
+        setTimeout(
+            musicNote,
+            260
+        );
+}
+
+
+function startMusic() {
+
+    initAudio();
+
+    if (musicPlaying) return;
+
+    musicPlaying = true;
+
+    musicStep = 0;
+
+    musicNote();
+}
+
+
+function stopMusic() {
+
+    musicPlaying = false;
+
+    if (musicTimer) {
+
+        clearTimeout(
+            musicTimer
+        );
+
+        musicTimer = null;
+    }
+}
+
+
+function sound(
+    frequency,
+    duration,
+    type = "sine",
+    volume = .08
+) {
+
+    initAudio();
+
+    const oscillator =
+        audioContext.createOscillator();
+
+    const gain =
+        audioContext.createGain();
+
+    oscillator.type = type;
+
+    oscillator.frequency.value =
+        frequency;
+
+    gain.gain.setValueAtTime(
+        volume,
+        audioContext.currentTime
+    );
+
+    gain.gain.exponentialRampToValueAtTime(
+        0.001,
+        audioContext.currentTime +
+        duration
+    );
+
+    oscillator.connect(gain);
+
+    gain.connect(
+        audioContext.destination
+    );
+
+    oscillator.start();
+
+    oscillator.stop(
+        audioContext.currentTime +
+        duration
+    );
+}
+
+
+function coinSound() {
+
+    sound(
+        880,
+        .08,
+        "sine",
+        .07
+    );
+
+    setTimeout(
+        () => {
+
+            sound(
+                1320,
+                .1,
+                "sine",
+                .07
+            );
+
+        },
+        70
+    );
+}
+
+
+function powerSound() {
+
+    sound(
+        500,
+        .1,
+        "sine",
+        .07
+    );
+
+    setTimeout(
+        () => {
+
+            sound(
+                800,
+                .1,
+                "sine",
+                .07
+            );
+
+        },
+        100
+    );
+}
+
+
+function hitSound() {
+
+    sound(
+        90,
+        .3,
+        "sawtooth",
+        .12
+    );
+
+    setTimeout(
+        () => {
+
+            sound(
+                50,
+                .2,
+                "sawtooth",
+                .08
+            );
+
+        },
+        100
+    );
+}
+
+
+/* =========================================================
+   VARIABLES DEL JUEGO
+========================================================= */
 
 let player;
+
 let obstacles = [];
 let coins = [];
 let powerups = [];
 
 let score = 0;
-let best = Number(localStorage.getItem("pelotaBest")) || 0;
-let speed = 4;
+
 let gameRunning = false;
 let paused = false;
 
 let leftPressed = false;
 let rightPressed = false;
 
+let speed = 4;
+
+let frame = 0;
+
 let shield = false;
 let magnet = false;
 
-bestText.textContent = best;
 
-/* =========================
-   SONIDOS
-========================= */
-
-let audioCtx = null;
-
-function audioStart() {
-    if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    }
-}
-
-function sound(freq, duration, type = "sine") {
-    if (!audioCtx) return;
-
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-
-    osc.type = type;
-    osc.frequency.value = freq;
-
-    gain.gain.setValueAtTime(.08, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(.001, audioCtx.currentTime + duration);
-
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-
-    osc.start();
-    osc.stop(audioCtx.currentTime + duration);
-}
-
-function coinSound() {
-    sound(900, .08);
-    setTimeout(() => sound(1300, .1), 70);
-}
-
-function hitSound() {
-    sound(120, .25, "sawtooth");
-}
-
-function powerSound() {
-    sound(500, .1);
-    setTimeout(() => sound(800, .1), 100);
-}
-
-/* =========================
-   JUGADOR
-========================= */
+/* =========================================================
+   CREAR JUGADOR
+========================================================= */
 
 function createPlayer() {
+
     player = {
+
         x: W / 2,
+
         y: H - 130,
-        r: 25,
+
+        radius: 25,
+
         vx: 0,
-        speed: 0.8,
+
+        acceleration: .65,
+
         maxSpeed: 8
     };
 }
 
-/* =========================
-   OBJETOS
-========================= */
+
+/* =========================================================
+   CREAR OBSTÁCULOS
+========================================================= */
 
 function createObstacle() {
-    const size = 30 + Math.random() * 40;
+
+    const size =
+        30 + Math.random() * 45;
 
     obstacles.push({
-        x: Math.random() * (W - size),
-        y: -size,
-        w: size,
-        h: size,
-        speed: speed + Math.random() * 2,
-        rotation: Math.random() * Math.PI
+
+        x:
+            Math.random() *
+            (W - size),
+
+        y:
+            -size - 20,
+
+        width: size,
+
+        height: size,
+
+        speed:
+            speed +
+            Math.random() * 2,
+
+        rotation:
+            Math.random() *
+            Math.PI
     });
 }
+
+
+/* =========================================================
+   CREAR MONEDAS
+========================================================= */
 
 function createCoin() {
+
     coins.push({
-        x: 30 + Math.random() * (W - 60),
+
+        x:
+            25 +
+            Math.random() *
+            (W - 50),
+
         y: -30,
-        r: 12,
+
+        radius: 12,
+
         speed: speed
     });
 }
+
+
+/* =========================================================
+   CREAR POWERUP
+========================================================= */
 
 function createPowerup() {
-    const types = ["shield", "magnet"];
 
     powerups.push({
-        x: 30 + Math.random() * (W - 60),
+
+        x:
+            30 +
+            Math.random() *
+            (W - 60),
+
         y: -30,
-        r: 15,
-        type: types[Math.floor(Math.random() * types.length)],
-        speed: speed
+
+        radius: 16,
+
+        speed: speed,
+
+        type:
+            Math.random() < .5
+            ? "shield"
+            : "magnet"
     });
 }
 
-/* =========================
+
+/* =========================================================
    COLISIONES
-========================= */
+========================================================= */
 
-function circleRectCollision(circle, rect) {
+function circleRectCollision(
+    circle,
+    rect
+) {
 
-    const closestX = Math.max(rect.x, Math.min(circle.x, rect.x + rect.w));
-    const closestY = Math.max(rect.y, Math.min(circle.y, rect.y + rect.h));
+    const closestX =
+        Math.max(
+            rect.x,
+            Math.min(
+                circle.x,
+                rect.x +
+                rect.width
+            )
+        );
 
-    const dx = circle.x - closestX;
-    const dy = circle.y - closestY;
+    const closestY =
+        Math.max(
+            rect.y,
+            Math.min(
+                circle.y,
+                rect.y +
+                rect.height
+            )
+        );
 
-    return dx * dx + dy * dy < circle.r * circle.r;
+    const dx =
+        circle.x -
+        closestX;
+
+    const dy =
+        circle.y -
+        closestY;
+
+    return (
+        dx * dx +
+        dy * dy
+    ) <
+    circle.radius *
+    circle.radius;
 }
 
-/* =========================
-   INICIAR
-========================= */
+
+/* =========================================================
+   INICIAR PARTIDA
+========================================================= */
 
 function startGame() {
 
-    audioStart();
+    initAudio();
+
+    stopMusic();
+
+    startMusic();
 
     score = 0;
+
     speed = 4;
+
+    frame = 0;
 
     obstacles = [];
     coins = [];
@@ -316,440 +764,1029 @@ function startGame() {
     shield = false;
     magnet = false;
 
+    paused = false;
+
     createPlayer();
 
     gameRunning = true;
-    paused = false;
 
-    document.getElementById("menu").style.display = "none";
-    document.getElementById("gameOver").style.display = "none";
+    menu.style.display = "none";
 
-    scoreText.textContent = "0";
+    gameOverScreen.style.display =
+        "none";
+
+    pauseText.style.display =
+        "none";
+
+    pauseButton.textContent =
+        "⏸️";
+
+    scoreElement.textContent =
+        "0";
 }
 
-/* =========================
-   GAME OVER
-========================= */
 
-function gameOver() {
+/* =========================================================
+   GAME OVER
+========================================================= */
+
+function endGame() {
+
+    if (!gameRunning) return;
 
     gameRunning = false;
+
+    stopMusic();
 
     hitSound();
 
     if (score > best) {
+
         best = score;
-        localStorage.setItem("pelotaBest", best);
+
+        localStorage.setItem(
+            "pelotaCaoticaBest",
+            best
+        );
     }
 
-    document.getElementById("finalScore").textContent = score;
-    document.getElementById("finalBest").textContent = best;
+    bestElement.textContent =
+        best;
 
-    bestText.textContent = best;
+    finalScore.textContent =
+        score;
 
-    document.getElementById("gameOver").style.display = "flex";
+    finalBest.textContent =
+        best;
+
+    gameOverScreen.style.display =
+        "flex";
 }
 
-/* =========================
-   ACTUALIZAR
-========================= */
 
-let frame = 0;
+/* =========================================================
+   ACTUALIZAR JUEGO
+========================================================= */
 
 function update() {
 
-    if (!gameRunning || paused) return;
+    if (
+        !gameRunning ||
+        paused
+    ) {
+        return;
+    }
 
     frame++;
+
 
     /* Movimiento */
 
     if (leftPressed) {
-        player.vx -= player.speed;
+
+        player.vx -=
+            player.acceleration;
     }
 
     if (rightPressed) {
-        player.vx += player.speed;
+
+        player.vx +=
+            player.acceleration;
     }
 
-    if (!leftPressed && !rightPressed) {
-        player.vx *= .85;
+    if (
+        !leftPressed &&
+        !rightPressed
+    ) {
+
+        player.vx *= .86;
     }
 
-    player.vx = Math.max(
-        -player.maxSpeed,
-        Math.min(player.maxSpeed, player.vx)
-    );
+    player.vx =
+        Math.max(
+            -player.maxSpeed,
+            Math.min(
+                player.maxSpeed,
+                player.vx
+            )
+        );
 
-    player.x += player.vx;
+    player.x +=
+        player.vx;
 
-    if (player.x < player.r) {
-        player.x = player.r;
-        player.vx *= -.5;
+
+    /* Bordes */
+
+    if (
+        player.x <
+        player.radius
+    ) {
+
+        player.x =
+            player.radius;
+
+        player.vx = 0;
     }
 
-    if (player.x > W - player.r) {
-        player.x = W - player.r;
-        player.vx *= -.5;
+    if (
+        player.x >
+        W -
+        player.radius
+    ) {
+
+        player.x =
+            W -
+            player.radius;
+
+        player.vx = 0;
     }
+
 
     /* Dificultad */
 
-    if (frame % 600 === 0) {
-        speed += .5;
+    if (
+        frame % 600 === 0
+    ) {
+
+        speed += .45;
     }
 
-    /* Generar objetos */
-
-    if (frame % Math.max(25, Math.floor(70 - speed * 5)) === 0) {
-        createObstacle();
-    }
-
-    if (frame % 90 === 0) {
-        createCoin();
-    }
-
-    if (frame % 600 === 0) {
-        createPowerup();
-    }
 
     /* Obstáculos */
 
-    for (let i = obstacles.length - 1; i >= 0; i--) {
+    const obstacleInterval =
+        Math.max(
+            24,
+            Math.floor(
+                65 -
+                speed * 4
+            )
+        );
 
-        const o = obstacles[i];
+    if (
+        frame %
+        obstacleInterval === 0
+    ) {
 
-        o.y += o.speed;
-
-        o.rotation += .03;
-
-        if (circleRectCollision(player, o)) {
-
-            if (shield) {
-                shield = false;
-                obstacles.splice(i, 1);
-                sound(250, .15);
-                continue;
-            }
-
-            gameOver();
-            return;
-        }
-
-        if (o.y > H + 100) {
-            obstacles.splice(i, 1);
-            score++;
-        }
+        createObstacle();
     }
+
 
     /* Monedas */
 
-    for (let i = coins.length - 1; i >= 0; i--) {
+    if (
+        frame % 80 === 0
+    ) {
 
-        const c = coins[i];
+        createCoin();
+    }
 
-        c.y += c.speed;
+
+    /* Powerups */
+
+    if (
+        frame % 650 === 0
+    ) {
+
+        createPowerup();
+    }
+
+
+    /* =====================================================
+       OBSTÁCULOS
+    ===================================================== */
+
+    for (
+        let i =
+            obstacles.length - 1;
+        i >= 0;
+        i--
+    ) {
+
+        const obstacle =
+            obstacles[i];
+
+        obstacle.y +=
+            obstacle.speed;
+
+        obstacle.rotation +=
+            .035;
+
+
+        if (
+            circleRectCollision(
+                player,
+                obstacle
+            )
+        ) {
+
+            if (shield) {
+
+                shield = false;
+
+                obstacles.splice(
+                    i,
+                    1
+                );
+
+                sound(
+                    250,
+                    .15,
+                    "triangle",
+                    .08
+                );
+
+                continue;
+            }
+
+            endGame();
+
+            return;
+        }
+
+
+        if (
+            obstacle.y >
+            H + 100
+        ) {
+
+            obstacles.splice(
+                i,
+                1
+            );
+
+            score++;
+
+            scoreElement.textContent =
+                score;
+        }
+    }
+
+
+    /* =====================================================
+       MONEDAS
+    ===================================================== */
+
+    for (
+        let i =
+            coins.length - 1;
+        i >= 0;
+        i--
+    ) {
+
+        const coin =
+            coins[i];
+
+        coin.y +=
+            coin.speed;
+
 
         if (magnet) {
 
-            const dx = player.x - c.x;
-            const dy = player.y - c.y;
-            const distance = Math.sqrt(dx * dx + dy * dy);
+            const dx =
+                player.x -
+                coin.x;
 
-            if (distance < 180) {
-                c.x += dx * .08;
-                c.y += dy * .08;
+            const dy =
+                player.y -
+                coin.y;
+
+            const distance =
+                Math.sqrt(
+                    dx * dx +
+                    dy * dy
+                );
+
+            if (
+                distance <
+                220
+            ) {
+
+                coin.x +=
+                    dx * .09;
+
+                coin.y +=
+                    dy * .09;
             }
         }
 
-        const dx = player.x - c.x;
-        const dy = player.y - c.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
 
-        if (distance < player.r + c.r) {
+        const dx =
+            player.x -
+            coin.x;
+
+        const dy =
+            player.y -
+            coin.y;
+
+        const distance =
+            Math.sqrt(
+                dx * dx +
+                dy * dy
+            );
+
+
+        if (
+            distance <
+            player.radius +
+            coin.radius
+        ) {
 
             score += 10;
-            coins.splice(i, 1);
+
+            coins.splice(
+                i,
+                1
+            );
 
             coinSound();
+
+            scoreElement.textContent =
+                score;
 
             continue;
         }
 
-        if (c.y > H + 50) {
-            coins.splice(i, 1);
+
+        if (
+            coin.y >
+            H + 50
+        ) {
+
+            coins.splice(
+                i,
+                1
+            );
         }
     }
 
-    /* Powerups */
 
-    for (let i = powerups.length - 1; i >= 0; i--) {
+    /* =====================================================
+       POWERUPS
+    ===================================================== */
 
-        const p = powerups[i];
+    for (
+        let i =
+            powerups.length - 1;
+        i >= 0;
+        i--
+    ) {
 
-        p.y += p.speed;
+        const powerup =
+            powerups[i];
 
-        const dx = player.x - p.x;
-        const dy = player.y - p.y;
+        powerup.y +=
+            powerup.speed;
 
-        if (Math.sqrt(dx * dx + dy * dy) < player.r + p.r) {
 
-            if (p.type === "shield") {
+        const dx =
+            player.x -
+            powerup.x;
+
+        const dy =
+            player.y -
+            powerup.y;
+
+        const distance =
+            Math.sqrt(
+                dx * dx +
+                dy * dy
+            );
+
+
+        if (
+            distance <
+            player.radius +
+            powerup.radius
+        ) {
+
+            if (
+                powerup.type ===
+                "shield"
+            ) {
+
                 shield = true;
             }
 
-            if (p.type === "magnet") {
+
+            if (
+                powerup.type ===
+                "magnet"
+            ) {
+
                 magnet = true;
 
-                setTimeout(() => {
-                    magnet = false;
-                }, 7000);
+                setTimeout(
+                    () => {
+                        magnet = false;
+                    },
+                    7000
+                );
             }
 
             powerSound();
 
-            powerups.splice(i, 1);
+            powerups.splice(
+                i,
+                1
+            );
 
             continue;
         }
 
-        if (p.y > H + 50) {
-            powerups.splice(i, 1);
+
+        if (
+            powerup.y >
+            H + 50
+        ) {
+
+            powerups.splice(
+                i,
+                1
+            );
         }
     }
-
-    scoreText.textContent = score;
 }
 
-/* =========================
-   DIBUJAR
-========================= */
+
+/* =========================================================
+   FONDO
+========================================================= */
 
 function drawBackground() {
 
-    ctx.fillStyle = "#38bdf8";
-    ctx.fillRect(0, 0, W, H);
+    const gradient =
+        ctx.createLinearGradient(
+            0,
+            0,
+            0,
+            H
+        );
+
+    gradient.addColorStop(
+        0,
+        "#38bdf8"
+    );
+
+    gradient.addColorStop(
+        1,
+        "#dbeafe"
+    );
+
+    ctx.fillStyle =
+        gradient;
+
+    ctx.fillRect(
+        0,
+        0,
+        W,
+        H
+    );
+
+
+    /* Sol */
+
+    ctx.fillStyle =
+        "#fde047";
+
+    ctx.beginPath();
+
+    ctx.arc(
+        W - 70,
+        90,
+        40,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.fill();
+
 
     /* Nubes */
 
-    ctx.fillStyle = "rgba(255,255,255,.7)";
+    ctx.fillStyle =
+        "rgba(255,255,255,.75)";
 
-    for (let i = 0; i < 6; i++) {
+    for (
+        let i = 0;
+        i < 5;
+        i++
+    ) {
 
-        const x = (i * 220 + frame * .2) % (W + 200) - 100;
-        const y = 80 + i * 70;
+        const x =
+            (
+                i * 230 +
+                frame * .15
+            ) %
+            (W + 250) -
+            100;
+
+        const y =
+            90 +
+            i * 65;
 
         ctx.beginPath();
-        ctx.arc(x, y, 25, 0, Math.PI * 2);
-        ctx.arc(x + 30, y - 10, 35, 0, Math.PI * 2);
-        ctx.arc(x + 65, y, 25, 0, Math.PI * 2);
+
+        ctx.arc(
+            x,
+            y,
+            24,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.arc(
+            x + 28,
+            y - 10,
+            32,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.arc(
+            x + 60,
+            y,
+            24,
+            0,
+            Math.PI * 2
+        );
+
         ctx.fill();
     }
 
+
     /* Suelo */
 
-    ctx.fillStyle = "#22c55e";
-    ctx.fillRect(0, H - 40, W, 40);
+    ctx.fillStyle =
+        "#22c55e";
+
+    ctx.fillRect(
+        0,
+        H - 35,
+        W,
+        35
+    );
 }
+
+
+/* =========================================================
+   DIBUJAR PELOTA
+========================================================= */
 
 function drawPlayer() {
 
+    if (!player) return;
+
     ctx.save();
 
-    ctx.translate(player.x, player.y);
+    ctx.translate(
+        player.x,
+        player.y
+    );
+
 
     /* Sombra */
 
-    ctx.fillStyle = "rgba(0,0,0,.2)";
+    ctx.fillStyle =
+        "rgba(0,0,0,.2)";
+
     ctx.beginPath();
-    ctx.ellipse(0, 28, 28, 8, 0, 0, Math.PI * 2);
+
+    ctx.ellipse(
+        0,
+        29,
+        27,
+        8,
+        0,
+        0,
+        Math.PI * 2
+    );
+
     ctx.fill();
+
 
     /* Escudo */
 
     if (shield) {
 
-        ctx.strokeStyle = "#22d3ee";
+        ctx.strokeStyle =
+            "#22d3ee";
+
         ctx.lineWidth = 5;
 
         ctx.beginPath();
-        ctx.arc(0, 0, 34, 0, Math.PI * 2);
+
+        ctx.arc(
+            0,
+            0,
+            35,
+            0,
+            Math.PI * 2
+        );
+
         ctx.stroke();
     }
 
+
     /* Pelota */
 
-    const gradient = ctx.createRadialGradient(
-        -8, -8, 5,
-        0, 0, 30
+    const gradient =
+        ctx.createRadialGradient(
+            -9,
+            -10,
+            4,
+            0,
+            0,
+            30
+        );
+
+    gradient.addColorStop(
+        0,
+        "#ffffff"
     );
 
-    gradient.addColorStop(0, "#ffffff");
-    gradient.addColorStop(.25, "#facc15");
-    gradient.addColorStop(1, "#f97316");
+    gradient.addColorStop(
+        .3,
+        "#fde047"
+    );
 
-    ctx.fillStyle = gradient;
+    gradient.addColorStop(
+        1,
+        "#f97316"
+    );
+
+    ctx.fillStyle =
+        gradient;
 
     ctx.beginPath();
-    ctx.arc(0, 0, player.r, 0, Math.PI * 2);
+
+    ctx.arc(
+        0,
+        0,
+        player.radius,
+        0,
+        Math.PI * 2
+    );
+
     ctx.fill();
 
-    /* Cara */
 
-    ctx.fillStyle = "#111";
+    /* Ojos */
+
+    ctx.fillStyle =
+        "#111827";
 
     ctx.beginPath();
-    ctx.arc(-9, -5, 3, 0, Math.PI * 2);
-    ctx.arc(9, -5, 3, 0, Math.PI * 2);
+
+    ctx.arc(
+        -9,
+        -5,
+        3,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.arc(
+        9,
+        -5,
+        3,
+        0,
+        Math.PI * 2
+    );
+
     ctx.fill();
 
-    ctx.strokeStyle = "#111";
+
+    /* Sonrisa */
+
+    ctx.strokeStyle =
+        "#111827";
+
     ctx.lineWidth = 3;
 
     ctx.beginPath();
-    ctx.arc(0, 3, 10, 0, Math.PI);
+
+    ctx.arc(
+        0,
+        2,
+        10,
+        0,
+        Math.PI
+    );
+
     ctx.stroke();
+
 
     ctx.restore();
 }
 
+
+/* =========================================================
+   OBSTÁCULOS
+========================================================= */
+
 function drawObstacles() {
 
-    obstacles.forEach(o => {
+    for (
+        const obstacle
+        of obstacles
+    ) {
 
         ctx.save();
 
-        ctx.translate(o.x + o.w / 2, o.y + o.h / 2);
-        ctx.rotate(o.rotation);
+        ctx.translate(
+            obstacle.x +
+            obstacle.width / 2,
 
-        ctx.fillStyle = "#7c3aed";
-        ctx.fillRect(-o.w / 2, -o.h / 2, o.w, o.h);
+            obstacle.y +
+            obstacle.height / 2
+        );
 
-        ctx.strokeStyle = "#4c1d95";
+        ctx.rotate(
+            obstacle.rotation
+        );
+
+        ctx.fillStyle =
+            "#7c3aed";
+
+        ctx.fillRect(
+            -obstacle.width / 2,
+            -obstacle.height / 2,
+            obstacle.width,
+            obstacle.height
+        );
+
+        ctx.strokeStyle =
+            "#4c1d95";
+
         ctx.lineWidth = 4;
-        ctx.strokeRect(-o.w / 2, -o.h / 2, o.w, o.h);
+
+        ctx.strokeRect(
+            -obstacle.width / 2,
+            -obstacle.height / 2,
+            obstacle.width,
+            obstacle.height
+        );
 
         ctx.restore();
-    });
+    }
 }
+
+
+/* =========================================================
+   MONEDAS
+========================================================= */
 
 function drawCoins() {
 
-    coins.forEach(c => {
+    for (
+        const coin
+        of coins
+    ) {
 
-        ctx.fillStyle = "#facc15";
-        ctx.strokeStyle = "#ca8a04";
+        ctx.fillStyle =
+            "#facc15";
+
+        ctx.strokeStyle =
+            "#ca8a04";
+
         ctx.lineWidth = 3;
 
         ctx.beginPath();
-        ctx.arc(c.x, c.y, c.r, 0, Math.PI * 2);
+
+        ctx.arc(
+            coin.x,
+            coin.y,
+            coin.radius,
+            0,
+            Math.PI * 2
+        );
+
         ctx.fill();
+
         ctx.stroke();
 
-        ctx.fillStyle = "#fff7ae";
-        ctx.font = "bold 14px Arial";
-        ctx.textAlign = "center";
-        ctx.fillText("★", c.x, c.y + 5);
-    });
+        ctx.fillStyle =
+            "#fff7ae";
+
+        ctx.font =
+            "bold 14px Arial";
+
+        ctx.textAlign =
+            "center";
+
+        ctx.fillText(
+            "★",
+            coin.x,
+            coin.y + 5
+        );
+    }
 }
+
+
+/* =========================================================
+   POWERUPS
+========================================================= */
 
 function drawPowerups() {
 
-    powerups.forEach(p => {
+    for (
+        const powerup
+        of powerups
+    ) {
 
         ctx.fillStyle =
-            p.type === "shield" ? "#06b6d4" : "#ec4899";
+            powerup.type === "shield"
+            ? "#06b6d4"
+            : "#ec4899";
 
         ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+
+        ctx.arc(
+            powerup.x,
+            powerup.y,
+            powerup.radius,
+            0,
+            Math.PI * 2
+        );
+
         ctx.fill();
 
-        ctx.fillStyle = "white";
-        ctx.font = "bold 18px Arial";
-        ctx.textAlign = "center";
+        ctx.fillStyle =
+            "white";
+
+        ctx.font =
+            "bold 18px Arial";
+
+        ctx.textAlign =
+            "center";
 
         ctx.fillText(
-            p.type === "shield" ? "🛡" : "🧲",
-            p.x,
-            p.y + 6
+            powerup.type === "shield"
+            ? "S"
+            : "M",
+            powerup.x,
+            powerup.y + 6
         );
-    });
+    }
 }
+
+
+/* =========================================================
+   DIBUJAR TODO
+========================================================= */
 
 function draw() {
 
     drawBackground();
+
     drawCoins();
+
     drawPowerups();
+
     drawObstacles();
 
-    if (player) {
-        drawPlayer();
-    }
-
-    if (paused && gameRunning) {
-
-        ctx.fillStyle = "rgba(0,0,0,.5)";
-        ctx.fillRect(0, 0, W, H);
-
-        ctx.fillStyle = "white";
-        ctx.font = "bold 50px Arial";
-        ctx.textAlign = "center";
-        ctx.fillText("PAUSA", W / 2, H / 2);
-    }
+    drawPlayer();
 }
 
-/* =========================
-   BUCLE
-========================= */
 
-function loop() {
+/* =========================================================
+   BUCLE
+========================================================= */
+
+function gameLoop() {
 
     update();
+
     draw();
 
-    requestAnimationFrame(loop);
+    requestAnimationFrame(
+        gameLoop
+    );
 }
 
-loop();
+gameLoop();
 
-/* =========================
-   TECLADO
-========================= */
 
-document.addEventListener("keydown", e => {
+/* =========================================================
+   PAUSA + MÚSICA
+========================================================= */
 
-    if (e.key === "ArrowLeft" || e.key.toLowerCase() === "a") {
-        leftPressed = true;
+function togglePause() {
+
+    if (!gameRunning) return;
+
+    paused = !paused;
+
+    if (paused) {
+
+        pauseButton.textContent =
+            "▶️";
+
+        pauseText.style.display =
+            "block";
+
+        /* PARAR MÚSICA */
+
+        stopMusic();
+
+    } else {
+
+        pauseButton.textContent =
+            "⏸️";
+
+        pauseText.style.display =
+            "none";
+
+        /* REANUDAR MÚSICA */
+
+        startMusic();
     }
+}
 
-    if (e.key === "ArrowRight" || e.key.toLowerCase() === "d") {
-        rightPressed = true;
+pauseButton.addEventListener(
+    "click",
+    togglePause
+);
+
+
+/* =========================================================
+   TECLADO PC
+========================================================= */
+
+document.addEventListener(
+    "keydown",
+    function(e) {
+
+        if (
+            e.key === "ArrowLeft" ||
+            e.key.toLowerCase() === "a"
+        ) {
+
+            leftPressed = true;
+
+            e.preventDefault();
+        }
+
+
+        if (
+            e.key === "ArrowRight" ||
+            e.key.toLowerCase() === "d"
+        ) {
+
+            rightPressed = true;
+
+            e.preventDefault();
+        }
+
+
+        if (
+            e.key === " " ||
+            e.key === "Escape"
+        ) {
+
+            togglePause();
+
+            e.preventDefault();
+        }
     }
+);
 
-    if (e.key === " ") {
-        paused = !paused;
+
+document.addEventListener(
+    "keyup",
+    function(e) {
+
+        if (
+            e.key === "ArrowLeft" ||
+            e.key.toLowerCase() === "a"
+        ) {
+
+            leftPressed = false;
+        }
+
+
+        if (
+            e.key === "ArrowRight" ||
+            e.key.toLowerCase() === "d"
+        ) {
+
+            rightPressed = false;
+        }
     }
-});
+);
 
-document.addEventListener("keyup", e => {
 
-    if (e.key === "ArrowLeft" || e.key.toLowerCase() === "a") {
-        leftPressed = false;
-    }
+/* =========================================================
+   CONTROLES MÓVILES
+========================================================= */
 
-    if (e.key === "ArrowRight" || e.key.toLowerCase() === "d") {
-        rightPressed = false;
-    }
-});
+function setupTouchButton(
+    element,
+    direction
+) {
 
-/* =========================
-   CONTROLES TÁCTILES
-========================= */
-
-function touchControl(element, direction) {
-
-    element.addEventListener("touchstart", e => {
+    function press(e) {
 
         e.preventDefault();
 
@@ -760,9 +1797,10 @@ function touchControl(element, direction) {
         if (direction === "right") {
             rightPressed = true;
         }
-    });
+    }
 
-    element.addEventListener("touchend", e => {
+
+    function release(e) {
 
         e.preventDefault();
 
@@ -773,33 +1811,74 @@ function touchControl(element, direction) {
         if (direction === "right") {
             rightPressed = false;
         }
-    });
+    }
+
+
+    element.addEventListener(
+        "touchstart",
+        press,
+        { passive: false }
+    );
+
+    element.addEventListener(
+        "touchend",
+        release,
+        { passive: false }
+    );
+
+    element.addEventListener(
+        "touchcancel",
+        release,
+        { passive: false }
+    );
+
+
+    element.addEventListener(
+        "mousedown",
+        press
+    );
+
+    element.addEventListener(
+        "mouseup",
+        release
+    );
+
+    element.addEventListener(
+        "mouseleave",
+        release
+    );
 }
 
-touchControl(
+
+setupTouchButton(
     document.getElementById("left"),
     "left"
 );
 
-touchControl(
+setupTouchButton(
     document.getElementById("right"),
     "right"
 );
 
-/* =========================
+
+/* =========================================================
    BOTONES
-========================= */
+========================================================= */
 
-document.getElementById("start").onclick = startGame;
+document
+    .getElementById("start")
+    .addEventListener(
+        "click",
+        startGame
+    );
 
-document.getElementById("restart").onclick = startGame;
 
-document.getElementById("pause").onclick = () => {
-
-    if (gameRunning) {
-        paused = !paused;
-    }
-};
+document
+    .getElementById("restart")
+    .addEventListener(
+        "click",
+        startGame
+    );
 
 </script>
 
