@@ -1,0 +1,4034 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<title>Josema Games 🎮</title>
+
+<style>
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+    user-select:none;
+    -webkit-user-select:none;
+}
+
+html,body{
+    width:100%;
+    min-height:100%;
+    font-family:Arial,sans-serif;
+    background:#080b12;
+    color:white;
+}
+
+body{
+    overflow-x:hidden;
+}
+
+button{
+    font-family:inherit;
+    cursor:pointer;
+}
+
+/* =====================================================
+   SUITE
+===================================================== */
+
+#suite{
+    min-height:100vh;
+    padding:35px 20px 50px;
+    background:
+        radial-gradient(circle at top,#18233b 0%,#080b12 60%);
+}
+
+.logo{
+    text-align:center;
+    margin-bottom:35px;
+}
+
+.logo h1{
+    font-size:46px;
+    letter-spacing:2px;
+}
+
+.logo p{
+    margin-top:8px;
+    color:#9ca8bb;
+}
+
+.games{
+    max-width:1100px;
+    margin:auto;
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+    gap:18px;
+}
+
+.game-card{
+    min-height:190px;
+    border-radius:18px;
+    padding:18px;
+    background:#151b29;
+    border:1px solid #293247;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    cursor:pointer;
+    transition:.25s;
+    box-shadow:0 10px 25px rgba(0,0,0,.25);
+}
+
+.game-card:hover{
+    transform:translateY(-5px);
+    background:#1b2435;
+    border-color:#4c607e;
+}
+
+.game-icon{
+    font-size:52px;
+    margin-bottom:12px;
+}
+
+.game-card h2{
+    font-size:22px;
+    margin-bottom:7px;
+}
+
+.game-card p{
+    color:#aeb8c8;
+    font-size:14px;
+}
+
+.play{
+    margin-top:13px;
+    padding:9px 20px;
+    border-radius:9px;
+    background:#2878ff;
+    color:white;
+    font-weight:bold;
+}
+
+.parchis-coming{
+    cursor:default;
+}
+
+.coming{
+    margin-top:13px;
+    padding:9px 16px;
+    border-radius:9px;
+    background:#5b45c7;
+    color:white;
+    font-size:12px;
+    font-weight:bold;
+    letter-spacing:1px;
+}
+
+/* =====================================================
+   PANTALLAS
+===================================================== */
+
+.gameScreen{
+    position:fixed;
+    inset:0;
+    display:none;
+    background:#05080d;
+    z-index:100;
+    overflow:auto;
+}
+
+.gameScreen.active{
+    display:block;
+}
+
+.backButton{
+    position:fixed;
+    top:14px;
+    left:14px;
+    z-index:500;
+    border:0;
+    padding:10px 17px;
+    border-radius:10px;
+    background:rgba(0,0,0,.72);
+    color:white;
+    font-size:15px;
+    font-weight:bold;
+}
+
+/* =====================================================
+   TORRE
+===================================================== */
+
+#towerScreen{
+    background:#07111f;
+    overflow:hidden;
+}
+
+.towerHud{
+    position:fixed;
+    top:18px;
+    left:80px;
+    right:20px;
+    display:flex;
+    justify-content:space-between;
+    color:white;
+    font-size:21px;
+    font-weight:bold;
+    z-index:20;
+    text-shadow:0 2px 5px #000;
+    pointer-events:none;
+}
+
+#towerHint{
+    position:fixed;
+    bottom:22px;
+    left:50%;
+    transform:translateX(-50%);
+    color:rgba(255,255,255,.75);
+    font-size:16px;
+    z-index:20;
+    text-align:center;
+}
+
+.towerOver{
+    position:fixed;
+    inset:0;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    flex-direction:column;
+    background:rgba(0,0,0,.72);
+    color:white;
+    text-align:center;
+    z-index:50;
+}
+
+.towerOver.show{
+    display:flex;
+}
+
+.towerOver h1{
+    font-size:52px;
+    color:#ff5268;
+    margin-bottom:10px;
+}
+
+.towerOver p{
+    font-size:22px;
+    margin:6px;
+}
+
+canvas{
+    display:block;
+    width:100%;
+    height:100%;
+}
+
+/* =====================================================
+   DULCE CRUSH
+===================================================== */
+
+#candyScreen{
+    background:
+        radial-gradient(circle at top,#ff8bd8,#8b35d9 45%,#24104f);
+    color:white;
+    overflow:auto;
+}
+
+.candyGame{
+    width:min(95vw,560px);
+    min-height:100vh;
+    margin:auto;
+    padding:58px 18px 25px;
+    text-align:center;
+}
+
+.candyTitle{
+    font-size:42px;
+    margin-bottom:8px;
+    text-shadow:
+        0 4px 0 #6c1b8d,
+        0 6px 12px #0008;
+}
+
+.candySubtitle{
+    margin-bottom:15px;
+    font-weight:bold;
+}
+
+.candyStats{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:8px;
+    margin-bottom:12px;
+}
+
+.candyStat{
+    background:#ffffff22;
+    border:2px solid #ffffff44;
+    border-radius:15px;
+    padding:10px 5px;
+    backdrop-filter:blur(5px);
+}
+
+.candyStat small{
+    display:block;
+    opacity:.8;
+    font-size:11px;
+}
+
+.candyStat strong{
+    display:block;
+    font-size:20px;
+    margin-top:3px;
+}
+
+.candyGoal{
+    margin-bottom:12px;
+}
+
+#candyBoard{
+    width:min(90vw,500px);
+    aspect-ratio:1;
+    margin:auto;
+    padding:8px;
+    display:grid;
+    grid-template-columns:repeat(8,1fr);
+    gap:6px;
+    background:#42117a;
+    border:5px solid #f7c7ff;
+    border-radius:22px;
+    box-shadow:
+        0 12px 30px #0008,
+        inset 0 0 20px #0007;
+}
+
+.candyCell{
+    border:0;
+    border-radius:15px;
+    cursor:pointer;
+    position:relative;
+    transition:
+        transform .12s,
+        filter .12s,
+        opacity .2s;
+    box-shadow:
+        inset 4px 4px 5px #fff8,
+        inset -5px -6px 7px #0004,
+        0 3px 4px #0005;
+}
+
+.candyCell:hover{
+    transform:scale(1.05);
+}
+
+.candyCell.selected{
+    transform:scale(1.12);
+    outline:4px solid white;
+    box-shadow:0 0 18px white;
+    z-index:2;
+}
+
+.candyCell.pop{
+    animation:candyPop .25s forwards;
+}
+
+@keyframes candyPop{
+    0%{transform:scale(1)}
+    50%{transform:scale(1.25) rotate(8deg)}
+    100%{transform:scale(0);opacity:0}
+}
+
+.candyRed{background:linear-gradient(135deg,#ff5d6c,#d90035)}
+.candyYellow{background:linear-gradient(135deg,#fff45c,#ffae00)}
+.candyGreen{background:linear-gradient(135deg,#6dff8a,#00a943)}
+.candyBlue{background:linear-gradient(135deg,#68dcff,#0879db)}
+.candyPurple{background:linear-gradient(135deg,#db7cff,#7c19d1)}
+.candyOrange{background:linear-gradient(135deg,#ffb35c,#ed5500)}
+
+.candyCell::after{
+    content:"";
+    position:absolute;
+    width:35%;
+    height:18%;
+    left:16%;
+    top:12%;
+    background:#fff;
+    opacity:.5;
+    border-radius:50%;
+    transform:rotate(-25deg);
+}
+
+#candyMessage{
+    height:35px;
+    margin-top:12px;
+    font-size:18px;
+    font-weight:bold;
+}
+
+#candyRestart{
+    padding:12px 24px;
+    border:0;
+    border-radius:20px;
+    background:linear-gradient(#ff6bba,#d92b82);
+    color:white;
+    box-shadow:0 5px 0 #94145b;
+    font-size:16px;
+    font-weight:bold;
+}
+
+.candyOverlay{
+    position:fixed;
+    inset:0;
+    background:#17062dcc;
+    display:none;
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+    z-index:450;
+}
+
+.candyOverlay.show{
+    display:flex;
+}
+
+.candyPanel{
+    width:min(90vw,400px);
+    background:linear-gradient(145deg,#7020a8,#311060);
+    border:3px solid #f9c8ff;
+    border-radius:28px;
+    padding:30px;
+    text-align:center;
+    box-shadow:0 20px 60px #0009;
+}
+
+.candyPanel h2{
+    font-size:34px;
+    margin-bottom:12px;
+}
+
+.candyPanel p{
+    font-size:18px;
+    margin:8px 0 20px;
+}
+
+#candyNextLevel{
+    padding:13px 28px;
+    border:0;
+    border-radius:20px;
+    background:linear-gradient(#65eaff,#167bd7);
+    color:white;
+    box-shadow:0 5px 0 #09559b;
+    font-size:17px;
+    font-weight:bold;
+}
+
+/* =====================================================
+   CAOS
+===================================================== */
+
+#chaosScreen{
+    background:#09070b;
+    overflow:hidden;
+}
+
+.chaosHud{
+    position:fixed;
+    top:16px;
+    left:80px;
+    right:20px;
+    display:flex;
+    justify-content:space-between;
+    z-index:300;
+    font-size:19px;
+    font-weight:bold;
+    text-shadow:0 2px 5px #000;
+    pointer-events:none;
+}
+
+.chaosControls{
+    position:fixed;
+    inset:0;
+    z-index:350;
+    pointer-events:none;
+}
+
+.chaosControl{
+    position:absolute;
+    width:62px;
+    height:62px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:rgba(255,255,255,.12);
+    border:2px solid rgba(255,255,255,.25);
+    font-size:23px;
+    pointer-events:auto;
+}
+
+#chaosLeft{left:20px;bottom:30px}
+#chaosRight{left:95px;bottom:30px}
+#chaosUp{left:57px;bottom:105px}
+#chaosDown{left:57px;bottom:-45px}
+
+#chaosShoot{
+    right:25px;
+    bottom:30px;
+    width:88px;
+    height:88px;
+    background:rgba(220,30,50,.3);
+}
+
+@media(min-width:800px){
+    .chaosControls{display:none}
+}
+
+/* =====================================================
+   TRES EN RAYA
+===================================================== */
+
+#tttScreen{
+    background:
+        radial-gradient(circle at top,#18294a,#070a11 65%);
+}
+
+.tttTop{
+    position:fixed;
+    top:15px;
+    left:80px;
+    right:20px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    z-index:20;
+    font-weight:bold;
+}
+
+.tttTurn{
+    padding:10px 18px;
+    border-radius:12px;
+    background:rgba(255,255,255,.1);
+    border:1px solid rgba(255,255,255,.18);
+}
+
+.tttMode{
+    padding:8px 13px;
+    border-radius:10px;
+    background:#2878ff;
+    cursor:pointer;
+}
+
+.tttContainer{
+    position:absolute;
+    inset:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    padding:70px 20px 20px;
+}
+
+.tttTitle{
+    font-size:42px;
+    margin-bottom:20px;
+}
+
+.tttBoard{
+    width:360px;
+    height:360px;
+    max-width:90vw;
+    max-height:90vw;
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    grid-template-rows:repeat(3,1fr);
+    gap:10px;
+}
+
+.tttCell{
+    width:100%;
+    height:100%;
+    border:0;
+    border-radius:14px;
+    background:#151d2e;
+    border:2px solid #34425c;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:78px;
+    font-weight:900;
+    line-height:1;
+    padding:0;
+}
+
+.tttCell:hover:not(.locked){
+    background:#1e2940;
+    border-color:#54709a;
+}
+
+.tttCell.x{color:#ff5268}
+.tttCell.o{color:#35d9ff}
+.tttCell.locked{cursor:default}
+
+.tttInfo{
+    margin-top:20px;
+    color:#aeb8c8;
+    font-size:16px;
+}
+
+.tttResult{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.76);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    flex-direction:column;
+    z-index:100;
+    text-align:center;
+}
+
+.tttResult.show{
+    display:flex;
+}
+
+.tttResult h1{
+    font-size:48px;
+    margin-bottom:10px;
+}
+
+/* =====================================================
+   BOTONES
+===================================================== */
+
+.mainButton{
+    margin-top:20px;
+    padding:13px 25px;
+    border:0;
+    border-radius:10px;
+    background:#2878ff;
+    color:white;
+    font-size:17px;
+    font-weight:bold;
+}
+
+/* =====================================================
+   🚪 PUERTA 13 - NUEVA VERSIÓN
+===================================================== */
+
+#door13Screen{
+    background:
+        radial-gradient(circle at top,#25254d 0%,#111126 40%,#080812 100%);
+    overflow:auto;
+    color:white;
+}
+
+.door13GameContainer{
+    width:95%;
+    max-width:1100px;
+    margin:auto;
+    padding:75px 15px 50px;
+}
+
+.door13Header{
+    text-align:center;
+    margin-bottom:30px;
+}
+
+.door13Header h1{
+    font-size:clamp(40px,7vw,72px);
+    letter-spacing:4px;
+    text-transform:uppercase;
+    text-shadow:
+        0 0 10px #8b5cf6,
+        0 0 30px #8b5cf6;
+}
+
+.door13Header p{
+    margin-top:10px;
+    color:#aaaad0;
+    font-size:17px;
+}
+
+.door13Info{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:25px;
+    flex-wrap:wrap;
+    margin-bottom:25px;
+}
+
+.door13InfoBox{
+    min-width:130px;
+    padding:12px 20px;
+    border:1px solid #3d3d70;
+    border-radius:12px;
+    background:rgba(25,25,55,.8);
+    text-align:center;
+}
+
+.door13InfoBox span{
+    display:block;
+    color:#8e8eaf;
+    font-size:12px;
+    text-transform:uppercase;
+    margin-bottom:5px;
+}
+
+.door13InfoBox strong{
+    font-size:22px;
+    color:#fff;
+}
+
+.door13Clues{
+    background:rgba(19,19,42,.95);
+    border:1px solid #45457d;
+    border-radius:18px;
+    padding:25px;
+    margin-bottom:35px;
+    box-shadow:0 15px 40px rgba(0,0,0,.35);
+}
+
+.door13Clues h2{
+    text-align:center;
+    margin-bottom:18px;
+    color:#c4b5fd;
+}
+
+.door13ClueList{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+    gap:12px;
+}
+
+.door13Clue{
+    padding:14px;
+    border-radius:10px;
+    background:#25254a;
+    border-left:4px solid #8b5cf6;
+    color:#ddddef;
+    line-height:1.4;
+}
+
+.door13DoorsTitle{
+    text-align:center;
+    margin-bottom:20px;
+}
+
+.door13DoorsTitle h2{
+    font-size:28px;
+}
+
+.door13DoorsTitle p{
+    color:#9999b8;
+    margin-top:6px;
+}
+
+.door13Doors{
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:18px;
+}
+
+.door13Door{
+    position:relative;
+    height:190px;
+    border:2px solid #4b4b76;
+    border-radius:12px 12px 5px 5px;
+    background:
+        linear-gradient(
+            90deg,
+            #24243d 0%,
+            #343455 48%,
+            #24243d 100%
+        );
+    cursor:pointer;
+    transition:
+        transform .25s ease,
+        border-color .25s ease,
+        box-shadow .25s ease;
+    overflow:hidden;
+}
+
+.door13Door::before{
+    content:"";
+    position:absolute;
+    inset:7px;
+    border:2px solid #55557e;
+    border-radius:8px 8px 3px 3px;
+    pointer-events:none;
+}
+
+.door13Door::after{
+    content:"";
+    position:absolute;
+    width:65px;
+    height:65px;
+    top:45px;
+    left:50%;
+    transform:translateX(-50%);
+    border:2px solid #55557e;
+    border-radius:5px;
+    box-shadow:
+        0 75px 0 -2px #343455,
+        0 75px 0 0 #55557e;
+    pointer-events:none;
+}
+
+.door13Door:hover{
+    transform:translateY(-8px);
+    border-color:#a78bfa;
+    box-shadow:
+        0 10px 30px rgba(139,92,246,.35);
+}
+
+.door13Door.correct{
+    border-color:#4ade80;
+    box-shadow:
+        0 0 30px rgba(74,222,128,.55);
+}
+
+.door13Door.wrong{
+    border-color:#ef4444;
+    box-shadow:
+        0 0 30px rgba(239,68,68,.45);
+    animation:doorShake .3s;
+}
+
+@keyframes doorShake{
+    0%,100%{transform:translateX(0)}
+    25%{transform:translateX(-7px)}
+    75%{transform:translateX(7px)}
+}
+
+.door13Number{
+    position:absolute;
+    top:15px;
+    left:50%;
+    transform:translateX(-50%);
+    z-index:2;
+    width:35px;
+    height:35px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    border-radius:50%;
+    background:#111122;
+    border:2px solid #7777a0;
+    font-weight:bold;
+    color:#fff;
+}
+
+.door13Handle{
+    position:absolute;
+    right:18px;
+    top:105px;
+    width:12px;
+    height:12px;
+    background:#c4b5fd;
+    border-radius:50%;
+    box-shadow:0 0 8px #8b5cf6;
+    z-index:3;
+}
+
+.door13Message{
+    margin:30px auto 0;
+    max-width:650px;
+    padding:20px;
+    text-align:center;
+    background:rgba(20,20,45,.9);
+    border:1px solid #46467b;
+    border-radius:15px;
+    color:#bcbcdc;
+    min-height:75px;
+    line-height:1.5;
+}
+
+.door13Message strong{
+    display:block;
+    color:#c4b5fd;
+    font-size:20px;
+    margin-bottom:8px;
+}
+
+.door13StartButton{
+    display:block;
+    margin:25px auto 0;
+    padding:14px 35px;
+    border:none;
+    border-radius:10px;
+    background:linear-gradient(135deg,#7c3aed,#4f46e5);
+    color:white;
+    font-size:16px;
+    font-weight:bold;
+    cursor:pointer;
+    box-shadow:0 8px 25px rgba(79,70,229,.35);
+    transition:transform .2s ease,box-shadow .2s ease;
+}
+
+.door13StartButton:hover{
+    transform:translateY(-3px);
+    box-shadow:0 12px 30px rgba(124,58,237,.5);
+}
+
+.door13GameOver{
+    position:fixed;
+    inset:0;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    flex-direction:column;
+    padding:25px;
+    background:rgba(5,5,20,.92);
+    z-index:700;
+    text-align:center;
+}
+
+.door13GameOver.show{
+    display:flex;
+}
+
+.door13GameOver h2{
+    font-size:clamp(35px,7vw,60px);
+    color:#c4b5fd;
+    text-shadow:0 0 25px #8b5cf6;
+    margin-bottom:15px;
+}
+
+.door13GameOver p{
+    color:#bbb;
+    font-size:18px;
+    max-width:550px;
+    line-height:1.6;
+}
+
+.door13GameOver.success h2{
+    color:#4ade80;
+    text-shadow:0 0 25px #22c55e;
+}
+
+.door13GameOver.fail h2{
+    color:#ff5268;
+    text-shadow:0 0 25px #ef4444;
+}
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media(max-width:850px){
+
+    .door13Doors{
+        grid-template-columns:repeat(4,1fr);
+    }
+
+    .door13Door{
+        height:175px;
+    }
+}
+
+@media(max-width:650px){
+
+    .logo h1{
+        font-size:35px;
+    }
+
+    .games{
+        grid-template-columns:repeat(2,1fr);
+        gap:12px;
+    }
+
+    .game-card{
+        min-height:160px;
+        padding:12px;
+    }
+
+    .game-icon{
+        font-size:40px;
+    }
+
+    .game-card h2{
+        font-size:17px;
+    }
+
+    .game-card p{
+        font-size:12px;
+    }
+
+    .tttTitle{
+        font-size:32px;
+    }
+
+    .tttBoard{
+        width:300px;
+        height:300px;
+    }
+
+    .tttCell{
+        font-size:64px;
+    }
+
+    .towerHud,
+    .chaosHud{
+        font-size:14px;
+    }
+
+    .candyStats{
+        font-size:14px;
+    }
+
+    .candyTitle{
+        font-size:34px;
+    }
+
+    #candyBoard{
+        gap:4px;
+        padding:6px;
+    }
+
+    .candyCell{
+        border-radius:10px;
+    }
+
+    .door13Doors{
+        grid-template-columns:repeat(3,1fr);
+        gap:12px;
+    }
+
+    .door13Door{
+        height:155px;
+    }
+
+    .door13Handle{
+        right:12px;
+    }
+}
+
+@media(max-width:450px){
+
+    .door13GameContainer{
+        padding-top:65px;
+    }
+
+    .door13Doors{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+    .door13Door{
+        height:165px;
+    }
+
+    .door13Clues{
+        padding:18px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- =====================================================
+     SUITE
+===================================================== -->
+
+<section id="suite">
+
+    <div class="logo">
+        <h1>🎮 Josema Games</h1>
+        <p>Tu colección de juegos</p>
+    </div>
+
+    <div class="games">
+
+        <div class="game-card" onclick="openGame('tower')">
+            <div class="game-icon">🏗️</div>
+            <h2>Torre Imposible</h2>
+            <p>Construye la torre más alta.</p>
+            <div class="play">JUGAR</div>
+        </div>
+
+        <div class="game-card" onclick="openGame('candy')">
+            <div class="game-icon">🍬</div>
+            <h2>Dulce Crush</h2>
+            <p>Combina los dulces y supera los niveles.</p>
+            <div class="play">JUGAR</div>
+        </div>
+
+        <div class="game-card" onclick="openGame('chaos')">
+            <div class="game-icon">💥</div>
+            <h2>Caos Total</h2>
+            <p>Destruye enemigos y sobrevive.</p>
+            <div class="play">JUGAR</div>
+        </div>
+
+        <div class="game-card" onclick="openGame('ttt')">
+            <div class="game-icon">❌⭕</div>
+            <h2>Tres en Raya</h2>
+            <p>Juega contra otro jugador o contra la IA.</p>
+            <div class="play">JUGAR</div>
+        </div>
+
+        <div class="game-card" onclick="openGame('door13')">
+            <div class="game-icon">🚪</div>
+            <h2>Puerta 13</h2>
+            <p>Encuentra la puerta correcta usando las pistas.</p>
+            <div class="play">JUGAR</div>
+        </div>
+
+        <div class="game-card parchis-coming">
+            <div class="game-icon">🎲</div>
+            <h2>Parchís</h2>
+            <p>El clásico tablero de Parchís.</p>
+            <div class="coming">
+                PRÓXIMAMENTE
+            </div>
+        </div>
+
+    </div>
+</section>
+
+
+<!-- =====================================================
+     TORRE
+===================================================== -->
+
+<section id="towerScreen" class="gameScreen">
+
+<button class="backButton" onclick="backToSuite()">← MENÚ</button>
+
+<div class="towerHud">
+    <div>🏗️ Piso: <span id="towerScore">0</span></div>
+    <div>🏆 Récord: <span id="towerRecord">0</span></div>
+</div>
+
+<canvas id="towerCanvas"></canvas>
+
+<div id="towerHint">
+    ESPACIO / CLIC / TOQUE para colocar el bloque
+</div>
+
+<div id="towerOver" class="towerOver">
+
+    <h1>TORRE CAÍDA</h1>
+
+    <p>
+        Has conseguido:
+        <strong><span id="towerFinalScore">0</span> pisos</strong>
+    </p>
+
+    <p>
+        🏆 Récord:
+        <strong><span id="towerFinalRecord">0</span></strong>
+    </p>
+
+    <button class="mainButton" onclick="restartTower()">
+        JUGAR DE NUEVO
+    </button>
+
+</div>
+
+</section>
+
+
+<!-- =====================================================
+     DULCE CRUSH
+===================================================== -->
+
+<section id="candyScreen" class="gameScreen">
+
+<button class="backButton" onclick="backToSuite()">← MENÚ</button>
+
+<div class="candyGame">
+
+    <h1 class="candyTitle">🍬 Dulce Crush</h1>
+
+    <div class="candySubtitle">
+        ¡Combina los dulces y consigue el objetivo!
+    </div>
+
+    <div class="candyStats">
+
+        <div class="candyStat">
+            <small>NIVEL</small>
+            <strong id="candyLevel">1</strong>
+        </div>
+
+        <div class="candyStat">
+            <small>PUNTOS</small>
+            <strong id="candyScore">0</strong>
+        </div>
+
+        <div class="candyStat">
+            <small>MOVIMIENTOS</small>
+            <strong id="candyMoves">25</strong>
+        </div>
+
+    </div>
+
+    <div class="candyStat candyGoal">
+        <small>OBJETIVO</small>
+        <strong id="candyGoal">500</strong>
+    </div>
+
+    <div id="candyBoard"></div>
+
+    <div id="candyMessage"></div>
+
+    <button id="candyRestart">
+        🔄 Reiniciar partida
+    </button>
+
+</div>
+
+<div class="candyOverlay" id="candyOverlay">
+
+    <div class="candyPanel">
+
+        <h2 id="candyPanelTitle">
+            🎉 ¡Nivel completado!
+        </h2>
+
+        <p id="candyPanelText"></p>
+
+        <button id="candyNextLevel">
+            Siguiente nivel 🚀
+        </button>
+
+    </div>
+
+</div>
+
+</section>
+
+
+<!-- =====================================================
+     CAOS
+===================================================== -->
+
+<section id="chaosScreen" class="gameScreen">
+
+<button class="backButton" onclick="backToSuite()">← MENÚ</button>
+
+<div class="chaosHud">
+    <div>💥 Puntos: <span id="chaosScore">0</span></div>
+    <div>❤️ <span id="chaosHealth">100</span></div>
+    <div>🏆 <span id="chaosRecord">0</span></div>
+</div>
+
+<canvas id="chaosCanvas"></canvas>
+
+<div class="chaosControls">
+
+    <div class="chaosControl" id="chaosLeft">◀</div>
+    <div class="chaosControl" id="chaosRight">▶</div>
+    <div class="chaosControl" id="chaosUp">▲</div>
+    <div class="chaosControl" id="chaosDown">▼</div>
+    <div class="chaosControl" id="chaosShoot">🔫</div>
+
+</div>
+
+<div id="chaosOver" class="tttResult">
+
+    <h1 style="color:#ff5268">💥 CAOS TOTAL</h1>
+
+    <p>
+        Puntuación:
+        <strong id="chaosFinalScore">0</strong>
+    </p>
+
+    <button class="mainButton" onclick="restartChaos()">
+        JUGAR DE NUEVO
+    </button>
+
+</div>
+
+</section>
+
+
+<!-- =====================================================
+     TRES EN RAYA
+===================================================== -->
+
+<section id="tttScreen" class="gameScreen">
+
+<button class="backButton" onclick="backToSuite()">← MENÚ</button>
+
+<div class="tttTop">
+
+    <div class="tttTurn" id="tttTurn">
+        Turno: ❌
+    </div>
+
+    <div class="tttMode" id="tttMode">
+        2 JUGADORES
+    </div>
+
+</div>
+
+<div class="tttContainer">
+
+    <div class="tttTitle">
+        ❌ Tres en Raya ⭕
+    </div>
+
+    <div class="tttBoard" id="tttBoard">
+
+        <button class="tttCell" data-index="0"></button>
+        <button class="tttCell" data-index="1"></button>
+        <button class="tttCell" data-index="2"></button>
+
+        <button class="tttCell" data-index="3"></button>
+        <button class="tttCell" data-index="4"></button>
+        <button class="tttCell" data-index="5"></button>
+
+        <button class="tttCell" data-index="6"></button>
+        <button class="tttCell" data-index="7"></button>
+        <button class="tttCell" data-index="8"></button>
+
+    </div>
+
+    <div class="tttInfo" id="tttInfo">
+        La partida empieza aleatoriamente.
+    </div>
+
+</div>
+
+<div id="tttResult" class="tttResult">
+
+    <h1 id="tttResultTitle">
+        PARTIDA TERMINADA
+    </h1>
+
+    <p id="tttResultText"></p>
+
+</div>
+
+</section>
+
+
+<!-- =====================================================
+     🚪 PUERTA 13
+===================================================== -->
+
+<section id="door13Screen" class="gameScreen">
+
+<button class="backButton" onclick="backToSuite()">← MENÚ</button>
+
+<div class="door13GameContainer">
+
+    <header class="door13Header">
+
+        <h1>PUERTA 13</h1>
+
+        <p>
+            Solo una puerta te permitirá continuar...
+        </p>
+
+    </header>
+
+
+    <section class="door13Info">
+
+        <div class="door13InfoBox">
+            <span>Nivel</span>
+            <strong id="door13Level">1</strong>
+        </div>
+
+        <div class="door13InfoBox">
+            <span>Vidas</span>
+            <strong id="door13Lives">❤️ ❤️ ❤️</strong>
+        </div>
+
+        <div class="door13InfoBox">
+            <span>Tiempo</span>
+            <strong id="door13Time">30</strong>
+        </div>
+
+        <div class="door13InfoBox">
+            <span>Puntuación</span>
+            <strong id="door13Score">0</strong>
+        </div>
+
+    </section>
+
+
+    <section class="door13Clues">
+
+        <h2>🧠 Pistas</h2>
+
+        <div class="door13ClueList">
+
+            <div class="door13Clue">
+                🔎 La puerta correcta tiene un número impar.
+            </div>
+
+            <div class="door13Clue">
+                🔎 La puerta correcta es mayor que 5.
+            </div>
+
+            <div class="door13Clue">
+                🔎 La puerta 8 no es la correcta.
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <section class="door13DoorsTitle">
+
+        <h2>🚪 Elige una puerta</h2>
+
+        <p>
+            Piensa bien antes de elegir...
+        </p>
+
+    </section>
+
+
+    <section class="door13Doors" id="door13Doors">
+
+        <button class="door13Door" onclick="chooseDoor13(1)">
+            <div class="door13Number">1</div>
+            <div class="door13Handle"></div>
+        </button>
+
+        <button class="door13Door" onclick="chooseDoor13(2)">
+            <div class="door13Number">2</div>
+            <div class="door13Handle"></div>
+        </button>
+
+        <button class="door13Door" onclick="chooseDoor13(3)">
+            <div class="door13Number">3</div>
+            <div class="door13Handle"></div>
+        </button>
+
+        <button class="door13Door" onclick="chooseDoor13(4)">
+            <div class="door13Number">4</div>
+            <div class="door13Handle"></div>
+        </button>
+
+        <button class="door13Door" onclick="chooseDoor13(5)">
+            <div class="door13Number">5</div>
+            <div class="door13Handle"></div>
+        </button>
+
+        <button class="door13Door" onclick="chooseDoor13(6)">
+            <div class="door13Number">6</div>
+            <div class="door13Handle"></div>
+        </button>
+
+        <button class="door13Door" onclick="chooseDoor13(7)">
+            <div class="door13Number">7</div>
+            <div class="door13Handle"></div>
+        </button>
+
+        <button class="door13Door" onclick="chooseDoor13(8)">
+            <div class="door13Number">8</div>
+            <div class="door13Handle"></div>
+        </button>
+
+        <button class="door13Door" onclick="chooseDoor13(9)">
+            <div class="door13Number">9</div>
+            <div class="door13Handle"></div>
+        </button>
+
+        <button class="door13Door" onclick="chooseDoor13(10)">
+            <div class="door13Number">10</div>
+            <div class="door13Handle"></div>
+        </button>
+
+        <button class="door13Door" onclick="chooseDoor13(11)">
+            <div class="door13Number">11</div>
+            <div class="door13Handle"></div>
+        </button>
+
+        <button class="door13Door" onclick="chooseDoor13(12)">
+            <div class="door13Number">12</div>
+            <div class="door13Handle"></div>
+        </button>
+
+        <button class="door13Door" onclick="chooseDoor13(13)">
+            <div class="door13Number">13</div>
+            <div class="door13Handle"></div>
+        </button>
+
+    </section>
+
+
+    <div class="door13Message" id="door13Message">
+
+        <strong>⚠️ ¿Cuál será?</strong>
+
+        Analiza las pistas y elige cuidadosamente.
+
+    </div>
+
+
+    <button
+        class="door13StartButton"
+        onclick="restartDoor13()"
+    >
+        🔄 Nueva partida
+    </button>
+
+</div>
+
+
+<div
+    id="door13GameOver"
+    class="door13GameOver"
+>
+
+    <h2 id="door13GameOverTitle">
+        PUERTA 13
+    </h2>
+
+    <p id="door13GameOverText"></p>
+
+    <button
+        class="door13StartButton"
+        onclick="restartDoor13()"
+    >
+        🔄 Nueva partida
+    </button>
+
+    <button
+        class="mainButton"
+        onclick="backToSuite()"
+    >
+        ← VOLVER AL MENÚ
+    </button>
+
+</div>
+
+</section>
+
+
+<script>
+
+/* =====================================================
+   NAVEGACIÓN
+===================================================== */
+
+let currentGame=null;
+
+function openGame(game){
+
+    stopAllGames();
+
+    document.getElementById("suite").style.display="none";
+
+    document.querySelectorAll(".gameScreen")
+        .forEach(screen=>{
+            screen.classList.remove("active");
+        });
+
+    const screen=
+        document.getElementById(game+"Screen");
+
+    if(!screen){
+
+        document.getElementById("suite")
+            .style.display="block";
+
+        return;
+    }
+
+    screen.classList.add("active");
+
+    currentGame=game;
+
+    if(game==="tower")
+        startTower();
+
+    if(game==="candy")
+        startCandy();
+
+    if(game==="chaos")
+        startChaos();
+
+    if(game==="ttt")
+        startTTT();
+
+    if(game==="door13")
+        startDoor13();
+}
+
+
+function stopAllGames(){
+
+    towerRunning=false;
+
+    candyRunning=false;
+    candyBusy=false;
+
+    chaosRunning=false;
+
+    tttGameOver=true;
+    tttThinking=false;
+
+    if(tttRestartTimer){
+
+        clearTimeout(tttRestartTimer);
+
+        tttRestartTimer=null;
+    }
+
+    door13Running=false;
+
+    if(door13Timer){
+
+        clearInterval(door13Timer);
+
+        door13Timer=null;
+    }
+}
+
+
+function backToSuite(){
+
+    stopAllGames();
+
+    document.querySelectorAll(".gameScreen")
+        .forEach(screen=>{
+            screen.classList.remove("active");
+        });
+
+    document.getElementById("suite")
+        .style.display="block";
+
+    currentGame=null;
+}
+
+
+/* =====================================================
+   TORRE IMPOSIBLE
+===================================================== */
+
+const towerCanvas=
+    document.getElementById("towerCanvas");
+
+const towerCtx=
+    towerCanvas.getContext("2d");
+
+let towerW=0;
+let towerH=0;
+
+let towerRunning=false;
+let towerScore=0;
+
+let towerRecord=
+    Number(
+        localStorage.getItem("torreRecord") || 0
+    );
+
+let towerWorldOffset=0;
+let towerTargetOffset=0;
+
+let towerBlocks=[];
+let towerCurrent=null;
+
+let towerWidth=180;
+let towerHeight=32;
+let towerSpeed=3;
+let towerDirection=1;
+let towerLast=0;
+
+
+function resizeTower(){
+
+    towerW=
+        towerCanvas.width=
+        window.innerWidth;
+
+    towerH=
+        towerCanvas.height=
+        window.innerHeight;
+}
+
+
+window.addEventListener(
+    "resize",
+    resizeTower
+);
+
+
+function startTower(){
+
+    resizeTower();
+
+    towerScore=0;
+    towerWorldOffset=0;
+    towerTargetOffset=0;
+    towerCurrent=null;
+    towerRunning=true;
+
+    document.getElementById("towerOver")
+        .classList.remove("show");
+
+    document.getElementById("towerScore")
+        .textContent="0";
+
+    document.getElementById("towerRecord")
+        .textContent=towerRecord;
+
+    towerBlocks=[
+        {
+            x:towerW/2-100,
+            y:towerH-80,
+            width:200,
+            height:35,
+            color:0
+        }
+    ];
+
+    createTowerBlock();
+}
+
+
+function restartTower(){
+    startTower();
+}
+
+
+function createTowerBlock(){
+
+    towerWidth=
+        Math.max(
+            65,
+            180-towerScore*2
+        );
+
+    towerSpeed=
+        Math.min(
+            8,
+            3+towerScore*.08
+        );
+
+    towerDirection=
+        Math.random()>.5?1:-1;
+
+    towerCurrent={
+
+        x:
+            towerDirection===1
+            ?-towerWidth
+            :towerW,
+
+        y:
+            towerBlocks[
+                towerBlocks.length-1
+            ].y-towerHeight,
+
+        width:towerWidth,
+
+        height:towerHeight,
+
+        vx:towerSpeed*towerDirection,
+
+        moving:true,
+
+        color:towerScore
+    };
+}
+
+
+function towerColor(i){
+
+    return `hsl(${(i*27)%360},75%,55%)`;
+}
+
+
+function placeTowerBlock(){
+
+    if(
+        !towerRunning ||
+        !towerCurrent ||
+        !towerCurrent.moving
+    )
+        return;
+
+    towerCurrent.moving=false;
+
+    const previous=
+        towerBlocks[
+            towerBlocks.length-1
+        ];
+
+    const left=
+        Math.max(
+            towerCurrent.x,
+            previous.x
+        );
+
+    const right=
+        Math.min(
+            towerCurrent.x+towerCurrent.width,
+            previous.x+previous.width
+        );
+
+    const overlap=
+        right-left;
+
+    if(overlap<=0){
+
+        towerGameOver();
+
+        return;
+    }
+
+    towerCurrent.x=left;
+    towerCurrent.width=overlap;
+
+    towerCurrent.y=
+        previous.y-
+        towerCurrent.height;
+
+    towerBlocks.push(towerCurrent);
+
+    towerScore++;
+
+    document.getElementById("towerScore")
+        .textContent=towerScore;
+
+    if(towerScore>towerRecord){
+
+        towerRecord=towerScore;
+
+        localStorage.setItem(
+            "torreRecord",
+            towerRecord
+        );
+    }
+
+    document.getElementById("towerRecord")
+        .textContent=towerRecord;
+
+    createTowerBlock();
+
+    checkTowerCamera();
+}
+
+
+function checkTowerCamera(){
+
+    if(!towerCurrent)
+        return;
+
+    const y=
+        towerCurrent.y+
+        towerWorldOffset;
+
+    if(y<towerH*.28)
+        towerTargetOffset+=90;
+}
+
+
+function towerGameOver(){
+
+    towerRunning=false;
+
+    document.getElementById(
+        "towerFinalScore"
+    ).textContent=towerScore;
+
+    document.getElementById(
+        "towerFinalRecord"
+    ).textContent=towerRecord;
+
+    document.getElementById(
+        "towerOver"
+    ).classList.add("show");
+}
+
+
+function updateTower(delta){
+
+    if(!towerRunning)
+        return;
+
+    if(
+        towerCurrent &&
+        towerCurrent.moving
+    ){
+
+        towerCurrent.x+=
+            towerCurrent.vx*delta;
+
+        if(towerCurrent.x<=0){
+
+            towerCurrent.x=0;
+
+            towerCurrent.vx=
+                Math.abs(
+                    towerCurrent.vx
+                );
+        }
+
+        if(
+            towerCurrent.x+
+            towerCurrent.width>=towerW
+        ){
+
+            towerCurrent.x=
+                towerW-
+                towerCurrent.width;
+
+            towerCurrent.vx=
+                -Math.abs(
+                    towerCurrent.vx
+                );
+        }
+    }
+
+    towerWorldOffset+=
+        (
+            towerTargetOffset-
+            towerWorldOffset
+        )*.12;
+}
+
+
+function drawTower(){
+
+    const gradient=
+        towerCtx.createLinearGradient(
+            0,0,0,towerH
+        );
+
+    gradient.addColorStop(0,"#07152b");
+    gradient.addColorStop(.55,"#0d2940");
+    gradient.addColorStop(1,"#06111e");
+
+    towerCtx.fillStyle=gradient;
+
+    towerCtx.fillRect(
+        0,0,towerW,towerH
+    );
+
+    towerCtx.beginPath();
+
+    towerCtx.arc(
+        towerW-90,
+        90+towerWorldOffset*.05,
+        38,
+        0,
+        Math.PI*2
+    );
+
+    towerCtx.fillStyle=
+        "rgba(255,255,255,.8)";
+
+    towerCtx.shadowBlur=30;
+    towerCtx.shadowColor=
+        "rgba(255,255,255,.4)";
+
+    towerCtx.fill();
+
+    towerCtx.shadowBlur=0;
+
+    for(let i=0;i<80;i++){
+
+        const x=(i*137)%towerW;
+
+        let y=
+            ((i*83)+towerWorldOffset*.12)
+            %towerH;
+
+        if(y<0)
+            y+=towerH;
+
+        towerCtx.fillStyle=
+            "rgba(255,255,255,.45)";
+
+        towerCtx.fillRect(
+            x,y,
+            1+(i%3),
+            1+(i%3)
+        );
+    }
+
+    for(const block of towerBlocks){
+
+        const y=
+            block.y+
+            towerWorldOffset;
+
+        if(
+            y+block.height<0 ||
+            y>towerH
+        )
+            continue;
+
+        const g=
+            towerCtx.createLinearGradient(
+                block.x,
+                y,
+                block.x,
+                y+block.height
+            );
+
+        g.addColorStop(
+            0,
+            towerColor(block.color)
+        );
+
+        g.addColorStop(
+            1,
+            "rgba(0,0,0,.35)"
+        );
+
+        towerCtx.fillStyle=g;
+
+        towerCtx.beginPath();
+
+        towerCtx.roundRect(
+            block.x,
+            y,
+            block.width,
+            block.height,
+            6
+        );
+
+        towerCtx.fill();
+    }
+
+    if(towerCurrent){
+
+        const y=
+            towerCurrent.y+
+            towerWorldOffset;
+
+        if(y+towerCurrent.height>=0){
+
+            towerCtx.fillStyle=
+                towerColor(
+                    towerCurrent.color
+                );
+
+            towerCtx.beginPath();
+
+            towerCtx.roundRect(
+                towerCurrent.x,
+                y,
+                towerCurrent.width,
+                towerCurrent.height,
+                6
+            );
+
+            towerCtx.fill();
+        }
+    }
+}
+
+
+window.addEventListener(
+    "keydown",
+    e=>{
+
+        if(
+            currentGame==="tower" &&
+            (
+                e.code==="Space" ||
+                e.code==="Enter" ||
+                e.code==="ArrowUp"
+            )
+        ){
+
+            e.preventDefault();
+
+            placeTowerBlock();
+        }
+    }
+);
+
+
+towerCanvas.addEventListener(
+    "pointerdown",
+    ()=>{
+
+        if(currentGame==="tower")
+            placeTowerBlock();
+    }
+);
+
+
+function towerLoop(timestamp){
+
+    if(!towerLast)
+        towerLast=timestamp;
+
+    const delta=
+        Math.min(
+            2,
+            (timestamp-towerLast)/16.67
+        );
+
+    towerLast=timestamp;
+
+    updateTower(delta);
+    drawTower();
+
+    requestAnimationFrame(towerLoop);
+}
+
+
+/* =====================================================
+   DULCE CRUSH
+===================================================== */
+
+const CANDY_SIZE=8;
+
+const candyTypes=[
+    "red",
+    "yellow",
+    "green",
+    "blue",
+    "purple",
+    "orange"
+];
+
+let candyBoardState=[];
+let candySelected=null;
+let candyScoreValue=0;
+let candyLevelValue=1;
+let candyMovesValue=25;
+let candyGoalValue=500;
+
+let candyRunning=false;
+let candyBusy=false;
+
+const candyBoardElement=
+    document.getElementById("candyBoard");
+
+const candyScoreElement=
+    document.getElementById("candyScore");
+
+const candyMovesElement=
+    document.getElementById("candyMoves");
+
+const candyLevelElement=
+    document.getElementById("candyLevel");
+
+const candyGoalElement=
+    document.getElementById("candyGoal");
+
+const candyMessageElement=
+    document.getElementById("candyMessage");
+
+
+function randomCandyType(){
+
+    return candyTypes[
+        Math.floor(
+            Math.random()*candyTypes.length
+        )
+    ];
+}
+
+
+function candyIndex(row,col){
+    return row*CANDY_SIZE+col;
+}
+
+
+function createCandyBoard(){
+
+    candyBoardState=[];
+
+    for(let r=0;r<CANDY_SIZE;r++){
+
+        for(let c=0;c<CANDY_SIZE;c++){
+
+            let type;
+
+            do{
+
+                type=randomCandyType();
+
+            }while(
+
+                (
+                    c>=2 &&
+                    candyBoardState[
+                        candyIndex(r,c-1)
+                    ]===type &&
+                    candyBoardState[
+                        candyIndex(r,c-2)
+                    ]===type
+                )
+
+                ||
+
+                (
+                    r>=2 &&
+                    candyBoardState[
+                        candyIndex(r-1,c)
+                    ]===type &&
+                    candyBoardState[
+                        candyIndex(r-2,c)
+                    ]===type
+                )
+            );
+
+            candyBoardState.push(type);
+        }
+    }
+
+    drawCandyBoard();
+}
+
+
+function candyClass(type){
+
+    return "candyCell candy"+
+        type.charAt(0).toUpperCase()+
+        type.slice(1);
+}
+
+
+function drawCandyBoard(){
+
+    candyBoardElement.innerHTML="";
+
+    candyBoardState.forEach(
+        (type,i)=>{
+
+            const cell=
+                document.createElement("button");
+
+            cell.className=
+                candyClass(type);
+
+            cell.dataset.index=i;
+
+            cell.addEventListener(
+                "click",
+                ()=>selectCandyCell(i)
+            );
+
+            if(candySelected===i)
+                cell.classList.add("selected");
+
+            candyBoardElement.appendChild(cell);
+        }
+    );
+}
+
+
+function selectCandyCell(i){
+
+    if(
+        !candyRunning ||
+        candyBusy
+    )
+        return;
+
+    if(candySelected===null){
+
+        candySelected=i;
+        highlightCandy();
+
+        return;
+    }
+
+    if(candySelected===i){
+
+        candySelected=null;
+        highlightCandy();
+
+        return;
+    }
+
+    if(
+        !areCandyAdjacent(
+            candySelected,
+            i
+        )
+    ){
+
+        candySelected=i;
+        highlightCandy();
+
+        return;
+    }
+
+    swapCandyCells(
+        candySelected,
+        i
+    );
+}
+
+
+function areCandyAdjacent(a,b){
+
+    const ar=Math.floor(a/CANDY_SIZE);
+    const ac=a%CANDY_SIZE;
+
+    const br=Math.floor(b/CANDY_SIZE);
+    const bc=b%CANDY_SIZE;
+
+    return (
+        Math.abs(ar-br)+
+        Math.abs(ac-bc)
+    )===1;
+}
+
+
+function highlightCandy(){
+
+    document
+        .querySelectorAll(
+            "#candyBoard .candyCell"
+        )
+        .forEach(cell=>{
+            cell.classList.remove("selected");
+        });
+
+    if(candySelected!==null){
+
+        const cell=
+            document.querySelector(
+                `#candyBoard .candyCell[data-index="${candySelected}"]`
+            );
+
+        if(cell)
+            cell.classList.add("selected");
+    }
+}
+
+
+async function swapCandyCells(a,b){
+
+    candyBusy=true;
+    candySelected=null;
+
+    [
+        candyBoardState[a],
+        candyBoardState[b]
+    ]=[
+        candyBoardState[b],
+        candyBoardState[a]
+    ];
+
+    drawCandyBoard();
+
+    await candyWait(150);
+
+    const matches=findCandyMatches();
+
+    if(matches.length===0){
+
+        [
+            candyBoardState[a],
+            candyBoardState[b]
+        ]=[
+            candyBoardState[b],
+            candyBoardState[a]
+        ];
+
+        drawCandyBoard();
+
+        candyMessageElement.textContent=
+            "❌ Ese movimiento no forma combinación";
+
+        await candyWait(700);
+
+        candyMessageElement.textContent="";
+        candyBusy=false;
+
+        return;
+    }
+
+    candyMovesValue--;
+
+    updateCandyStats();
+
+    await resolveCandyBoard();
+
+    if(candyScoreValue>=candyGoalValue){
+
+        finishCandyLevel();
+
+    }else if(candyMovesValue<=0){
+
+        candyGameOver();
+
+    }else{
+
+        candyBusy=false;
+    }
+}
+
+
+function findCandyMatches(){
+
+    const found=new Set();
+
+    for(let r=0;r<CANDY_SIZE;r++){
+
+        let start=0;
+
+        for(let c=1;c<=CANDY_SIZE;c++){
+
+            if(
+                c<CANDY_SIZE &&
+                candyBoardState[
+                    candyIndex(r,c)
+                ]===
+                candyBoardState[
+                    candyIndex(r,start)
+                ]
+            )
+                continue;
+
+            const length=c-start;
+
+            if(
+                candyBoardState[
+                    candyIndex(r,start)
+                ] &&
+                length>=3
+            ){
+
+                for(let x=start;x<c;x++)
+                    found.add(candyIndex(r,x));
+            }
+
+            start=c;
+        }
+    }
+
+    for(let c=0;c<CANDY_SIZE;c++){
+
+        let start=0;
+
+        for(let r=1;r<=CANDY_SIZE;r++){
+
+            if(
+                r<CANDY_SIZE &&
+                candyBoardState[
+                    candyIndex(r,c)
+                ]===
+                candyBoardState[
+                    candyIndex(start,c)
+                ]
+            )
+                continue;
+
+            const length=r-start;
+
+            if(
+                candyBoardState[
+                    candyIndex(start,c)
+                ] &&
+                length>=3
+            ){
+
+                for(let y=start;y<r;y++)
+                    found.add(candyIndex(y,c));
+            }
+
+            start=r;
+        }
+    }
+
+    return [...found];
+}
+
+
+async function resolveCandyBoard(){
+
+    let combo=0;
+
+    while(true){
+
+        const matches=findCandyMatches();
+
+        if(matches.length===0)
+            break;
+
+        combo++;
+
+        const points=
+            matches.length*
+            10*
+            combo;
+
+        candyScoreValue+=points;
+
+        candyMessageElement.textContent=
+            combo>1
+            ?`🔥 ¡COMBO x${combo}! +${points}`
+            :`✨ +${points}`;
+
+        matches.forEach(i=>{
+
+            const cell=
+                document.querySelector(
+                    `#candyBoard .candyCell[data-index="${i}"]`
+                );
+
+            if(cell)
+                cell.classList.add("pop");
+        });
+
+        await candyWait(280);
+
+        matches.forEach(i=>{
+            candyBoardState[i]=null;
+        });
+
+        dropCandy();
+
+        drawCandyBoard();
+
+        await candyWait(180);
+    }
+
+    candyMessageElement.textContent="";
+
+    updateCandyStats();
+}
+
+
+function dropCandy(){
+
+    for(let c=0;c<CANDY_SIZE;c++){
+
+        const column=[];
+
+        for(
+            let r=CANDY_SIZE-1;
+            r>=0;
+            r--
+        ){
+
+            const value=
+                candyBoardState[
+                    candyIndex(r,c)
+                ];
+
+            if(value!==null)
+                column.push(value);
+        }
+
+        for(
+            let r=CANDY_SIZE-1;
+            r>=0;
+            r--
+        ){
+
+            const position=
+                CANDY_SIZE-1-r;
+
+            candyBoardState[
+                candyIndex(r,c)
+            ]=
+                column[position] ??
+                randomCandyType();
+        }
+    }
+}
+
+
+function updateCandyStats(){
+
+    candyScoreElement.textContent=candyScoreValue;
+    candyMovesElement.textContent=candyMovesValue;
+    candyLevelElement.textContent=candyLevelValue;
+    candyGoalElement.textContent=candyGoalValue;
+}
+
+
+function startCandy(){
+
+    candyScoreValue=0;
+    candyLevelValue=1;
+    candyMovesValue=25;
+    candyGoalValue=500;
+
+    candySelected=null;
+
+    candyRunning=true;
+    candyBusy=false;
+
+    document.getElementById("candyOverlay")
+        .classList.remove("show");
+
+    candyMessageElement.textContent="";
+
+    createCandyBoard();
+    updateCandyStats();
+}
+
+
+function finishCandyLevel(){
+
+    candyBusy=true;
+
+    document.getElementById(
+        "candyPanelTitle"
+    ).textContent=
+        "🎉 ¡Nivel completado!";
+
+    document.getElementById(
+        "candyPanelText"
+    ).textContent=
+        `Has conseguido ${candyScoreValue.toLocaleString()} puntos.`;
+
+    document.getElementById(
+        "candyNextLevel"
+    ).textContent=
+        "Siguiente nivel 🚀";
+
+    document.getElementById("candyOverlay")
+        .classList.add("show");
+}
+
+
+function candyGameOver(){
+
+    candyBusy=true;
+
+    document.getElementById(
+        "candyPanelTitle"
+    ).textContent=
+        "😵 ¡Sin movimientos!";
+
+    document.getElementById(
+        "candyPanelText"
+    ).textContent=
+        `Puntuación: ${candyScoreValue.toLocaleString()} puntos.`;
+
+    document.getElementById(
+        "candyNextLevel"
+    ).textContent=
+        "Intentar de nuevo 🔄";
+
+    document.getElementById("candyOverlay")
+        .classList.add("show");
+}
+
+
+document.getElementById("candyNextLevel")
+    .addEventListener(
+        "click",
+        ()=>{
+
+            if(
+                candyScoreValue>=
+                candyGoalValue
+            ){
+
+                candyLevelValue++;
+
+                candyGoalValue=
+                    500+
+                    (
+                        candyLevelValue-1
+                    )*400;
+
+                candyMovesValue=
+                    Math.max(
+                        15,
+                        25-
+                        (
+                            candyLevelValue-1
+                        )*2
+                    );
+
+                candyScoreValue=0;
+
+            }else{
+
+                candyScoreValue=0;
+                candyMovesValue=25;
+            }
+
+            document.getElementById("candyOverlay")
+                .classList.remove("show");
+
+            candySelected=null;
+
+            createCandyBoard();
+            updateCandyStats();
+
+            candyBusy=false;
+            candyRunning=true;
+        }
+    );
+
+
+document.getElementById("candyRestart")
+    .addEventListener(
+        "click",
+        startCandy
+    );
+
+
+function candyWait(ms){
+
+    return new Promise(
+        resolve=>setTimeout(resolve,ms)
+    );
+}
+
+
+/* =====================================================
+   CAOS TOTAL
+===================================================== */
+
+const chaosCanvas=
+    document.getElementById("chaosCanvas");
+
+const chaosCtx=
+    chaosCanvas.getContext("2d");
+
+let chaosW=0;
+let chaosH=0;
+
+let chaosRunning=false;
+
+let chaosScoreValue=0;
+let chaosHealthValue=100;
+
+let chaosRecord=
+    Number(
+        localStorage.getItem("chaosRecord")||0
+    );
+
+let chaosEnemies=[];
+let chaosBullets=[];
+
+let chaosSpawnTimer=0;
+let chaosShootCooldown=0;
+
+let chaosKeys={
+    w:false,
+    a:false,
+    s:false,
+    d:false
+};
+
+let chaosMouse={
+    x:0,
+    y:0
+};
+
+const chaosPlayer={
+    x:0,
+    y:0,
+    radius:20,
+    speed:5
+};
+
+
+function resizeChaos(){
+
+    chaosW=
+        chaosCanvas.width=
+        window.innerWidth;
+
+    chaosH=
+        chaosCanvas.height=
+        window.innerHeight;
+}
+
+
+window.addEventListener(
+    "resize",
+    resizeChaos
+);
+
+
+function startChaos(){
+
+    resizeChaos();
+
+    chaosScoreValue=0;
+    chaosHealthValue=100;
+
+    chaosEnemies=[];
+    chaosBullets=[];
+
+    chaosSpawnTimer=0;
+    chaosShootCooldown=0;
+
+    chaosPlayer.x=chaosW/2;
+    chaosPlayer.y=chaosH/2;
+
+    chaosMouse.x=chaosW/2+100;
+    chaosMouse.y=chaosH/2;
+
+    chaosRunning=true;
+
+    document.getElementById("chaosOver")
+        .classList.remove("show");
+
+    updateChaosHUD();
+}
+
+
+function restartChaos(){
+    startChaos();
+}
+
+
+function updateChaosHUD(){
+
+    document.getElementById("chaosScore")
+        .textContent=chaosScoreValue;
+
+    document.getElementById("chaosHealth")
+        .textContent=Math.ceil(chaosHealthValue);
+
+    document.getElementById("chaosRecord")
+        .textContent=chaosRecord;
+}
+
+
+function spawnChaosEnemy(){
+
+    const side=
+        Math.floor(Math.random()*4);
+
+    let x,y;
+
+    if(side===0){
+
+        x=-30;
+        y=Math.random()*chaosH;
+
+    }else if(side===1){
+
+        x=chaosW+30;
+        y=Math.random()*chaosH;
+
+    }else if(side===2){
+
+        x=Math.random()*chaosW;
+        y=-30;
+
+    }else{
+
+        x=Math.random()*chaosW;
+        y=chaosH+30;
+    }
+
+    const difficulty=
+        Math.min(
+            2.5,
+            1+chaosScoreValue/250
+        );
+
+    chaosEnemies.push({
+
+        x,
+        y,
+
+        radius:
+            13+
+            Math.random()*9,
+
+        speed:
+            (
+                .8+
+                Math.random()*1.2
+            )*
+            difficulty
+    });
+}
+
+
+function chaosShoot(){
+
+    if(
+        !chaosRunning ||
+        chaosShootCooldown>0
+    )
+        return;
+
+    chaosShootCooldown=8;
+
+    const angle=
+        Math.atan2(
+            chaosMouse.y-chaosPlayer.y,
+            chaosMouse.x-chaosPlayer.x
+        );
+
+    chaosBullets.push({
+
+        x:
+            chaosPlayer.x+
+            Math.cos(angle)*25,
+
+        y:
+            chaosPlayer.y+
+            Math.sin(angle)*25,
+
+        vx:
+            Math.cos(angle)*12,
+
+        vy:
+            Math.sin(angle)*12,
+
+        life:70
+    });
+}
+
+
+function chaosGameOver(){
+
+    chaosRunning=false;
+
+    if(chaosScoreValue>chaosRecord){
+
+        chaosRecord=chaosScoreValue;
+
+        localStorage.setItem(
+            "chaosRecord",
+            chaosRecord
+        );
+    }
+
+    document.getElementById(
+        "chaosFinalScore"
+    ).textContent=chaosScoreValue;
+
+    document.getElementById("chaosOver")
+        .classList.add("show");
+}
+
+
+function updateChaos(){
+
+    if(!chaosRunning)
+        return;
+
+    if(chaosShootCooldown>0)
+        chaosShootCooldown--;
+
+    let dx=0;
+    let dy=0;
+
+    if(chaosKeys.w)dy--;
+    if(chaosKeys.s)dy++;
+    if(chaosKeys.a)dx--;
+    if(chaosKeys.d)dx++;
+
+    if(dx||dy){
+
+        const len=Math.hypot(dx,dy);
+
+        chaosPlayer.x+=
+            dx/len*
+            chaosPlayer.speed;
+
+        chaosPlayer.y+=
+            dy/len*
+            chaosPlayer.speed;
+    }
+
+    chaosPlayer.x=
+        Math.max(
+            chaosPlayer.radius,
+            Math.min(
+                chaosW-chaosPlayer.radius,
+                chaosPlayer.x
+            )
+        );
+
+    chaosPlayer.y=
+        Math.max(
+            chaosPlayer.radius,
+            Math.min(
+                chaosH-chaosPlayer.radius,
+                chaosPlayer.y
+            )
+        );
+
+    chaosSpawnTimer--;
+
+    if(chaosSpawnTimer<=0){
+
+        spawnChaosEnemy();
+
+        chaosSpawnTimer=
+            Math.max(
+                10,
+                38-
+                Math.floor(
+                    chaosScoreValue/20
+                )
+            );
+    }
+
+    for(
+        let i=chaosEnemies.length-1;
+        i>=0;
+        i--
+    ){
+
+        const e=chaosEnemies[i];
+
+        const ex=chaosPlayer.x-e.x;
+        const ey=chaosPlayer.y-e.y;
+
+        const d=Math.hypot(ex,ey);
+
+        if(d>1){
+
+            e.x+=ex/d*e.speed;
+            e.y+=ey/d*e.speed;
+        }
+
+        if(
+            d<
+            e.radius+
+            chaosPlayer.radius
+        ){
+
+            chaosHealthValue-=.8;
+
+            if(chaosHealthValue<=0){
+
+                chaosHealthValue=0;
+                chaosGameOver();
+
+                return;
+            }
+        }
+    }
+
+    for(
+        let i=chaosBullets.length-1;
+        i>=0;
+        i--
+    ){
+
+        const b=chaosBullets[i];
+
+        b.x+=b.vx;
+        b.y+=b.vy;
+        b.life--;
+
+        let hit=false;
+
+        for(
+            let j=chaosEnemies.length-1;
+            j>=0;
+            j--
+        ){
+
+            const e=chaosEnemies[j];
+
+            if(
+                Math.hypot(
+                    b.x-e.x,
+                    b.y-e.y
+                )<
+                e.radius+5
+            ){
+
+                chaosEnemies.splice(j,1);
+                chaosBullets.splice(i,1);
+
+                chaosScoreValue+=10;
+
+                hit=true;
+
+                break;
+            }
+        }
+
+        if(
+            !hit &&
+            (
+                b.life<=0 ||
+                b.x<0 ||
+                b.x>chaosW ||
+                b.y<0 ||
+                b.y>chaosH
+            )
+        ){
+
+            chaosBullets.splice(i,1);
+        }
+    }
+
+    updateChaosHUD();
+}
+
+
+function drawChaos(){
+
+    chaosCtx.fillStyle="#09070b";
+
+    chaosCtx.fillRect(
+        0,0,chaosW,chaosH
+    );
+
+    chaosCtx.strokeStyle=
+        "rgba(255,80,100,.08)";
+
+    for(let x=0;x<chaosW;x+=60){
+
+        chaosCtx.beginPath();
+        chaosCtx.moveTo(x,0);
+        chaosCtx.lineTo(x,chaosH);
+        chaosCtx.stroke();
+    }
+
+    for(let y=0;y<chaosH;y+=60){
+
+        chaosCtx.beginPath();
+        chaosCtx.moveTo(0,y);
+        chaosCtx.lineTo(chaosW,y);
+        chaosCtx.stroke();
+    }
+
+    for(const e of chaosEnemies){
+
+        chaosCtx.fillStyle="#e63750";
+
+        chaosCtx.beginPath();
+
+        chaosCtx.arc(
+            e.x,
+            e.y,
+            e.radius,
+            0,
+            Math.PI*2
+        );
+
+        chaosCtx.fill();
+    }
+
+    for(const b of chaosBullets){
+
+        chaosCtx.fillStyle="#ffd166";
+
+        chaosCtx.beginPath();
+
+        chaosCtx.arc(
+            b.x,
+            b.y,
+            5,
+            0,
+            Math.PI*2
+        );
+
+        chaosCtx.fill();
+    }
+
+    chaosCtx.save();
+
+    chaosCtx.translate(
+        chaosPlayer.x,
+        chaosPlayer.y
+    );
+
+    const angle=
+        Math.atan2(
+            chaosMouse.y-chaosPlayer.y,
+            chaosMouse.x-chaosPlayer.x
+        );
+
+    chaosCtx.rotate(angle);
+
+    chaosCtx.fillStyle="#2878ff";
+
+    chaosCtx.beginPath();
+
+    chaosCtx.arc(
+        0,
+        0,
+        chaosPlayer.radius,
+        0,
+        Math.PI*2
+    );
+
+    chaosCtx.fill();
+
+    chaosCtx.fillStyle="#222";
+
+    chaosCtx.fillRect(
+        10,-5,30,10
+    );
+
+    chaosCtx.restore();
+}
+
+
+chaosCanvas.addEventListener(
+    "pointermove",
+    e=>{
+
+        const rect=
+            chaosCanvas.getBoundingClientRect();
+
+        chaosMouse.x=
+            e.clientX-rect.left;
+
+        chaosMouse.y=
+            e.clientY-rect.top;
+    }
+);
+
+
+chaosCanvas.addEventListener(
+    "pointerdown",
+    e=>{
+
+        if(!chaosRunning)
+            return;
+
+        const rect=
+            chaosCanvas.getBoundingClientRect();
+
+        chaosMouse.x=
+            e.clientX-rect.left;
+
+        chaosMouse.y=
+            e.clientY-rect.top;
+
+        chaosShoot();
+    }
+);
+
+
+window.addEventListener(
+    "keydown",
+    e=>{
+
+        const k=e.key.toLowerCase();
+
+        if(k==="w"||k==="arrowup")
+            chaosKeys.w=true;
+
+        if(k==="s"||k==="arrowdown")
+            chaosKeys.s=true;
+
+        if(k==="a"||k==="arrowleft")
+            chaosKeys.a=true;
+
+        if(k==="d"||k==="arrowright")
+            chaosKeys.d=true;
+
+        if(e.code==="Space")
+            chaosShoot();
+    }
+);
+
+
+window.addEventListener(
+    "keyup",
+    e=>{
+
+        const k=e.key.toLowerCase();
+
+        if(k==="w"||k==="arrowup")
+            chaosKeys.w=false;
+
+        if(k==="s"||k==="arrowdown")
+            chaosKeys.s=false;
+
+        if(k==="a"||k==="arrowleft")
+            chaosKeys.a=false;
+
+        if(k==="d"||k==="arrowright")
+            chaosKeys.d=false;
+    }
+);
+
+
+function setupChaosControl(id,key){
+
+    const el=
+        document.getElementById(id);
+
+    el.addEventListener(
+        "pointerdown",
+        e=>{
+            e.preventDefault();
+            chaosKeys[key]=true;
+        }
+    );
+
+    const stop=()=>{
+        chaosKeys[key]=false;
+    };
+
+    el.addEventListener("pointerup",stop);
+    el.addEventListener("pointercancel",stop);
+    el.addEventListener("pointerleave",stop);
+}
+
+
+setupChaosControl("chaosLeft","a");
+setupChaosControl("chaosRight","d");
+setupChaosControl("chaosUp","w");
+setupChaosControl("chaosDown","s");
+
+
+document.getElementById("chaosShoot")
+    .addEventListener(
+        "pointerdown",
+        e=>{
+            e.preventDefault();
+            chaosShoot();
+        }
+    );
+
+
+function chaosLoop(){
+
+    updateChaos();
+    drawChaos();
+
+    requestAnimationFrame(chaosLoop);
+}
+
+
+/* =====================================================
+   TRES EN RAYA
+===================================================== */
+
+let tttBoardState=
+    Array(9).fill("");
+
+let tttCurrentPlayer="X";
+let tttMode="2P";
+let tttGameOver=true;
+let tttThinking=false;
+let tttRestartTimer=null;
+
+const tttCells=
+    document.querySelectorAll(".tttCell");
+
+
+tttCells.forEach(
+    cell=>{
+
+        cell.addEventListener(
+            "click",
+            ()=>{
+
+                playTTT(
+                    Number(
+                        cell.dataset.index
+                    )
+                );
+            }
+        );
+    }
+);
+
+
+function startTTT(){
+
+    if(tttRestartTimer){
+
+        clearTimeout(tttRestartTimer);
+        tttRestartTimer=null;
+    }
+
+    tttBoardState=Array(9).fill("");
+
+    tttGameOver=false;
+    tttThinking=false;
+
+    tttCurrentPlayer=
+        Math.random()<.5
+        ?"X"
+        :"O";
+
+    document.getElementById("tttResult")
+        .classList.remove("show");
+
+    renderTTT();
+    updateTTTTurn();
+
+    if(
+        tttMode==="IA" &&
+        tttCurrentPlayer==="O"
+    ){
+
+        tttThinking=true;
+
+        setTimeout(
+            tttAITurn,
+            400
+        );
+    }
+}
+
+
+function renderTTT(){
+
+    tttCells.forEach(
+        (cell,index)=>{
+
+            const value=
+                tttBoardState[index];
+
+            cell.textContent=
+                value==="X"
+                ?"×"
+                :value==="O"
+                ?"○"
+                :"";
+
+            cell.classList.remove(
+                "x",
+                "o",
+                "locked"
+            );
+
+            if(value==="X")
+                cell.classList.add("x");
+
+            if(value==="O")
+                cell.classList.add("o");
+
+            if(value)
+                cell.classList.add("locked");
+        }
+    );
+}
+
+
+function updateTTTTurn(){
+
+    const turn=
+        document.getElementById(
+            "tttTurn"
+        );
+
+    if(tttGameOver){
+
+        turn.textContent=
+            "Partida terminada";
+
+        return;
+    }
+
+    turn.textContent=
+        "Turno: "+
+        (
+            tttCurrentPlayer==="X"
+            ?"❌ X"
+            :"⭕ O"
+        );
+
+    document.getElementById("tttInfo")
+        .textContent=
+        tttMode==="IA"
+        ?"Contra IA · empieza aleatoriamente"
+        :"Dos jugadores · empieza aleatoriamente";
+}
+
+
+function playTTT(index){
+
+    if(
+        tttGameOver ||
+        tttThinking ||
+        tttBoardState[index]!==""
+    )
+        return;
+
+    if(
+        tttMode==="IA" &&
+        tttCurrentPlayer==="O"
+    )
+        return;
+
+    makeTTTMove(
+        index,
+        tttCurrentPlayer
+    );
+}
+
+
+function makeTTTMove(index,player){
+
+    if(
+        tttGameOver ||
+        tttBoardState[index]!==""
+    )
+        return;
+
+    tttBoardState[index]=player;
+
+    renderTTT();
+
+    const result=checkTTTResult();
+
+    if(result){
+
+        finishTTT(result);
+        return;
+    }
+
+    tttCurrentPlayer=
+        tttCurrentPlayer==="X"
+        ?"O"
+        :"X";
+
+    updateTTTTurn();
+
+    if(
+        tttMode==="IA" &&
+        tttCurrentPlayer==="O"
+    ){
+
+        tttThinking=true;
+
+        setTimeout(
+            tttAITurn,
+            400
+        );
+    }
+}
+
+
+function checkTTTResult(){
+
+    const wins=[
+
+        [0,1,2],
+        [3,4,5],
+        [6,7,8],
+
+        [0,3,6],
+        [1,4,7],
+        [2,5,8],
+
+        [0,4,8],
+        [2,4,6]
+
+    ];
+
+    for(const line of wins){
+
+        const [a,b,c]=line;
+
+        if(
+            tttBoardState[a] &&
+            tttBoardState[a]===
+            tttBoardState[b] &&
+            tttBoardState[a]===
+            tttBoardState[c]
+        ){
+
+            return tttBoardState[a];
+        }
+    }
+
+    if(
+        tttBoardState.every(
+            cell=>cell!==""
+        )
+    )
+        return "DRAW";
+
+    return null;
+}
+
+
+function finishTTT(result){
+
+    tttGameOver=true;
+    tttThinking=false;
+
+    const title=
+        document.getElementById(
+            "tttResultTitle"
+        );
+
+    const text=
+        document.getElementById(
+            "tttResultText"
+        );
+
+    if(result==="X"){
+
+        title.textContent="❌ ¡GANA X!";
+        title.style.color="#ff5268";
+
+        text.textContent=
+            tttMode==="IA"
+            ?"¡Has ganado!"
+            :"¡Ha ganado el jugador X!";
+
+    }else if(result==="O"){
+
+        title.textContent="⭕ ¡GANA O!";
+        title.style.color="#35d9ff";
+
+        text.textContent=
+            tttMode==="IA"
+            ?"La IA ha ganado."
+            :"¡Ha ganado el jugador O!";
+
+    }else{
+
+        title.textContent="🤝 EMPATE";
+        title.style.color="#ffd166";
+
+        text.textContent=
+            "No quedan casillas libres.";
+    }
+
+    document.getElementById("tttResult")
+        .classList.add("show");
+
+    tttRestartTimer=
+        setTimeout(
+            ()=>{
+
+                if(currentGame==="ttt")
+                    startTTT();
+
+            },
+            1400
+        );
+}
+
+
+function tttAITurn(){
+
+    if(
+        tttGameOver ||
+        tttMode!=="IA" ||
+        tttCurrentPlayer!=="O"
+    ){
+
+        tttThinking=false;
+        return;
+    }
+
+    const empty=[];
+
+    for(let i=0;i<9;i++){
+
+        if(tttBoardState[i]==="")
+            empty.push(i);
+    }
+
+    if(!empty.length){
+
+        tttThinking=false;
+        return;
+    }
+
+    let move=findWinningMove("O");
+
+    if(move===-1)
+        move=findWinningMove("X");
+
+    if(
+        move===-1 &&
+        tttBoardState[4]===""
+    )
+        move=4;
+
+    if(move===-1){
+
+        const corners=
+            [0,2,6,8].filter(
+                i=>tttBoardState[i]===""
+            );
+
+        if(corners.length){
+
+            move=
+                corners[
+                    Math.floor(
+                        Math.random()*
+                        corners.length
+                    )
+                ];
+        }
+    }
+
+    if(move===-1){
+
+        move=
+            empty[
+                Math.floor(
+                    Math.random()*
+                    empty.length
+                )
+            ];
+    }
+
+    tttThinking=false;
+
+    makeTTTMove(move,"O");
+}
+
+
+function findWinningMove(player){
+
+    const wins=[
+
+        [0,1,2],
+        [3,4,5],
+        [6,7,8],
+
+        [0,3,6],
+        [1,4,7],
+        [2,5,8],
+
+        [0,4,8],
+        [2,4,6]
+
+    ];
+
+    for(const line of wins){
+
+        const values=
+            line.map(i=>tttBoardState[i]);
+
+        const playerCount=
+            values.filter(
+                v=>v===player
+            ).length;
+
+        const emptyIndex=
+            line.find(
+                i=>tttBoardState[i]===""
+            );
+
+        if(
+            playerCount===2 &&
+            emptyIndex!==undefined
+        )
+            return emptyIndex;
+    }
+
+    return -1;
+}
+
+
+function setTTTMode(mode){
+
+    tttMode=mode;
+
+    document.getElementById("tttMode")
+        .textContent=
+        mode==="IA"
+        ?"🤖 IA"
+        :"👥 2 JUGADORES";
+
+    startTTT();
+}
+
+
+document.getElementById("tttMode")
+    .addEventListener(
+        "click",
+        ()=>{
+            setTTTMode(
+                tttMode==="IA"
+                ?"2P"
+                :"IA"
+            );
+        }
+    );
+
+
+/* =====================================================
+   🚪 PUERTA 13 - JUEGO
+===================================================== */
+
+let door13Running=false;
+let door13Timer=null;
+
+let door13Lives=3;
+let door13Time=30;
+let door13Score=0;
+
+const DOOR13_CORRECT=13;
+
+
+function startDoor13(){
+
+    if(door13Timer){
+
+        clearInterval(door13Timer);
+        door13Timer=null;
+    }
+
+    door13Running=true;
+
+    door13Lives=3;
+    door13Time=30;
+    door13Score=0;
+
+    document.getElementById("door13Level")
+        .textContent="1";
+
+    updateDoor13();
+
+    document.getElementById("door13GameOver")
+        .classList.remove("show");
+
+    document.getElementById("door13Message")
+        .innerHTML=
+        "<strong>⚠️ ¿Cuál será?</strong>"+
+        "Analiza las pistas y elige cuidadosamente.";
+
+    document.querySelectorAll(".door13Door")
+        .forEach(door=>{
+            door.classList.remove(
+                "wrong",
+                "correct"
+            );
+            door.disabled=false;
+        });
+
+    door13Timer=
+        setInterval(
+            ()=>{
+
+                if(!door13Running)
+                    return;
+
+                door13Time--;
+
+                updateDoor13();
+
+                if(door13Time<=0){
+
+                    door13Time=0;
+
+                    updateDoor13();
+
+                    door13Lose(
+                        "⏰ ¡SE ACABÓ EL TIEMPO!",
+                        "No has conseguido encontrar la puerta correcta antes de que el tiempo llegara a cero."
+                    );
+                }
+
+            },
+            1000
+        );
+}
+
+
+function updateDoor13(){
+
+    document.getElementById("door13Lives")
+        .textContent=
+        "❤️ ".repeat(door13Lives).trim() ||
+        "💀";
+
+    document.getElementById("door13Time")
+        .textContent=door13Time;
+
+    document.getElementById("door13Score")
+        .textContent=door13Score;
+}
+
+
+function chooseDoor13(number){
+
+    if(
+        !door13Running ||
+        door13Lives<=0
+    )
+        return;
+
+    const doors=
+        document.querySelectorAll(
+            ".door13Door"
+        );
+
+    const selected=
+        doors[number-1];
+
+    if(!selected)
+        return;
+
+    if(number===DOOR13_CORRECT){
+
+        selected.classList.add("correct");
+
+        door13Running=false;
+
+        if(door13Timer){
+
+            clearInterval(door13Timer);
+            door13Timer=null;
+        }
+
+        const timeBonus=
+            door13Time*10;
+
+        door13Score+=
+            100+
+            timeBonus;
+
+        updateDoor13();
+
+        doors.forEach(
+            door=>{
+                door.disabled=true;
+            }
+        );
+
+        document.getElementById("door13Message")
+            .innerHTML=
+            "<strong>🎉 ¡HAS ENCONTRADO LA PUERTA 13!</strong>"+
+            "Las pistas te han llevado hasta la puerta correcta.";
+
+        setTimeout(
+            ()=>{
+                door13Win();
+            },
+            700
+        );
+
+        return;
+    }
+
+
+    selected.classList.add("wrong");
+
+    door13Lives--;
+
+    door13Score=
+        Math.max(
+            0,
+            door13Score-10
+        );
+
+    updateDoor13();
+
+    document.getElementById("door13Message")
+        .innerHTML=
+        "<strong>❌ PUERTA INCORRECTA</strong>"+
+        `La puerta ${number} no es la correcta. `+
+        `Te quedan ${door13Lives} vida${door13Lives===1?"":"s"}.`;
+
+    setTimeout(
+        ()=>{
+            selected.classList.remove("wrong");
+        },
+        500
+    );
+
+    if(door13Lives<=0){
+
+        door13Lose(
+            "💀 ¡SIN VIDAS!",
+            "Has elegido demasiadas puertas incorrectas. La Puerta 13 sigue oculta..."
+        );
+    }
+}
+
+
+function door13Win(){
+
+    showDoor13End(
+        true,
+        "🚪 ¡PUERTA 13 ENCONTRADA!",
+        `¡Lo has conseguido! Has descubierto la puerta correcta.<br><br>
+        Puntuación final: <strong>${door13Score}</strong> puntos.<br><br>
+        Las pistas eran suficientes. Solo había que pensar antes de abrir una puerta.`
+    );
+}
+
+
+function door13Lose(title,text){
+
+    if(!door13Running)
+        return;
+
+    door13Running=false;
+
+    if(door13Timer){
+
+        clearInterval(door13Timer);
+        door13Timer=null;
+    }
+
+    document.querySelectorAll(".door13Door")
+        .forEach(
+            door=>{
+                door.disabled=true;
+            }
+        );
+
+    showDoor13End(
+        false,
+        title,
+        text+
+        "<br><br>"+
+        "La respuesta correcta era la <strong>Puerta 13</strong>."
+    );
+}
+
+
+function showDoor13End(success,title,text){
+
+    document.getElementById(
+        "door13GameOverTitle"
+    ).textContent=title;
+
+    document.getElementById(
+        "door13GameOverText"
+    ).innerHTML=text;
+
+    const overlay=
+        document.getElementById(
+            "door13GameOver"
+        );
+
+    overlay.classList.remove(
+        "success",
+        "fail"
+    );
+
+    overlay.classList.add(
+        success
+        ?"success"
+        :"fail"
+    );
+
+    overlay.classList.add("show");
+}
+
+
+function restartDoor13(){
+
+    startDoor13();
+}
+
+
+/* =====================================================
+   INICIO
+===================================================== */
+
+resizeTower();
+resizeChaos();
+
+document.getElementById("towerRecord")
+    .textContent=towerRecord;
+
+requestAnimationFrame(towerLoop);
+requestAnimationFrame(chaosLoop);
+
+</script>
+
+</body>
+</html>
