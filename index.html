@@ -1,0 +1,2873 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Josema Games 🎮</title>
+
+<style>
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+    user-select:none;
+    -webkit-user-select:none;
+}
+
+html,body{
+    width:100%;
+    min-height:100%;
+    font-family:Arial,sans-serif;
+    background:#080b12;
+    color:white;
+}
+
+body{
+    overflow-x:hidden;
+}
+
+/* =========================
+   SUITE
+========================= */
+
+#suite{
+    min-height:100vh;
+    padding:35px 20px 50px;
+    background:
+        radial-gradient(circle at top,#18233d 0%,#080b12 48%,#05070b 100%);
+}
+
+.logo{
+    text-align:center;
+    margin-bottom:10px;
+    font-size:44px;
+    font-weight:900;
+    letter-spacing:-2px;
+}
+
+.subtitle{
+    text-align:center;
+    color:#9ba8bd;
+    margin-bottom:35px;
+    font-size:17px;
+}
+
+.games{
+    width:min(1100px,100%);
+    margin:auto;
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+    gap:25px;
+}
+
+.game-card{
+    min-height:330px;
+    border-radius:24px;
+    padding:25px;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    border:1px solid rgba(255,255,255,.1);
+    background:linear-gradient(145deg,#151d2d,#0d121c);
+    box-shadow:0 15px 40px rgba(0,0,0,.35);
+    transition:.2s;
+}
+
+.game-card:hover{
+    transform:translateY(-7px);
+    border-color:rgba(255,255,255,.25);
+}
+
+.game-icon{
+    font-size:70px;
+    text-align:center;
+    margin-top:15px;
+}
+
+.game-card h2{
+    text-align:center;
+    font-size:27px;
+    margin-top:15px;
+}
+
+.game-card p{
+    text-align:center;
+    color:#aab4c4;
+    line-height:1.5;
+    margin-top:10px;
+}
+
+.play{
+    width:100%;
+    padding:14px;
+    border:0;
+    border-radius:13px;
+    color:white;
+    font-size:18px;
+    font-weight:bold;
+    cursor:pointer;
+    margin-top:20px;
+}
+
+.zombie-btn{
+    background:#d93648;
+}
+
+.tower-btn{
+    background:#19c4df;
+    color:#031018;
+}
+
+.candy-btn{
+    background:#d946ef;
+}
+
+.play:hover{
+    filter:brightness(1.15);
+}
+
+/* =========================
+   JUEGO
+========================= */
+
+.game-screen{
+    display:none;
+    position:fixed;
+    inset:0;
+    width:100%;
+    height:100%;
+    background:#05080c;
+    z-index:100;
+}
+
+.game-screen.active{
+    display:block;
+}
+
+.game-canvas{
+    display:block;
+    width:100%;
+    height:100%;
+}
+
+.back{
+    position:fixed;
+    top:15px;
+    left:15px;
+    z-index:500;
+    border:0;
+    border-radius:12px;
+    padding:11px 17px;
+    background:rgba(0,0,0,.65);
+    color:white;
+    font-size:15px;
+    font-weight:bold;
+    cursor:pointer;
+    backdrop-filter:blur(8px);
+}
+
+.back:hover{
+    background:rgba(255,255,255,.15);
+}
+
+/* =========================
+   HUD
+========================= */
+
+.game-hud{
+    position:fixed;
+    top:17px;
+    left:170px;
+    right:20px;
+    display:flex;
+    justify-content:space-between;
+    pointer-events:none;
+    z-index:300;
+    font-size:19px;
+    font-weight:bold;
+    text-shadow:0 2px 5px #000;
+}
+
+/* =========================
+   GAME OVER
+========================= */
+
+.overlay{
+    position:fixed;
+    inset:0;
+    z-index:400;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    flex-direction:column;
+    text-align:center;
+    background:rgba(0,0,0,.78);
+}
+
+.overlay.show{
+    display:flex;
+}
+
+.overlay h1{
+    font-size:50px;
+    margin-bottom:15px;
+}
+
+.overlay p{
+    font-size:20px;
+    margin:5px;
+}
+
+.restart{
+    margin-top:20px;
+    border:0;
+    border-radius:12px;
+    padding:14px 28px;
+    font-size:18px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+/* =========================
+   CANDY
+========================= */
+
+#candyScreen{
+    background:
+        radial-gradient(circle at center,#392052,#110c18);
+    overflow:auto;
+}
+
+.candy-wrap{
+    width:min(600px,100%);
+    min-height:100%;
+    margin:auto;
+    padding:75px 15px 25px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+}
+
+.candy-title{
+    font-size:36px;
+    font-weight:900;
+    margin-bottom:8px;
+}
+
+.candy-info{
+    display:flex;
+    justify-content:space-between;
+    width:min(500px,100%);
+    padding:12px 15px;
+    border-radius:15px;
+    background:rgba(0,0,0,.3);
+    margin-bottom:15px;
+    font-weight:bold;
+}
+
+#candyBoard{
+    width:min(500px,92vw);
+    aspect-ratio:1;
+    display:grid;
+    grid-template-columns:repeat(8,1fr);
+    gap:5px;
+    padding:7px;
+    border-radius:18px;
+    background:rgba(0,0,0,.35);
+    box-shadow:0 20px 50px rgba(0,0,0,.4);
+}
+
+.candy-cell{
+    border:0;
+    border-radius:11px;
+    cursor:pointer;
+    position:relative;
+    transition:.12s;
+    box-shadow:
+        inset 0 2px 4px rgba(255,255,255,.3),
+        inset 0 -5px 8px rgba(0,0,0,.25);
+}
+
+.candy-cell:hover{
+    transform:scale(.94);
+}
+
+.candy-cell.selected{
+    outline:4px solid white;
+    transform:scale(.9);
+}
+
+.candy-red{background:#ef4444;}
+.candy-blue{background:#3b82f6;}
+.candy-green{background:#22c55e;}
+.candy-yellow{background:#facc15;}
+.candy-purple{background:#a855f7;}
+.candy-orange{background:#f97316;}
+
+.candy-message{
+    min-height:25px;
+    margin-top:15px;
+    color:#ffd6ff;
+    text-align:center;
+}
+
+/* =========================
+   CONTROLES MÓVILES ZOMBIE
+========================= */
+
+#zombieControls{
+    display:none;
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:350;
+}
+
+.zcontrol{
+    position:absolute;
+    width:65px;
+    height:65px;
+    border-radius:50%;
+    background:rgba(255,255,255,.12);
+    border:2px solid rgba(255,255,255,.3);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:white;
+    font-size:25px;
+    pointer-events:auto;
+    touch-action:none;
+}
+
+#za{
+    left:20px;
+    bottom:30px;
+}
+
+#zd{
+    left:100px;
+    bottom:30px;
+}
+
+#zw{
+    left:60px;
+    bottom:105px;
+}
+
+#zs{
+    left:60px;
+    bottom:-45px;
+}
+
+#zshoot{
+    right:25px;
+    bottom:35px;
+    width:85px;
+    height:85px;
+    background:rgba(220,30,40,.3);
+}
+
+@media(max-width:799px){
+    #zombieControls{
+        display:block;
+    }
+
+    .game-hud{
+        left:15px;
+        top:65px;
+        font-size:16px;
+    }
+
+    .back{
+        font-size:13px;
+        padding:9px 12px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- =====================================================
+     SUITE PRINCIPAL
+===================================================== -->
+
+<section id="suite">
+
+    <div class="logo">
+        🎮 Josema Games
+    </div>
+
+    <div class="subtitle">
+        Tu colección de juegos
+    </div>
+
+    <div class="games">
+
+        <!-- ZOMBIE -->
+        <div class="game-card">
+
+            <div>
+                <div class="game-icon">🧟</div>
+
+                <h2>Zombie Escape</h2>
+
+                <p>
+                    Sobrevive a las oleadas de zombis
+                    y consigue el mayor número de eliminaciones.
+                </p>
+            </div>
+
+            <button
+                class="play zombie-btn"
+                onclick="openGame('zombie')">
+                ▶ JUGAR
+            </button>
+
+        </div>
+
+
+        <!-- TORRE -->
+        <div class="game-card">
+
+            <div>
+                <div class="game-icon">🏗️</div>
+
+                <h2>Torre Imposible</h2>
+
+                <p>
+                    Coloca los bloques perfectamente
+                    y construye la torre más alta.
+                </p>
+            </div>
+
+            <button
+                class="play tower-btn"
+                onclick="openGame('tower')">
+                ▶ JUGAR
+            </button>
+
+        </div>
+
+
+        <!-- CANDY -->
+        <div class="game-card">
+
+            <div>
+                <div class="game-icon">🍬</div>
+
+                <h2>Candy Crush</h2>
+
+                <p>
+                    Combina tres o más caramelos
+                    iguales para conseguir puntos.
+                </p>
+            </div>
+
+            <button
+                class="play candy-btn"
+                onclick="openGame('candy')">
+                ▶ JUGAR
+            </button>
+
+        </div>
+
+    </div>
+</section>
+
+
+<!-- =====================================================
+     ZOMBIE ESCAPE
+===================================================== -->
+
+<section
+    id="zombieScreen"
+    class="game-screen">
+
+    <button
+        class="back"
+        onclick="closeGame()">
+        ← Josema Games
+    </button>
+
+    <canvas
+        id="zombieCanvas"
+        class="game-canvas">
+    </canvas>
+
+    <div class="game-hud">
+
+        <div>
+            ❤️ <span id="zHealth">100</span>
+        </div>
+
+        <div>
+            🧟 <span id="zKills">0</span>
+        </div>
+
+        <div>
+            🌊 Oleada <span id="zWave">1</span>
+        </div>
+
+    </div>
+
+    <div id="zombieOver" class="overlay">
+
+        <h1 style="color:#ff4050">
+            HAS MUERTO
+        </h1>
+
+        <p>
+            Zombis eliminados:
+            <strong id="zFinalKills">0</strong>
+        </p>
+
+        <p>
+            Oleada:
+            <strong id="zFinalWave">1</strong>
+        </p>
+
+        <p>
+            🏆 Récord:
+            <strong id="zRecord">0</strong>
+        </p>
+
+        <button
+            class="restart"
+            style="background:#e63946;color:white"
+            onclick="restartZombie()">
+            JUGAR DE NUEVO
+        </button>
+
+    </div>
+
+    <div id="zombieControls">
+
+        <div class="zcontrol" id="za">◀</div>
+        <div class="zcontrol" id="zd">▶</div>
+        <div class="zcontrol" id="zw">▲</div>
+        <div class="zcontrol" id="zs">▼</div>
+        <div class="zcontrol" id="zshoot">🔫</div>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     TORRE IMPOSIBLE
+===================================================== -->
+
+<section
+    id="towerScreen"
+    class="game-screen">
+
+    <button
+        class="back"
+        onclick="closeGame()">
+        ← Josema Games
+    </button>
+
+    <canvas
+        id="towerCanvas"
+        class="game-canvas">
+    </canvas>
+
+    <div class="game-hud">
+
+        <div>
+            🏗️ Piso:
+            <span id="tScore">0</span>
+        </div>
+
+        <div>
+            🏆 Récord:
+            <span id="tRecord">0</span>
+        </div>
+
+    </div>
+
+    <div
+        id="towerHint"
+        style="
+        position:fixed;
+        bottom:20px;
+        left:50%;
+        transform:translateX(-50%);
+        z-index:300;
+        color:rgba(255,255,255,.75);
+        text-align:center;
+        ">
+        ESPACIO / CLIC / TOQUE
+        para colocar el bloque
+    </div>
+
+    <div id="towerOver" class="overlay">
+
+        <h1 style="color:#ff5268">
+            TORRE CAÍDA
+        </h1>
+
+        <p>
+            Has conseguido:
+            <strong>
+                <span id="tFinalScore">0</span>
+                pisos
+            </strong>
+        </p>
+
+        <p>
+            🏆 Récord:
+            <strong>
+                <span id="tFinalRecord">0</span>
+            </strong>
+        </p>
+
+        <button
+            class="restart"
+            style="background:#22d3ee;color:#041018"
+            onclick="restartTower()">
+            JUGAR DE NUEVO
+        </button>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     CANDY CRUSH
+===================================================== -->
+
+<section
+    id="candyScreen"
+    class="game-screen">
+
+    <button
+        class="back"
+        onclick="closeGame()">
+        ← Josema Games
+    </button>
+
+    <div class="candy-wrap">
+
+        <div class="candy-title">
+            🍬 Candy Crush
+        </div>
+
+        <div class="candy-info">
+
+            <span>
+                ⭐ Puntos:
+                <strong id="candyScore">0</strong>
+            </span>
+
+            <span>
+                🏆 Récord:
+                <strong id="candyRecord">0</strong>
+            </span>
+
+        </div>
+
+        <div id="candyBoard"></div>
+
+        <div
+            id="candyMessage"
+            class="candy-message">
+            Combina 3 o más caramelos
+        </div>
+
+        <button
+            class="restart"
+            style="background:#d946ef;color:white"
+            onclick="restartCandy()">
+            NUEVA PARTIDA
+        </button>
+
+    </div>
+
+</section>
+
+
+<script>
+
+/* =====================================================
+   NAVEGACIÓN
+===================================================== */
+
+const suite =
+    document.getElementById("suite");
+
+const screens = {
+    zombie:
+        document.getElementById("zombieScreen"),
+
+    tower:
+        document.getElementById("towerScreen"),
+
+    candy:
+        document.getElementById("candyScreen")
+};
+
+
+function openGame(game){
+
+    suite.style.display="none";
+
+    Object.values(screens).forEach(
+        s=>s.classList.remove("active")
+    );
+
+    screens[game].classList.add("active");
+
+
+    if(game==="zombie"){
+        resizeZombie();
+        if(!zRunning){
+            restartZombie();
+        }
+    }
+
+    if(game==="tower"){
+        resizeTower();
+        if(!towerRunning){
+            restartTower();
+        }
+    }
+
+    if(game==="candy"){
+        restartCandy();
+    }
+
+}
+
+
+function closeGame(){
+
+    Object.values(screens).forEach(
+        s=>s.classList.remove("active")
+    );
+
+    suite.style.display="block";
+
+    zRunning=false;
+    towerRunning=false;
+
+}
+
+
+/* =====================================================
+   ZOMBIE ESCAPE
+===================================================== */
+
+const zCanvas =
+    document.getElementById("zombieCanvas");
+
+const zctx =
+    zCanvas.getContext("2d");
+
+let zW=0;
+let zH=0;
+
+let zRunning=false;
+
+let zHealth=100;
+let zKills=0;
+let zWave=1;
+
+let zZombies=[];
+let zBullets=[];
+let zParticles=[];
+let zTracers=[];
+
+let zKeys={};
+
+let zSpawn=0;
+let zShootTimer=0;
+
+let zRecord =
+    Number(
+        localStorage.getItem("zombieRecord")||0
+    );
+
+
+const zPlayer={
+    x:0,
+    y:0,
+    radius:18,
+    speed:4,
+    angle:0
+};
+
+
+function resizeZombie(){
+
+    zW=
+        zCanvas.width=
+        window.innerWidth;
+
+    zH=
+        zCanvas.height=
+        window.innerHeight;
+
+    zPlayer.x=zW/2;
+    zPlayer.y=zH/2;
+}
+
+
+window.addEventListener(
+    "resize",
+    ()=>{
+        if(
+            screens.zombie.classList.contains("active")
+        ){
+            resizeZombie();
+        }
+    }
+);
+
+
+/* =========================
+   ZOMBIE DISPARO
+========================= */
+
+function zombieShoot(){
+
+    if(!zRunning)
+        return;
+
+    if(zShootTimer>0)
+        return;
+
+    zShootTimer=10;
+
+    const dx=
+        Math.cos(zPlayer.angle);
+
+    const dy=
+        Math.sin(zPlayer.angle);
+
+    const startX=
+        zPlayer.x+dx*25;
+
+    const startY=
+        zPlayer.y+dy*25;
+
+    const endX=
+        startX+dx*48;
+
+    const endY=
+        startY+dy*48;
+
+
+    /*
+       TRAZADO DEL DISPARO
+
+       Amarillo/blanco.
+       Dura solamente unas décimas.
+    */
+
+    zTracers.push({
+
+        x1:startX,
+        y1:startY,
+
+        x2:endX,
+        y2:endY,
+
+        life:5,
+        maxLife:5
+
+    });
+
+
+    zBullets.push({
+
+        x:startX,
+        y:startY,
+
+        vx:dx*11,
+        vy:dy*11,
+
+        life:60
+
+    });
+
+}
+
+
+/* =========================
+   ZOMBIE
+========================= */
+
+function spawnZombie(){
+
+    const side=
+        Math.floor(
+            Math.random()*4
+        );
+
+    let x,y;
+
+    if(side===0){
+        x=-30;
+        y=Math.random()*zH;
+    }
+
+    if(side===1){
+        x=zW+30;
+        y=Math.random()*zH;
+    }
+
+    if(side===2){
+        x=Math.random()*zW;
+        y=-30;
+    }
+
+    if(side===3){
+        x=Math.random()*zW;
+        y=zH+30;
+    }
+
+    zZombies.push({
+
+        x:x,
+        y:y,
+
+        radius:17,
+
+        speed:
+            .7+
+            zWave*.06+
+            Math.random()*.4,
+
+        health:2
+
+    });
+
+}
+
+
+function zCollision(a,b){
+
+    return Math.hypot(
+        a.x-b.x,
+        a.y-b.y
+    ) <
+    a.radius+b.radius;
+
+}
+
+
+function zombieExplosion(x,y){
+
+    for(
+        let i=0;
+        i<12;
+        i++
+    ){
+
+        zParticles.push({
+
+            x:x,
+            y:y,
+
+            vx:
+                (Math.random()-.5)*6,
+
+            vy:
+                (Math.random()-.5)*6,
+
+            life:
+                20+Math.random()*20,
+
+            size:
+                2+Math.random()*3
+
+        });
+
+    }
+
+}
+
+
+function updateZombie(){
+
+    if(!zRunning)
+        return;
+
+
+    if(zShootTimer>0)
+        zShootTimer--;
+
+
+    let dx=0;
+    let dy=0;
+
+    if(zKeys.w)dy--;
+    if(zKeys.s)dy++;
+    if(zKeys.a)dx--;
+    if(zKeys.d)dx++;
+
+
+    if(dx||dy){
+
+        const len=
+            Math.hypot(dx,dy);
+
+        zPlayer.x+=
+            dx/len*zPlayer.speed;
+
+        zPlayer.y+=
+            dy/len*zPlayer.speed;
+
+    }
+
+
+    zPlayer.x=
+        Math.max(
+            zPlayer.radius,
+            Math.min(
+                zW-zPlayer.radius,
+                zPlayer.x
+            )
+        );
+
+
+    zPlayer.y=
+        Math.max(
+            zPlayer.radius,
+            Math.min(
+                zH-zPlayer.radius,
+                zPlayer.y
+            )
+        );
+
+
+    /* APUNTAR AL MÁS CERCANO */
+
+    let closest=null;
+    let closestD=Infinity;
+
+    for(const z of zZombies){
+
+        const d=
+            Math.hypot(
+                z.x-zPlayer.x,
+                z.y-zPlayer.y
+            );
+
+        if(d<closestD){
+
+            closestD=d;
+            closest=z;
+
+        }
+
+    }
+
+
+    if(closest){
+
+        zPlayer.angle=
+            Math.atan2(
+                closest.y-zPlayer.y,
+                closest.x-zPlayer.x
+            );
+
+    }
+
+
+    /* SPAWN */
+
+    zSpawn--;
+
+    if(zSpawn<=0){
+
+        spawnZombie();
+
+        zSpawn=
+            Math.max(
+                15,
+                75-zWave*4
+            );
+
+    }
+
+
+    /* ZOMBIES */
+
+    for(
+        let i=zZombies.length-1;
+        i>=0;
+        i--
+    ){
+
+        const z=zZombies[i];
+
+        const dx=
+            zPlayer.x-z.x;
+
+        const dy=
+            zPlayer.y-z.y;
+
+        const d=
+            Math.hypot(dx,dy);
+
+
+        if(d>1){
+
+            z.x+=dx/d*z.speed;
+            z.y+=dy/d*z.speed;
+
+        }
+
+
+        if(
+            zCollision(
+                zPlayer,
+                z
+            )
+        ){
+
+            zHealth-=.5;
+
+            zombieExplosion(
+                zPlayer.x,
+                zPlayer.y
+            );
+
+            z.x-=dx/d*10;
+            z.y-=dy/d*10;
+
+
+            if(zHealth<=0){
+
+                zHealth=0;
+
+                zombieGameOver();
+
+                return;
+
+            }
+
+        }
+
+    }
+
+
+    /* BALAS */
+
+    for(
+        let i=zBullets.length-1;
+        i>=0;
+        i--
+    ){
+
+        const b=zBullets[i];
+
+        b.x+=b.vx;
+        b.y+=b.vy;
+
+        b.life--;
+
+        let hit=false;
+
+
+        for(
+            let j=zZombies.length-1;
+            j>=0;
+            j--
+        ){
+
+            const z=zZombies[j];
+
+            if(
+                Math.hypot(
+                    b.x-z.x,
+                    b.y-z.y
+                ) <
+                z.radius+5
+            ){
+
+                z.health--;
+
+                zBullets.splice(i,1);
+
+                hit=true;
+
+                zombieExplosion(
+                    b.x,
+                    b.y
+                );
+
+
+                if(z.health<=0){
+
+                    zZombies.splice(j,1);
+
+                    zKills++;
+
+
+                    if(
+                        zKills%10===0
+                    ){
+
+                        zWave++;
+
+                    }
+
+                }
+
+                break;
+
+            }
+
+        }
+
+
+        if(
+            !hit &&
+            (
+                b.life<=0 ||
+                b.x<0 ||
+                b.x>zW ||
+                b.y<0 ||
+                b.y>zH
+            )
+        ){
+
+            zBullets.splice(i,1);
+
+        }
+
+    }
+
+
+    /* TRAZADOS */
+
+    for(
+        let i=zTracers.length-1;
+        i>=0;
+        i--
+    ){
+
+        zTracers[i].life--;
+
+        if(zTracers[i].life<=0){
+
+            zTracers.splice(i,1);
+
+        }
+
+    }
+
+
+    /* PARTÍCULAS */
+
+    for(
+        let i=zParticles.length-1;
+        i>=0;
+        i--
+    ){
+
+        const p=zParticles[i];
+
+        p.x+=p.vx;
+        p.y+=p.vy;
+
+        p.vy+=.08;
+
+        p.life--;
+
+        if(p.life<=0){
+
+            zParticles.splice(i,1);
+
+        }
+
+    }
+
+
+    document.getElementById(
+        "zHealth"
+    ).textContent=
+        Math.ceil(zHealth);
+
+    document.getElementById(
+        "zKills"
+    ).textContent=
+        zKills;
+
+    document.getElementById(
+        "zWave"
+    ).textContent=
+        zWave;
+
+}
+
+
+function drawZombieGame(){
+
+    zctx.fillStyle="#17231a";
+
+    zctx.fillRect(
+        0,
+        0,
+        zW,
+        zH
+    );
+
+
+    /* SUELO */
+
+    zctx.strokeStyle=
+        "rgba(255,255,255,.035)";
+
+    for(
+        let x=0;
+        x<zW;
+        x+=50
+    ){
+
+        zctx.beginPath();
+        zctx.moveTo(x,0);
+        zctx.lineTo(x,zH);
+        zctx.stroke();
+
+    }
+
+
+    for(
+        let y=0;
+        y<zH;
+        y+=50
+    ){
+
+        zctx.beginPath();
+        zctx.moveTo(0,y);
+        zctx.lineTo(zW,y);
+        zctx.stroke();
+
+    }
+
+
+    /* ZOMBIES */
+
+    for(const z of zZombies){
+
+        zctx.beginPath();
+
+        zctx.arc(
+            z.x,
+            z.y,
+            z.radius,
+            0,
+            Math.PI*2
+        );
+
+        zctx.fillStyle="#6eaa4f";
+
+        zctx.fill();
+
+
+        zctx.fillStyle="#ff3b30";
+
+        zctx.beginPath();
+
+        zctx.arc(
+            z.x-6,
+            z.y-4,
+            3,
+            0,
+            Math.PI*2
+        );
+
+        zctx.arc(
+            z.x+6,
+            z.y-4,
+            3,
+            0,
+            Math.PI*2
+        );
+
+        zctx.fill();
+
+    }
+
+
+    /* BALAS */
+
+    for(const b of zBullets){
+
+        zctx.fillStyle="#ffe66d";
+
+        zctx.beginPath();
+
+        zctx.arc(
+            b.x,
+            b.y,
+            4,
+            0,
+            Math.PI*2
+        );
+
+        zctx.fill();
+
+    }
+
+
+    /* TRAZADO */
+
+    for(const t of zTracers){
+
+        const alpha=
+            t.life/t.maxLife;
+
+        zctx.save();
+
+        zctx.globalAlpha=alpha;
+
+        zctx.lineWidth=6;
+
+        zctx.lineCap="round";
+
+        zctx.strokeStyle="#fff7a8";
+
+        zctx.beginPath();
+
+        zctx.moveTo(
+            t.x1,
+            t.y1
+        );
+
+        zctx.lineTo(
+            t.x2,
+            t.y2
+        );
+
+        zctx.stroke();
+
+
+        zctx.lineWidth=2;
+
+        zctx.strokeStyle="white";
+
+        zctx.beginPath();
+
+        zctx.moveTo(
+            t.x1,
+            t.y1
+        );
+
+        zctx.lineTo(
+            t.x2,
+            t.y2
+        );
+
+        zctx.stroke();
+
+        zctx.restore();
+
+    }
+
+
+    /* PLAYER */
+
+    zctx.save();
+
+    zctx.translate(
+        zPlayer.x,
+        zPlayer.y
+    );
+
+    zctx.rotate(
+        zPlayer.angle
+    );
+
+
+    zctx.fillStyle="#151515";
+
+    zctx.fillRect(
+        5,
+        -5,
+        27,
+        9
+    );
+
+
+    zctx.beginPath();
+
+    zctx.arc(
+        0,
+        0,
+        18,
+        0,
+        Math.PI*2
+    );
+
+    zctx.fillStyle="#3485e8";
+
+    zctx.fill();
+
+
+    zctx.beginPath();
+
+    zctx.arc(
+        4,
+        -3,
+        9,
+        0,
+        Math.PI*2
+    );
+
+    zctx.fillStyle="#e3b08c";
+
+    zctx.fill();
+
+
+    zctx.restore();
+
+
+    /* PARTICULAS */
+
+    for(const p of zParticles){
+
+        zctx.globalAlpha=
+            p.life/40;
+
+        zctx.fillStyle="#ffbd38";
+
+        zctx.beginPath();
+
+        zctx.arc(
+            p.x,
+            p.y,
+            p.size,
+            0,
+            Math.PI*2
+        );
+
+        zctx.fill();
+
+        zctx.globalAlpha=1;
+
+    }
+
+}
+
+
+function zombieGameOver(){
+
+    zRunning=false;
+
+    if(zKills>zRecord){
+
+        zRecord=zKills;
+
+        localStorage.setItem(
+            "zombieRecord",
+            zRecord
+        );
+
+    }
+
+
+    document.getElementById(
+        "zFinalKills"
+    ).textContent=zKills;
+
+    document.getElementById(
+        "zFinalWave"
+    ).textContent=zWave;
+
+    document.getElementById(
+        "zRecord"
+    ).textContent=zRecord;
+
+    document.getElementById(
+        "zombieOver"
+    ).classList.add("show");
+
+}
+
+
+function restartZombie(){
+
+    zHealth=100;
+    zKills=0;
+    zWave=1;
+
+    zZombies=[];
+    zBullets=[];
+    zParticles=[];
+    zTracers=[];
+
+    zSpawn=0;
+    zShootTimer=0;
+
+    zRunning=true;
+
+    zPlayer.x=zW/2;
+    zPlayer.y=zH/2;
+
+    document.getElementById(
+        "zombieOver"
+    ).classList.remove("show");
+
+    document.getElementById(
+        "zHealth"
+    ).textContent="100";
+
+    document.getElementById(
+        "zKills"
+    ).textContent="0";
+
+    document.getElementById(
+        "zWave"
+    ).textContent="1";
+
+}
+
+
+/* ZOMBIE TECLADO */
+
+window.addEventListener(
+    "keydown",
+    e=>{
+
+        const k=
+            e.key.toLowerCase();
+
+        if(
+            ["w","a","s","d",
+             "arrowup","arrowdown",
+             "arrowleft","arrowright"]
+             .includes(k)
+        ){
+
+            e.preventDefault();
+
+        }
+
+        if(k==="w"||k==="arrowup")
+            zKeys.w=true;
+
+        if(k==="s"||k==="arrowdown")
+            zKeys.s=true;
+
+        if(k==="a"||k==="arrowleft")
+            zKeys.a=true;
+
+        if(k==="d"||k==="arrowright")
+            zKeys.d=true;
+
+        if(e.code==="Space"){
+
+            e.preventDefault();
+
+            zombieShoot();
+
+        }
+
+    }
+);
+
+
+window.addEventListener(
+    "keyup",
+    e=>{
+
+        const k=
+            e.key.toLowerCase();
+
+        if(k==="w"||k==="arrowup")
+            zKeys.w=false;
+
+        if(k==="s"||k==="arrowdown")
+            zKeys.s=false;
+
+        if(k==="a"||k==="arrowleft")
+            zKeys.a=false;
+
+        if(k==="d"||k==="arrowright")
+            zKeys.d=false;
+
+    }
+);
+
+
+/* CONTROLES MÓVILES */
+
+function zMobile(id,key){
+
+    const el=
+        document.getElementById(id);
+
+    el.addEventListener(
+        "pointerdown",
+        e=>{
+
+            e.preventDefault();
+
+            zKeys[key]=true;
+
+        }
+    );
+
+    el.addEventListener(
+        "pointerup",
+        e=>{
+
+            e.preventDefault();
+
+            zKeys[key]=false;
+
+        }
+    );
+
+    el.addEventListener(
+        "pointercancel",
+        ()=>{
+            zKeys[key]=false;
+        }
+    );
+
+}
+
+
+zMobile("za","a");
+zMobile("zd","d");
+zMobile("zw","w");
+zMobile("zs","s");
+
+
+document.getElementById(
+    "zshoot"
+).addEventListener(
+    "pointerdown",
+    e=>{
+
+        e.preventDefault();
+
+        zombieShoot();
+
+    }
+);
+
+
+/* =====================================================
+   TORRE IMPOSIBLE
+===================================================== */
+
+const tCanvas=
+    document.getElementById("towerCanvas");
+
+const tctx=
+    tCanvas.getContext("2d");
+
+let tW=0;
+let tH=0;
+
+let towerRunning=false;
+
+let tScore=0;
+
+let tRecord=
+    Number(
+        localStorage.getItem("torreRecord")||0
+    );
+
+let tBlocks=[];
+let tCurrent=null;
+
+let tParticles=[];
+
+let tOffset=0;
+let tTargetOffset=0;
+
+let tLast=0;
+
+
+function resizeTower(){
+
+    tW=
+        tCanvas.width=
+        window.innerWidth;
+
+    tH=
+        tCanvas.height=
+        window.innerHeight;
+}
+
+
+window.addEventListener(
+    "resize",
+    ()=>{
+        if(
+            screens.tower.classList.contains("active")
+        ){
+            resizeTower();
+        }
+    }
+);
+
+
+function towerBase(){
+
+    tBlocks=[
+        {
+            x:tW/2-100,
+            y:tH-80,
+            width:200,
+            height:35,
+            color:0
+        }
+    ];
+
+}
+
+
+function createTowerBlock(){
+
+    const width=
+        Math.max(
+            65,
+            180-tScore*2
+        );
+
+    const speed=
+        Math.min(
+            8,
+            3+tScore*.08
+        );
+
+    const dir=
+        Math.random()>.5
+        ?1
+        :-1;
+
+    const previous=
+        tBlocks[tBlocks.length-1];
+
+
+    tCurrent={
+
+        x:
+            dir===1
+            ?-width
+            :tW,
+
+        y:
+            previous.y-32,
+
+        width:width,
+
+        height:32,
+
+        vx:speed*dir,
+
+        moving:true,
+
+        color:tScore
+
+    };
+
+}
+
+
+function towerColor(i){
+
+    return `hsl(${(i*27)%360},75%,55%)`;
+
+}
+
+
+function drawTowerBlock(b){
+
+    const y=
+        b.y+tOffset;
+
+    if(
+        y+b.height<0 ||
+        y>tH
+    )
+        return;
+
+
+    const gradient=
+        tctx.createLinearGradient(
+            0,
+            y,
+            0,
+            y+b.height
+        );
+
+    gradient.addColorStop(
+        0,
+        towerColor(b.color)
+    );
+
+    gradient.addColorStop(
+        1,
+        "rgba(0,0,0,.35)"
+    );
+
+    tctx.fillStyle=gradient;
+
+    tctx.beginPath();
+
+    tctx.roundRect(
+        b.x,
+        y,
+        b.width,
+        b.height,
+        6
+    );
+
+    tctx.fill();
+
+}
+
+
+function towerParticles(x,y,color){
+
+    for(let i=0;i<15;i++){
+
+        tParticles.push({
+
+            x:x,
+            y:y,
+
+            vx:
+                (Math.random()-.5)*6,
+
+            vy:
+                (Math.random()-.8)*6,
+
+            life:35,
+
+            color:color
+
+        });
+
+    }
+
+}
+
+
+function placeTowerBlock(){
+
+    if(!towerRunning||!tCurrent)
+        return;
+
+
+    const previous=
+        tBlocks[tBlocks.length-1];
+
+
+    const left=
+        Math.max(
+            tCurrent.x,
+            previous.x
+        );
+
+
+    const right=
+        Math.min(
+            tCurrent.x+tCurrent.width,
+            previous.x+previous.width
+        );
+
+
+    const overlap=
+        right-left;
+
+
+    if(overlap<=0){
+
+        towerGameOver();
+
+        return;
+
+    }
+
+
+    tCurrent.moving=false;
+
+    tCurrent.x=left;
+    tCurrent.width=overlap;
+
+    tCurrent.y=
+        previous.y-tCurrent.height;
+
+
+    tBlocks.push(tCurrent);
+
+    tScore++;
+
+
+    if(tScore>tRecord){
+
+        tRecord=tScore;
+
+        localStorage.setItem(
+            "torreRecord",
+            tRecord
+        );
+
+    }
+
+
+    document.getElementById(
+        "tScore"
+    ).textContent=tScore;
+
+    document.getElementById(
+        "tRecord"
+    ).textContent=tRecord;
+
+
+    towerParticles(
+        tCurrent.x+tCurrent.width/2,
+        tCurrent.y,
+        towerColor(tScore)
+    );
+
+
+    createTowerBlock();
+
+
+    const screenY=
+        tCurrent.y+tOffset;
+
+
+    if(screenY<tH*.28){
+
+        tTargetOffset+=90;
+
+    }
+
+}
+
+
+function updateTower(delta){
+
+    if(!towerRunning)
+        return;
+
+
+    if(tCurrent&&tCurrent.moving){
+
+        tCurrent.x+=
+            tCurrent.vx*delta;
+
+
+        if(tCurrent.x<=0){
+
+            tCurrent.x=0;
+
+            tCurrent.vx=
+                Math.abs(tCurrent.vx);
+
+        }
+
+
+        if(
+            tCurrent.x+
+            tCurrent.width>=tW
+        ){
+
+            tCurrent.x=
+                tW-tCurrent.width;
+
+            tCurrent.vx=
+                -Math.abs(tCurrent.vx);
+
+        }
+
+    }
+
+
+    tOffset+=
+        (tTargetOffset-tOffset)*.12;
+
+
+    for(
+        let i=tParticles.length-1;
+        i>=0;
+        i--
+    ){
+
+        const p=tParticles[i];
+
+        p.x+=p.vx;
+        p.y+=p.vy;
+
+        p.vy+=.15;
+
+        p.life--;
+
+        if(p.life<=0)
+            tParticles.splice(i,1);
+
+    }
+
+}
+
+
+function drawTower(){
+
+    const g=
+        tctx.createLinearGradient(
+            0,
+            0,
+            0,
+            tH
+        );
+
+    g.addColorStop(0,"#07152b");
+    g.addColorStop(.55,"#0d2940");
+    g.addColorStop(1,"#06111e");
+
+    tctx.fillStyle=g;
+
+    tctx.fillRect(
+        0,0,tW,tH
+    );
+
+
+    /* ESTRELLAS */
+
+    for(let i=0;i<70;i++){
+
+        const x=(i*137)%tW;
+
+        let y=
+            ((i*83)+tOffset*.12)%tH;
+
+        if(y<0)y+=tH;
+
+        tctx.fillStyle=
+            "rgba(255,255,255,.45)";
+
+        tctx.fillRect(
+            x,
+            y,
+            1+(i%3),
+            1+(i%3)
+        );
+
+    }
+
+
+    for(const b of tBlocks)
+        drawTowerBlock(b);
+
+
+    if(tCurrent){
+
+        drawTowerBlock(
+            tCurrent
+        );
+
+
+        if(tCurrent.moving){
+
+            const y=
+                tCurrent.y+tOffset;
+
+            tctx.strokeStyle=
+                "rgba(255,255,255,.15)";
+
+            tctx.setLineDash([5,8]);
+
+            tctx.beginPath();
+
+            tctx.moveTo(
+                tCurrent.x+
+                tCurrent.width/2,
+                0
+            );
+
+            tctx.lineTo(
+                tCurrent.x+
+                tCurrent.width/2,
+                y
+            );
+
+            tctx.stroke();
+
+            tctx.setLineDash([]);
+
+        }
+
+    }
+
+
+    for(const p of tParticles){
+
+        tctx.globalAlpha=
+            p.life/35;
+
+        tctx.fillStyle=p.color;
+
+        tctx.beginPath();
+
+        tctx.arc(
+            p.x,
+            p.y+tOffset,
+            3,
+            0,
+            Math.PI*2
+        );
+
+        tctx.fill();
+
+        tctx.globalAlpha=1;
+
+    }
+
+}
+
+
+function towerGameOver(){
+
+    towerRunning=false;
+
+    document.getElementById(
+        "tFinalScore"
+    ).textContent=tScore;
+
+    document.getElementById(
+        "tFinalRecord"
+    ).textContent=tRecord;
+
+    document.getElementById(
+        "towerOver"
+    ).classList.add("show");
+
+}
+
+
+function restartTower(){
+
+    tScore=0;
+
+    tOffset=0;
+    tTargetOffset=0;
+
+    tParticles=[];
+
+    towerRunning=true;
+
+    document.getElementById(
+        "tScore"
+    ).textContent="0";
+
+    document.getElementById(
+        "tRecord"
+    ).textContent=tRecord;
+
+    document.getElementById(
+        "towerOver"
+    ).classList.remove("show");
+
+    towerBase();
+
+    createTowerBlock();
+
+}
+
+
+tCanvas.addEventListener(
+    "pointerdown",
+    e=>{
+
+        if(
+            screens.tower.classList.contains("active")
+        ){
+
+            placeTowerBlock();
+
+        }
+
+    }
+);
+
+
+window.addEventListener(
+    "keydown",
+    e=>{
+
+        if(
+            e.code==="Space"||
+            e.code==="ArrowUp"||
+            e.code==="Enter"
+        ){
+
+            if(
+                screens.tower.classList.contains("active")
+            ){
+
+                e.preventDefault();
+
+                placeTowerBlock();
+
+            }
+
+        }
+
+    }
+);
+
+
+/* =====================================================
+   CANDY CRUSH
+===================================================== */
+
+const candyBoard=
+    document.getElementById("candyBoard");
+
+const candySize=8;
+
+let candies=[];
+
+let candySelected=null;
+
+let candyScoreValue=0;
+
+let candyRecordValue=
+    Number(
+        localStorage.getItem("candyRecord")||0
+    );
+
+
+const candyTypes=[
+    "red",
+    "blue",
+    "green",
+    "yellow",
+    "purple",
+    "orange"
+];
+
+
+function randomCandy(){
+
+    return Math.floor(
+        Math.random()*candyTypes.length
+    );
+
+}
+
+
+function restartCandy(){
+
+    candyScoreValue=0;
+
+    candySelected=null;
+
+    candies=[];
+
+
+    for(let y=0;y<candySize;y++){
+
+        candies[y]=[];
+
+        for(let x=0;x<candySize;x++){
+
+            let value;
+
+            do{
+
+                value=randomCandy();
+
+            }while(
+
+                x>=2 &&
+                candies[y][x-1]===value &&
+                candies[y][x-2]===value
+
+            );
+
+
+            candies[y][x]=value;
+
+        }
+
+    }
+
+
+    updateCandyScore();
+
+    drawCandyBoard();
+
+    document.getElementById(
+        "candyMessage"
+    ).textContent=
+        "Combina 3 o más caramelos";
+
+}
+
+
+function updateCandyScore(){
+
+    document.getElementById(
+        "candyScore"
+    ).textContent=
+        candyScoreValue;
+
+    document.getElementById(
+        "candyRecord"
+    ).textContent=
+        candyRecordValue;
+
+
+    if(
+        candyScoreValue>
+        candyRecordValue
+    ){
+
+        candyRecordValue=
+            candyScoreValue;
+
+        localStorage.setItem(
+            "candyRecord",
+            candyRecordValue
+        );
+
+        document.getElementById(
+            "candyRecord"
+        ).textContent=
+            candyRecordValue;
+
+    }
+
+}
+
+
+function drawCandyBoard(){
+
+    candyBoard.innerHTML="";
+
+
+    for(let y=0;y<candySize;y++){
+
+        for(let x=0;x<candySize;x++){
+
+            const cell=
+                document.createElement("button");
+
+            cell.className=
+                "candy-cell candy-"+
+                candyTypes[
+                    candies[y][x]
+                ];
+
+
+            if(
+                candySelected &&
+                candySelected.x===x &&
+                candySelected.y===y
+            ){
+
+                cell.classList.add(
+                    "selected"
+                );
+
+            }
+
+
+            cell.addEventListener(
+                "click",
+                ()=>{
+                    candyClick(x,y);
+                }
+            );
+
+
+            candyBoard.appendChild(
+                cell
+            );
+
+        }
+
+    }
+
+}
+
+
+function candyClick(x,y){
+
+    if(!candySelected){
+
+        candySelected={
+            x:x,
+            y:y
+        };
+
+        drawCandyBoard();
+
+        return;
+
+    }
+
+
+    const sx=candySelected.x;
+    const sy=candySelected.y;
+
+
+    const adjacent=
+        Math.abs(sx-x)+
+        Math.abs(sy-y)===1;
+
+
+    if(!adjacent){
+
+        candySelected={
+            x:x,
+            y:y
+        };
+
+        drawCandyBoard();
+
+        return;
+
+    }
+
+
+    const temp=
+        candies[sy][sx];
+
+    candies[sy][sx]=
+        candies[y][x];
+
+    candies[y][x]=temp;
+
+
+    candySelected=null;
+
+
+    const matches=
+        findCandyMatches();
+
+
+    if(matches.length===0){
+
+        candies[y][x]=
+            candies[sy][sx];
+
+        candies[sy][sx]=temp;
+
+
+        document.getElementById(
+            "candyMessage"
+        ).textContent=
+            "Ese movimiento no crea combinación";
+
+    }else{
+
+        candyScoreValue+=
+            matches.length*10;
+
+        removeCandyMatches();
+
+        document.getElementById(
+            "candyMessage"
+        ).textContent=
+            "+"+
+            matches.length*10+
+            " puntos";
+
+    }
+
+
+    updateCandyScore();
+
+    drawCandyBoard();
+
+}
+
+
+function findCandyMatches(){
+
+    const found=[];
+
+
+    function add(x,y){
+
+        const key=x+","+y;
+
+        if(!found.some(
+            p=>p.x===x&&p.y===y
+        )){
+
+            found.push({
+                x:x,
+                y:y
+            });
+
+        }
+
+    }
+
+
+    /* HORIZONTALES */
+
+    for(let y=0;y<candySize;y++){
+
+        let start=0;
+
+        for(let x=1;x<=candySize;x++){
+
+            if(
+                x<candySize &&
+                candies[y][x]===
+                candies[y][start]
+            ){
+
+                continue;
+
+            }
+
+
+            const length=
+                x-start;
+
+
+            if(length>=3){
+
+                for(
+                    let k=start;
+                    k<x;
+                    k++
+                ){
+
+                    add(k,y);
+
+                }
+
+            }
+
+
+            start=x;
+
+        }
+
+    }
+
+
+    /* VERTICALES */
+
+    for(let x=0;x<candySize;x++){
+
+        let start=0;
+
+        for(let y=1;y<=candySize;y++){
+
+            if(
+                y<candySize &&
+                candies[y][x]===
+                candies[start][x]
+            ){
+
+                continue;
+
+            }
+
+
+            const length=
+                y-start;
+
+
+            if(length>=3){
+
+                for(
+                    let k=start;
+                    k<y;
+                    k++
+                ){
+
+                    add(x,k);
+
+                }
+
+            }
+
+
+            start=y;
+
+        }
+
+    }
+
+
+    return found;
+
+}
+
+
+function removeCandyMatches(){
+
+    const matches=
+        findCandyMatches();
+
+
+    for(const p of matches){
+
+        candies[p.y][p.x]=
+            null;
+
+    }
+
+
+    for(let x=0;x<candySize;x++){
+
+        const column=[];
+
+        for(let y=candySize-1;y>=0;y--){
+
+            if(
+                candies[y][x]!==null
+            ){
+
+                column.push(
+                    candies[y][x]
+                );
+
+            }
+
+        }
+
+
+        while(
+            column.length<candySize
+        ){
+
+            column.push(
+                randomCandy()
+            );
+
+        }
+
+
+        for(let y=0;y<candySize;y++){
+
+            candies[
+                candySize-1-y
+            ][x]=column[y];
+
+        }
+
+    }
+
+
+    const remaining=
+        findCandyMatches();
+
+
+    if(remaining.length>0){
+
+        candyScoreValue+=
+            remaining.length*10;
+
+        removeCandyMatches();
+
+    }
+
+}
+
+
+/* =====================================================
+   BUCLES
+===================================================== */
+
+function zombieLoop(){
+
+    updateZombie();
+
+    drawZombieGame();
+
+    requestAnimationFrame(
+        zombieLoop
+    );
+
+}
+
+
+function towerLoop(timestamp){
+
+    if(!tLast)
+        tLast=timestamp;
+
+
+    const delta=
+        Math.min(
+            2,
+            (timestamp-tLast)/16.67
+        );
+
+
+    tLast=timestamp;
+
+    updateTower(delta);
+
+    drawTower();
+
+    requestAnimationFrame(
+        towerLoop
+    );
+
+}
+
+
+/* =====================================================
+   INICIO
+===================================================== */
+
+resizeZombie();
+
+resizeTower();
+
+document.getElementById(
+    "zRecord"
+).textContent=
+    zRecord;
+
+document.getElementById(
+    "tRecord"
+).textContent=
+    tRecord;
+
+document.getElementById(
+    "candyRecord"
+).textContent=
+    candyRecordValue;
+
+
+/* Los juegos comienzan detenidos */
+
+zRunning=false;
+towerRunning=false;
+
+
+/* Bucles permanentes */
+
+requestAnimationFrame(
+    zombieLoop
+);
+
+requestAnimationFrame(
+    towerLoop
+);
+
+
+/* Candy preparado */
+
+restartCandy();
+
+</script>
+
+</body>
+</html>
