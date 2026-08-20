@@ -2,266 +2,742 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GameZone - 7 Juegos</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>GameZone — Suite de Juegos</title>
 
 <style>
-* {
-    box-sizing: border-box;
+:root{
+  --bg:#070b17;
+  --bg2:#0d1326;
+  --card:rgba(18,26,48,.82);
+  --card2:#141d36;
+  --text:#f5f7ff;
+  --muted:#9da9c7;
+  --primary:#7c5cff;
+  --primary2:#5ee7ff;
+  --success:#32d583;
+  --danger:#ff5577;
+  --warning:#ffc857;
+  --border:rgba(255,255,255,.09);
+  --shadow:0 20px 60px rgba(0,0,0,.35);
 }
 
-body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: linear-gradient(135deg, #111827, #1e293b);
-    color: white;
+*{box-sizing:border-box}
+
+html{scroll-behavior:smooth}
+
+body{
+  margin:0;
+  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  color:var(--text);
+  background:
+    radial-gradient(circle at 10% 10%,rgba(124,92,255,.22),transparent 28%),
+    radial-gradient(circle at 90% 20%,rgba(94,231,255,.12),transparent 25%),
+    linear-gradient(145deg,var(--bg),var(--bg2));
+  min-height:100vh;
 }
 
-header {
-    text-align: center;
-    padding: 35px 15px;
-    background: rgba(0,0,0,.25);
+button,input{
+  font:inherit;
 }
 
-header h1 {
-    margin: 0;
-    font-size: 42px;
+button{
+  cursor:pointer;
 }
 
-header p {
-    color: #cbd5e1;
+.hidden{display:none!important}
+
+/* HEADER */
+
+header{
+  position:sticky;
+  top:0;
+  z-index:100;
+  backdrop-filter:blur(18px);
+  background:rgba(7,11,23,.78);
+  border-bottom:1px solid var(--border);
 }
 
-nav {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 8px;
-    padding: 15px;
-    background: #0f172a;
-    position: sticky;
-    top: 0;
-    z-index: 10;
+.nav{
+  max-width:1200px;
+  margin:auto;
+  min-height:70px;
+  padding:12px 20px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px;
 }
 
-nav button {
-    border: 0;
-    padding: 10px 15px;
-    border-radius: 10px;
-    background: #334155;
-    color: white;
-    cursor: pointer;
+.logo{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-weight:900;
+  font-size:21px;
+  white-space:nowrap;
 }
 
-nav button:hover {
-    background: #475569;
+.logoIcon{
+  width:40px;
+  height:40px;
+  border-radius:13px;
+  display:grid;
+  place-items:center;
+  background:linear-gradient(135deg,var(--primary),var(--primary2));
+  box-shadow:0 8px 25px rgba(124,92,255,.3);
 }
 
-.container {
-    max-width: 1100px;
-    margin: auto;
-    padding: 25px 15px;
+nav{
+  display:flex;
+  align-items:center;
+  gap:7px;
 }
 
-.game {
-    display: none;
-    background: rgba(255,255,255,.07);
-    border: 1px solid rgba(255,255,255,.1);
-    border-radius: 20px;
-    padding: 25px;
-    margin-bottom: 25px;
+.navBtn{
+  border:0;
+  color:var(--muted);
+  background:transparent;
+  padding:10px 13px;
+  border-radius:11px;
+  transition:.2s;
 }
 
-.game.active {
-    display: block;
+.navBtn:hover,
+.navBtn.active{
+  color:white;
+  background:rgba(255,255,255,.07);
 }
 
-.game h2 {
-    margin-top: 0;
+.userArea{
+  display:flex;
+  align-items:center;
+  gap:9px;
 }
 
-button,
-input {
-    font: inherit;
+.avatar{
+  width:38px;
+  height:38px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  background:linear-gradient(135deg,var(--primary),#a68cff);
+  font-weight:800;
 }
 
-.action {
-    background: #2563eb;
-    color: white;
-    border: 0;
-    padding: 12px 20px;
-    border-radius: 10px;
-    cursor: pointer;
-    margin: 5px;
+.iconBtn{
+  width:38px;
+  height:38px;
+  border:1px solid var(--border);
+  border-radius:12px;
+  background:rgba(255,255,255,.05);
+  color:white;
 }
 
-.action:hover {
-    background: #1d4ed8;
+/* MAIN */
+
+main{
+  max-width:1200px;
+  margin:auto;
+  padding:30px 20px 80px;
 }
 
-.status {
-    margin: 15px 0;
-    padding: 12px;
-    background: rgba(0,0,0,.25);
-    border-radius: 10px;
+.hero{
+  position:relative;
+  overflow:hidden;
+  min-height:330px;
+  padding:50px;
+  border:1px solid var(--border);
+  border-radius:30px;
+  background:
+    linear-gradient(120deg,rgba(124,92,255,.22),rgba(94,231,255,.07)),
+    rgba(16,23,43,.8);
+  box-shadow:var(--shadow);
+  display:flex;
+  align-items:center;
 }
 
-/* PUZZLE */
-#puzzleBoard {
-    width: 320px;
-    height: 320px;
-    margin: 20px auto;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 4px;
-    background: #020617;
-    padding: 4px;
+.hero:before,
+.hero:after{
+  content:"";
+  position:absolute;
+  border-radius:50%;
+  filter:blur(5px);
 }
 
-.piece {
-    background: #3b82f6;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 30px;
-    font-weight: bold;
-    cursor: pointer;
-    border-radius: 5px;
+.hero:before{
+  width:250px;
+  height:250px;
+  right:-70px;
+  top:-100px;
+  background:rgba(124,92,255,.25);
 }
 
-.piece.empty {
-    background: #0f172a;
+.hero:after{
+  width:180px;
+  height:180px;
+  right:180px;
+  bottom:-100px;
+  background:rgba(94,231,255,.14);
 }
 
-/* DETECTIVE */
-.clue {
-    background: #1e293b;
-    padding: 15px;
-    border-radius: 12px;
-    margin: 10px 0;
+.heroContent{
+  position:relative;
+  z-index:2;
+  max-width:700px;
 }
 
-/* MEMORY */
-.memory-board {
-    max-width: 520px;
-    margin: 20px auto;
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
+.badge{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  padding:7px 12px;
+  border-radius:999px;
+  color:#dcd7ff;
+  background:rgba(124,92,255,.14);
+  border:1px solid rgba(124,92,255,.28);
+  font-size:13px;
+  font-weight:700;
 }
 
-.card {
-    height: 90px;
-    border: 0;
-    border-radius: 12px;
-    background: #475569;
-    color: white;
-    font-size: 32px;
-    cursor: pointer;
+.hero h1{
+  font-size:clamp(38px,6vw,68px);
+  line-height:.98;
+  margin:18px 0;
+  letter-spacing:-3px;
 }
 
-.card.revealed,
-.card.matched {
-    background: #2563eb;
+.gradient{
+  background:linear-gradient(90deg,#fff,var(--primary2),#a98fff);
+  -webkit-background-clip:text;
+  color:transparent;
 }
 
-/* REACTION */
-#reactionBox {
-    height: 250px;
-    border-radius: 20px;
-    background: #334155;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 28px;
-    cursor: pointer;
-    user-select: none;
+.hero p{
+  color:var(--muted);
+  font-size:17px;
+  line-height:1.7;
+  max-width:620px;
 }
 
-#reactionBox.ready {
-    background: #16a34a;
+.primary{
+  border:0;
+  padding:13px 20px;
+  border-radius:13px;
+  color:white;
+  font-weight:800;
+  background:linear-gradient(135deg,var(--primary),#9a6cff);
+  box-shadow:0 10px 25px rgba(124,92,255,.25);
+  transition:.2s;
 }
 
-/* NUMBER */
-.number-area {
-    max-width: 500px;
-    margin: auto;
-    text-align: center;
+.primary:hover{
+  transform:translateY(-2px);
+  box-shadow:0 15px 35px rgba(124,92,255,.35);
 }
 
-.number-area input {
-    padding: 12px;
-    width: 150px;
-    border-radius: 10px;
-    border: 0;
-    text-align: center;
+.secondary{
+  border:1px solid var(--border);
+  padding:12px 18px;
+  border-radius:13px;
+  color:white;
+  background:rgba(255,255,255,.06);
 }
 
-/* SNAKE */
-#snakeCanvas {
-    display: block;
-    margin: 20px auto;
-    background: #020617;
-    border: 4px solid #334155;
-    max-width: 100%;
+.heroActions{
+  display:flex;
+  gap:10px;
+  margin-top:25px;
+  flex-wrap:wrap;
 }
 
-.controls {
-    text-align: center;
+/* SECTIONS */
+
+.section{
+  margin-top:35px;
 }
 
-.controls button {
-    width: 55px;
-    height: 45px;
-    margin: 3px;
+.sectionHeader{
+  display:flex;
+  align-items:end;
+  justify-content:space-between;
+  margin-bottom:18px;
 }
 
-/* TARGET */
-#targetArea {
-    position: relative;
-    height: 400px;
-    background: #020617;
-    border-radius: 15px;
-    overflow: hidden;
+.sectionHeader h2{
+  margin:0;
+  font-size:27px;
 }
 
-.target {
-    position: absolute;
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
-    background: #ef4444;
-    border: 4px solid white;
-    cursor: pointer;
+.sectionHeader p{
+  margin:5px 0 0;
+  color:var(--muted);
 }
 
-footer {
-    text-align: center;
-    padding: 30px;
-    color: #94a3b8;
+.gamesGrid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:16px;
 }
 
-@media(max-width:600px) {
-    header h1 {
-        font-size: 32px;
-    }
+.gameCard{
+  position:relative;
+  overflow:hidden;
+  min-height:220px;
+  padding:20px;
+  border:1px solid var(--border);
+  border-radius:22px;
+  background:linear-gradient(160deg,rgba(24,34,62,.9),rgba(13,19,37,.9));
+  transition:.25s;
+}
 
-    #puzzleBoard {
-        width: 280px;
-        height: 280px;
-    }
+.gameCard:hover{
+  transform:translateY(-5px);
+  border-color:rgba(124,92,255,.35);
+  box-shadow:0 20px 40px rgba(0,0,0,.25);
+}
 
-    .memory-board {
-        grid-template-columns: repeat(4, 1fr);
-    }
+.gameIcon{
+  width:56px;
+  height:56px;
+  border-radius:17px;
+  display:grid;
+  place-items:center;
+  font-size:28px;
+  background:rgba(255,255,255,.07);
+}
 
-    .card {
-        height: 70px;
-    }
+.gameCard h3{
+  margin:17px 0 6px;
+}
 
-    #reactionBox {
-        height: 200px;
-    }
+.gameCard p{
+  color:var(--muted);
+  line-height:1.5;
+  min-height:46px;
+}
+
+.gameMeta{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-top:15px;
+}
+
+.play{
+  border:0;
+  padding:9px 14px;
+  border-radius:10px;
+  color:white;
+  background:rgba(124,92,255,.18);
+}
+
+.difficulty{
+  color:var(--muted);
+  font-size:12px;
+}
+
+/* STATS */
+
+.statsGrid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:15px;
+}
+
+.stat{
+  padding:20px;
+  border:1px solid var(--border);
+  border-radius:19px;
+  background:var(--card);
+}
+
+.statLabel{
+  color:var(--muted);
+  font-size:13px;
+}
+
+.statValue{
+  margin-top:7px;
+  font-size:30px;
+  font-weight:900;
+}
+
+/* PAGES */
+
+.page{
+  animation:fade .3s ease;
+}
+
+@keyframes fade{
+  from{opacity:0;transform:translateY(8px)}
+  to{opacity:1;transform:none}
+}
+
+.gamePage{
+  max-width:850px;
+  margin:auto;
+}
+
+.back{
+  margin-bottom:15px;
+  color:var(--muted);
+  cursor:pointer;
+}
+
+.gameBox{
+  border:1px solid var(--border);
+  border-radius:25px;
+  padding:25px;
+  background:var(--card);
+  box-shadow:var(--shadow);
+}
+
+.gameTop{
+  display:flex;
+  justify-content:space-between;
+  gap:15px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+
+.scoreBox{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.score{
+  padding:10px 15px;
+  border-radius:12px;
+  background:rgba(255,255,255,.06);
+}
+
+.gameArea{
+  margin-top:22px;
+  min-height:400px;
+  border-radius:20px;
+  border:1px solid var(--border);
+  background:rgba(5,8,18,.65);
+  padding:25px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+}
+
+/* GAME COMPONENTS */
+
+.bigNumber{
+  font-size:80px;
+  font-weight:900;
+  line-height:1;
+}
+
+.question{
+  font-size:28px;
+  font-weight:800;
+  text-align:center;
+  margin:15px;
+}
+
+.options{
+  width:100%;
+  max-width:500px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+
+.option{
+  padding:16px;
+  border-radius:14px;
+  border:1px solid var(--border);
+  background:rgba(255,255,255,.06);
+  color:white;
+  font-weight:800;
+}
+
+.option:hover{
+  background:rgba(124,92,255,.18);
+}
+
+.memoryGrid{
+  display:grid;
+  grid-template-columns:repeat(4,70px);
+  gap:10px;
+}
+
+.memoryCard{
+  width:70px;
+  height:70px;
+  border:0;
+  border-radius:13px;
+  background:#202a48;
+  color:white;
+  font-size:25px;
+  cursor:pointer;
+}
+
+.memoryCard.open{
+  background:linear-gradient(135deg,var(--primary),#4e9cff);
+}
+
+.puzzle{
+  display:grid;
+  grid-template-columns:repeat(4,70px);
+  gap:7px;
+}
+
+.tile{
+  width:70px;
+  height:70px;
+  border:0;
+  border-radius:10px;
+  color:white;
+  font-weight:900;
+  font-size:21px;
+  background:#252e4b;
+}
+
+.tile.empty{
+  opacity:.12;
+}
+
+.reaction{
+  width:100%;
+  height:300px;
+  border:0;
+  border-radius:20px;
+  background:#27304b;
+  color:white;
+  font-size:25px;
+  font-weight:900;
+}
+
+.snakeCanvas{
+  width:min(100%,420px);
+  aspect-ratio:1;
+  border-radius:15px;
+  background:#080c18;
+  border:1px solid var(--border);
+}
+
+.targetArea{
+  position:relative;
+  width:100%;
+  height:330px;
+  border-radius:17px;
+  background:#0a0f20;
+  overflow:hidden;
+}
+
+.target{
+  position:absolute;
+  width:55px;
+  height:55px;
+  border-radius:50%;
+  border:0;
+  background:linear-gradient(135deg,var(--danger),#ffad66);
+  box-shadow:0 0 25px rgba(255,85,119,.3);
+}
+
+/* FORMS */
+
+.authWrap{
+  max-width:430px;
+  margin:30px auto;
+}
+
+.formCard{
+  padding:30px;
+  border-radius:25px;
+  background:var(--card);
+  border:1px solid var(--border);
+  box-shadow:var(--shadow);
+}
+
+.formCard h2{
+  margin-top:0;
+}
+
+.field{
+  margin:15px 0;
+}
+
+.field label{
+  display:block;
+  margin-bottom:7px;
+  color:var(--muted);
+  font-size:13px;
+}
+
+.field input{
+  width:100%;
+  padding:13px 14px;
+  color:white;
+  background:#0c1224;
+  border:1px solid var(--border);
+  border-radius:12px;
+  outline:none;
+}
+
+.field input:focus{
+  border-color:var(--primary);
+}
+
+.formCard .primary{
+  width:100%;
+  margin-top:10px;
+}
+
+.switch{
+  text-align:center;
+  color:var(--muted);
+  margin-top:18px;
+}
+
+.switch span{
+  color:#a994ff;
+  cursor:pointer;
+  font-weight:800;
+}
+
+/* PROFILE */
+
+.profile{
+  display:grid;
+  grid-template-columns:280px 1fr;
+  gap:20px;
+}
+
+.profileCard,
+.statsPanel{
+  padding:25px;
+  border-radius:22px;
+  background:var(--card);
+  border:1px solid var(--border);
+}
+
+.profileAvatar{
+  width:100px;
+  height:100px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  font-size:40px;
+  font-weight:900;
+  margin:auto;
+  background:linear-gradient(135deg,var(--primary),var(--primary2));
+}
+
+.profileCard{text-align:center}
+
+.profileCard h2{
+  margin-bottom:4px;
+}
+
+.muted{color:var(--muted)}
+
+.statRow{
+  display:flex;
+  justify-content:space-between;
+  padding:15px 0;
+  border-bottom:1px solid var(--border);
+}
+
+/* TOAST */
+
+.toast{
+  position:fixed;
+  left:50%;
+  bottom:25px;
+  transform:translate(-50%,20px);
+  opacity:0;
+  pointer-events:none;
+  z-index:500;
+  padding:13px 18px;
+  border-radius:13px;
+  background:#18213b;
+  border:1px solid var(--border);
+  box-shadow:var(--shadow);
+  transition:.25s;
+}
+
+.toast.show{
+  opacity:1;
+  transform:translate(-50%,0);
+}
+
+/* MOBILE */
+
+@media(max-width:950px){
+  .gamesGrid{grid-template-columns:repeat(2,1fr)}
+  .statsGrid{grid-template-columns:repeat(2,1fr)}
+}
+
+@media(max-width:650px){
+  .nav{
+    padding:10px 13px;
+  }
+
+  nav{
+    display:none;
+  }
+
+  main{
+    padding:18px 13px 60px;
+  }
+
+  .hero{
+    padding:30px 22px;
+    min-height:380px;
+  }
+
+  .hero h1{
+    font-size:43px;
+    letter-spacing:-2px;
+  }
+
+  .gamesGrid,
+  .statsGrid{
+    grid-template-columns:1fr;
+  }
+
+  .profile{
+    grid-template-columns:1fr;
+  }
+
+  .gameBox{
+    padding:15px;
+  }
+
+  .gameArea{
+    padding:15px;
+    min-height:360px;
+  }
+
+  .memoryGrid{
+    grid-template-columns:repeat(4,58px);
+  }
+
+  .memoryCard{
+    width:58px;
+    height:58px;
+  }
+
+  .puzzle{
+    grid-template-columns:repeat(4,58px);
+  }
+
+  .tile{
+    width:58px;
+    height:58px;
+  }
+
+  .options{
+    grid-template-columns:1fr;
+  }
 }
 </style>
 </head>
@@ -269,914 +745,1388 @@ footer {
 <body>
 
 <header>
-    <h1>🎮 GameZone</h1>
-    <p>7 juegos en una sola página</p>
+  <div class="nav">
+    <div class="logo">
+      <div class="logoIcon">🎮</div>
+      <span>GameZone</span>
+    </div>
+
+    <nav>
+      <button class="navBtn active" onclick="showPage('home')">Inicio</button>
+      <button class="navBtn" onclick="showPage('games')">Juegos</button>
+      <button class="navBtn" onclick="showPage('stats')">Estadísticas</button>
+      <button class="navBtn" onclick="showPage('profile')">Perfil</button>
+    </nav>
+
+    <div class="userArea">
+      <button class="iconBtn" onclick="toggleTheme()" title="Cambiar tema">☀️</button>
+      <div id="userAvatar" class="avatar">?</div>
+    </div>
+  </div>
 </header>
 
-<nav>
-    <button onclick="showGame('puzzle')">🧩 Puzzle</button>
-    <button onclick="showGame('detective')">🕵️ Detective</button>
-    <button onclick="showGame('memory')">🧠 Memoria</button>
-    <button onclick="showGame('reaction')">⚡ Reacción</button>
-    <button onclick="showGame('number')">🔢 Número</button>
-    <button onclick="showGame('snake')">🐍 Snake</button>
-    <button onclick="showGame('target')">🎯 Objetivo</button>
-</nav>
+<main>
 
-<main class="container">
+<!-- HOME -->
 
-<!-- ================= PUZZLE ================= -->
+<section id="home" class="page">
+  <div class="hero">
+    <div class="heroContent">
+      <span class="badge">✨ NUEVA EXPERIENCIA</span>
 
-<section id="puzzle" class="game active">
-    <h2>🧩 Puzzle deslizante</h2>
-    <p>Ordena los números del 1 al 8. El hueco debe quedar al final.</p>
+      <h1>
+        Juega.<br>
+        <span class="gradient">Compite.</span><br>
+        Mejora.
+      </h1>
 
-    <div class="status">
-        Movimientos: <strong id="puzzleMoves">0</strong>
-    </div>
+      <p>
+        Una colección de minijuegos rápidos para poner a prueba
+        tu memoria, lógica, reflejos y habilidad.
+      </p>
 
-    <div id="puzzleBoard"></div>
-
-    <div style="text-align:center">
-        <button class="action" onclick="newPuzzle()">Nuevo puzzle</button>
-    </div>
-</section>
-
-<!-- ================= DETECTIVE ================= -->
-
-<section id="detective" class="game">
-    <h2>🕵️ El misterio de la mansión</h2>
-
-    <p>
-        Se ha producido un robo en una mansión.
-        Hay tres sospechosos. Usa las pistas para descubrir al culpable.
-    </p>
-
-    <div class="clue">
-        🔎 Pista 1: El ladrón llevaba guantes negros.
-    </div>
-
-    <div class="clue">
-        🔎 Pista 2: Carlos llevaba guantes blancos.
-    </div>
-
-    <div class="clue">
-        🔎 Pista 3: Ana estuvo en la biblioteca.
-    </div>
-
-    <div class="clue">
-        🔎 Pista 4: Bruno fue visto cerca de la caja fuerte.
-    </div>
-
-    <h3>¿Quién es el ladrón?</h3>
-
-    <button class="action" onclick="detectiveAnswer('Ana')">Ana</button>
-    <button class="action" onclick="detectiveAnswer('Bruno')">Bruno</button>
-    <button class="action" onclick="detectiveAnswer('Carlos')">Carlos</button>
-
-    <div id="detectiveResult" class="status"></div>
-
-    <button class="action" onclick="resetDetective()">
-        Nuevo misterio
-    </button>
-</section>
-
-<!-- ================= MEMORIA ================= -->
-
-<section id="memory" class="game">
-    <h2>🧠 Juego de memoria</h2>
-    <p>Encuentra todas las parejas.</p>
-
-    <div class="status">
-        Intentos: <strong id="memoryMoves">0</strong>
-    </div>
-
-    <div id="memoryBoard" class="memory-board"></div>
-
-    <div style="text-align:center">
-        <button class="action" onclick="newMemory()">Nueva partida</button>
-    </div>
-</section>
-
-<!-- ================= REACTION ================= -->
-
-<section id="reaction" class="game">
-    <h2>⚡ Reacción rápida</h2>
-
-    <p>
-        Pulsa el área cuando se vuelva verde.
-        ¡No pulses antes!
-    </p>
-
-    <div id="reactionBox">
-        Pulsa "Empezar"
-    </div>
-
-    <div class="status">
-        Tiempo: <strong id="reactionTime">-</strong>
-    </div>
-
-    <div style="text-align:center">
-        <button class="action" onclick="startReaction()">
-            Empezar
+      <div class="heroActions">
+        <button class="primary" onclick="showPage('games')">
+          🎮 Jugar ahora
         </button>
+        <button class="secondary" onclick="showPage('stats')">
+          📊 Ver estadísticas
+        </button>
+      </div>
     </div>
+  </div>
+
+  <div class="section">
+    <div class="sectionHeader">
+      <div>
+        <h2>Tu progreso</h2>
+        <p>Continúa mejorando tus récords.</p>
+      </div>
+    </div>
+
+    <div class="statsGrid">
+      <div class="stat">
+        <div class="statLabel">Partidas</div>
+        <div class="statValue" id="homeGames">0</div>
+      </div>
+      <div class="stat">
+        <div class="statLabel">Victorias</div>
+        <div class="statValue" id="homeWins">0</div>
+      </div>
+      <div class="stat">
+        <div class="statLabel">Puntos</div>
+        <div class="statValue" id="homeScore">0</div>
+      </div>
+      <div class="stat">
+        <div class="statLabel">Récord</div>
+        <div class="statValue" id="homeBest">0</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sectionHeader">
+      <div>
+        <h2>Juegos destacados</h2>
+        <p>Elige uno y empieza.</p>
+      </div>
+    </div>
+
+    <div class="gamesGrid" id="homeGamesGrid"></div>
+  </div>
 </section>
 
-<!-- ================= NUMBER ================= -->
 
-<section id="number" class="game">
-    <h2>🔢 Adivina el número</h2>
+<!-- GAMES -->
 
-    <div class="number-area">
-
-        <p>
-            He pensado un número entre 1 y 100.
-        </p>
-
-        <input
-            type="number"
-            id="numberInput"
-            min="1"
-            max="100"
-            placeholder="Número">
-
-        <br>
-
-        <button class="action" onclick="guessNumber()">
-            Comprobar
-        </button>
-
-        <div class="status">
-            Intentos: <strong id="numberAttempts">0</strong>
-        </div>
-
-        <div id="numberResult" class="status">
-            ¡A jugar!
-        </div>
-
-        <button class="action" onclick="newNumberGame()">
-            Nuevo número
-        </button>
-
+<section id="games" class="page hidden">
+  <div class="sectionHeader">
+    <div>
+      <h2>Todos los juegos</h2>
+      <p>7 desafíos diferentes.</p>
     </div>
+  </div>
+
+  <div class="gamesGrid" id="gamesGrid"></div>
 </section>
 
-<!-- ================= SNAKE ================= -->
 
-<section id="snake" class="game">
-    <h2>🐍 Snake</h2>
+<!-- GAME -->
 
-    <p>
-        Usa las flechas del teclado o los botones.
-    </p>
+<section id="gamePage" class="page hidden">
+  <div class="gamePage">
+    <div class="back" onclick="showPage('games')">← Volver a juegos</div>
 
-    <div class="status">
-        Puntuación: <strong id="snakeScore">0</strong>
-    </div>
-
-    <canvas id="snakeCanvas" width="360" height="360"></canvas>
-
-    <div class="controls">
-
+    <div class="gameBox">
+      <div class="gameTop">
         <div>
-            <button onclick="changeDirection('up')">⬆️</button>
+          <span id="gameBadge" class="badge">🎮 Juego</span>
+          <h2 id="gameTitle">Juego</h2>
+          <p id="gameDescription" class="muted"></p>
         </div>
 
-        <div>
-            <button onclick="changeDirection('left')">⬅️</button>
-            <button onclick="startSnake()">▶️</button>
-            <button onclick="changeDirection('right')">➡️</button>
+        <div class="scoreBox">
+          <div class="score">🏆 <b id="gameScore">0</b></div>
+          <div class="score">⭐ <b id="gameBest">0</b></div>
         </div>
+      </div>
 
-        <div>
-            <button onclick="changeDirection('down')">⬇️</button>
-        </div>
-
+      <div id="gameArea" class="gameArea"></div>
     </div>
-
-    <div id="snakeResult" class="status"></div>
+  </div>
 </section>
 
-<!-- ================= TARGET ================= -->
 
-<section id="target" class="game">
-    <h2>🎯 Atrapa el objetivo</h2>
+<!-- STATS -->
 
-    <p>
-        Toca los objetivos antes de que se acabe el tiempo.
-    </p>
+<section id="stats" class="page hidden">
+  <div class="sectionHeader">
+    <div>
+      <h2>Estadísticas</h2>
+      <p>Tu rendimiento en GameZone.</p>
+    </div>
+  </div>
 
-    <div class="status">
-        Puntos: <strong id="targetScore">0</strong> |
-        Tiempo: <strong id="targetTime">30</strong>
+  <div class="statsGrid">
+    <div class="stat">
+      <div class="statLabel">Partidas totales</div>
+      <div class="statValue" id="totalGames">0</div>
     </div>
 
-    <div id="targetArea"></div>
-
-    <div style="text-align:center">
-        <button class="action" onclick="startTargetGame()">
-            Empezar
-        </button>
+    <div class="stat">
+      <div class="statLabel">Victorias</div>
+      <div class="statValue" id="totalWins">0</div>
     </div>
+
+    <div class="stat">
+      <div class="statLabel">Puntos acumulados</div>
+      <div class="statValue" id="totalScore">0</div>
+    </div>
+
+    <div class="stat">
+      <div class="statLabel">Mejor puntuación</div>
+      <div class="statValue" id="bestScore">0</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="statsPanel">
+      <h3>Rendimiento por juego</h3>
+      <div id="gameStats"></div>
+    </div>
+  </div>
+</section>
+
+
+<!-- PROFILE -->
+
+<section id="profile" class="page hidden">
+  <div class="sectionHeader">
+    <div>
+      <h2>Mi perfil</h2>
+      <p>Tu cuenta y progreso.</p>
+    </div>
+  </div>
+
+  <div class="profile">
+    <div class="profileCard">
+      <div id="profileAvatar" class="profileAvatar">?</div>
+      <h2 id="profileName">Jugador</h2>
+      <div id="profileEmail" class="muted">Sin iniciar sesión</div>
+      <br>
+      <button class="secondary" onclick="logout()">Cerrar sesión</button>
+    </div>
+
+    <div class="statsPanel">
+      <h3>Resumen</h3>
+
+      <div class="statRow">
+        <span>Partidas</span>
+        <b id="profileGames">0</b>
+      </div>
+
+      <div class="statRow">
+        <span>Victorias</span>
+        <b id="profileWins">0</b>
+      </div>
+
+      <div class="statRow">
+        <span>Puntos</span>
+        <b id="profileScore">0</b>
+      </div>
+
+      <div class="statRow">
+        <span>Récord</span>
+        <b id="profileBest">0</b>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- AUTH -->
+
+<section id="auth" class="page hidden">
+  <div class="authWrap">
+    <div class="formCard">
+      <h2 id="authTitle">Crear cuenta</h2>
+      <p class="muted">Guarda tu progreso en este navegador.</p>
+
+      <div class="field" id="nameField">
+        <label>Nombre</label>
+        <input id="nameInput" type="text" placeholder="Tu nombre">
+      </div>
+
+      <div class="field">
+        <label>Email</label>
+        <input id="emailInput" type="email" placeholder="tu@email.com">
+      </div>
+
+      <div class="field">
+        <label>Contraseña</label>
+        <input id="passwordInput" type="password" placeholder="••••••••">
+      </div>
+
+      <button class="primary" onclick="submitAuth()" id="authButton">
+        Crear cuenta
+      </button>
+
+      <div class="switch">
+        <span id="authSwitchText">¿Ya tienes cuenta?</span>
+        <span onclick="toggleAuth()" id="authSwitch"> Iniciar sesión</span>
+      </div>
+    </div>
+  </div>
 </section>
 
 </main>
 
-<footer>
-    🎮 GameZone — 7 juegos HTML, CSS y JavaScript
-</footer>
+<div id="toast" class="toast"></div>
 
 <script>
+/* =========================================================
+   DATOS
+========================================================= */
 
-/* =====================================================
-   NAVEGACIÓN
-===================================================== */
-
-function showGame(id) {
-    document.querySelectorAll('.game').forEach(game => {
-        game.classList.remove('active');
-    });
-
-    document.getElementById(id).classList.add('active');
-
-    window.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-    });
-}
-
-
-/* =====================================================
-   PUZZLE
-===================================================== */
-
-let puzzle = [];
-let puzzleMoves = 0;
-
-function newPuzzle() {
-
-    puzzle = [1,2,3,4,5,6,7,8,0];
-    puzzleMoves = 0;
-
-    // Mezclar mediante movimientos válidos
-    for(let i = 0; i < 150; i++) {
-
-        const empty = puzzle.indexOf(0);
-        const row = Math.floor(empty / 3);
-        const col = empty % 3;
-
-        const possible = [];
-
-        if(row > 0) possible.push(empty - 3);
-        if(row < 2) possible.push(empty + 3);
-        if(col > 0) possible.push(empty - 1);
-        if(col < 2) possible.push(empty + 1);
-
-        const move =
-            possible[Math.floor(Math.random() * possible.length)];
-
-        [puzzle[empty], puzzle[move]] =
-        [puzzle[move], puzzle[empty]];
-    }
-
-    renderPuzzle();
-}
-
-function renderPuzzle() {
-
-    const board = document.getElementById('puzzleBoard');
-
-    board.innerHTML = '';
-
-    puzzle.forEach((value, index) => {
-
-        const piece = document.createElement('div');
-
-        piece.className = 'piece';
-
-        if(value === 0) {
-            piece.classList.add('empty');
-        } else {
-            piece.textContent = value;
-            piece.onclick = () => movePuzzle(index);
-        }
-
-        board.appendChild(piece);
-    });
-
-    document.getElementById('puzzleMoves').textContent =
-        puzzleMoves;
-}
-
-function movePuzzle(index) {
-
-    const empty = puzzle.indexOf(0);
-
-    const row1 = Math.floor(index / 3);
-    const col1 = index % 3;
-
-    const row2 = Math.floor(empty / 3);
-    const col2 = empty % 3;
-
-    const adjacent =
-        Math.abs(row1-row2) +
-        Math.abs(col1-col2) === 1;
-
-    if(!adjacent) return;
-
-    [puzzle[index], puzzle[empty]] =
-    [puzzle[empty], puzzle[index]];
-
-    puzzleMoves++;
-
-    renderPuzzle();
-
-    if(puzzle.join(',') === '1,2,3,4,5,6,7,8,0') {
-        setTimeout(() => {
-            alert(
-                '🎉 ¡Puzzle completado en ' +
-                puzzleMoves +
-                ' movimientos!'
-            );
-        }, 100);
-    }
-}
-
-newPuzzle();
-
-
-/* =====================================================
-   DETECTIVE
-===================================================== */
-
-function detectiveAnswer(answer) {
-
-    const result =
-        document.getElementById('detectiveResult');
-
-    if(answer === 'Bruno') {
-        result.innerHTML =
-            '🎉 ¡Correcto! Bruno es el ladrón. ' +
-            'Llevaba guantes negros y estaba cerca de la caja fuerte.';
-    } else {
-        result.innerHTML =
-            '❌ No es correcto. Revisa las pistas.';
-    }
-}
-
-function resetDetective() {
-    document.getElementById('detectiveResult').textContent = '';
-}
-
-
-/* =====================================================
-   MEMORIA
-===================================================== */
-
-let memoryValues = [];
-let memoryFirst = null;
-let memorySecond = null;
-let memoryLock = false;
-let memoryMoves = 0;
-let memoryMatches = 0;
-
-const memorySymbols = [
-    '🍎','🚀','🐶','⚽',
-    '🎸','🌟','🍕','🚗'
+const games = [
+  {
+    id:"puzzle",
+    icon:"🧩",
+    name:"Puzzle",
+    description:"Ordena las piezas y completa el tablero.",
+    difficulty:"Normal"
+  },
+  {
+    id:"detective",
+    icon:"🕵️",
+    name:"Detective",
+    description:"Resuelve el caso encontrando la respuesta correcta.",
+    difficulty:"Difícil"
+  },
+  {
+    id:"memory",
+    icon:"🧠",
+    name:"Memoria",
+    description:"Encuentra todas las parejas.",
+    difficulty:"Normal"
+  },
+  {
+    id:"reaction",
+    icon:"⚡",
+    name:"Reflejos",
+    description:"Pulsa tan rápido como puedas cuando aparezca la señal.",
+    difficulty:"Fácil"
+  },
+  {
+    id:"number",
+    icon:"🔢",
+    name:"Adivina el número",
+    description:"Descubre el número secreto usando las pistas.",
+    difficulty:"Normal"
+  },
+  {
+    id:"snake",
+    icon:"🐍",
+    name:"Snake",
+    description:"Come la comida y consigue la máxima puntuación.",
+    difficulty:"Difícil"
+  },
+  {
+    id:"target",
+    icon:"🎯",
+    name:"Atrapa el objetivo",
+    description:"Pulsa el objetivo tantas veces como puedas.",
+    difficulty:"Fácil"
+  }
 ];
 
-function newMemory() {
 
-    memoryValues =
-        [...memorySymbols, ...memorySymbols]
-        .sort(() => Math.random() - 0.5);
+/* =========================================================
+   STORAGE
+========================================================= */
 
-    memoryFirst = null;
-    memorySecond = null;
-    memoryLock = false;
-    memoryMoves = 0;
-    memoryMatches = 0;
+let currentUser = localStorage.getItem("gz_currentUser");
 
-    document.getElementById('memoryMoves').textContent =
-        memoryMoves;
-
-    const board =
-        document.getElementById('memoryBoard');
-
-    board.innerHTML = '';
-
-    memoryValues.forEach((symbol, index) => {
-
-        const card = document.createElement('button');
-
-        card.className = 'card';
-        card.dataset.symbol = symbol;
-        card.dataset.index = index;
-        card.textContent = '❓';
-
-        card.onclick = () => flipMemory(card);
-
-        board.appendChild(card);
-    });
+function getUsers(){
+  return JSON.parse(localStorage.getItem("gz_users") || "{}");
 }
 
-function flipMemory(card) {
+function saveUsers(users){
+  localStorage.setItem("gz_users",JSON.stringify(users));
+}
 
-    if(memoryLock) return;
+function getStats(){
+  if(!currentUser) return {
+    games:0,
+    wins:0,
+    score:0,
+    best:0,
+    byGame:{}
+  };
 
-    if(
-        card.classList.contains('revealed') ||
-        card.classList.contains('matched')
-    ) return;
+  const users=getUsers();
 
-    card.classList.add('revealed');
-    card.textContent = card.dataset.symbol;
+  if(!users[currentUser]){
+    users[currentUser]={
+      name:"Jugador",
+      email:currentUser,
+      password:"",
+      stats:{
+        games:0,
+        wins:0,
+        score:0,
+        best:0,
+        byGame:{}
+      }
+    };
+    saveUsers(users);
+  }
 
-    if(!memoryFirst) {
+  if(!users[currentUser].stats){
+    users[currentUser].stats={
+      games:0,wins:0,score:0,best:0,byGame:{}
+    };
+  }
 
-        memoryFirst = card;
-        return;
+  return users[currentUser].stats;
+}
+
+function saveStats(stats){
+  if(!currentUser)return;
+
+  const users=getUsers();
+
+  if(users[currentUser]){
+    users[currentUser].stats=stats;
+    saveUsers(users);
+  }
+}
+
+function recordGame(gameId,score,win){
+  if(!currentUser)return;
+
+  const stats=getStats();
+
+  stats.games++;
+  stats.score+=score;
+
+  if(win)stats.wins++;
+
+  if(score>stats.best)stats.best=score;
+
+  if(!stats.byGame[gameId]){
+    stats.byGame[gameId]={
+      games:0,
+      wins:0,
+      score:0,
+      best:0
+    };
+  }
+
+  const g=stats.byGame[gameId];
+
+  g.games++;
+  g.score+=score;
+
+  if(win)g.wins++;
+  if(score>g.best)g.best=score;
+
+  saveStats(stats);
+  updateUI();
+}
+
+
+/* =========================================================
+   NAVEGACIÓN
+========================================================= */
+
+function showPage(id){
+
+  document.querySelectorAll(".page").forEach(p=>{
+    p.classList.add("hidden");
+  });
+
+  const page=document.getElementById(id);
+
+  if(page)page.classList.remove("hidden");
+
+  document.querySelectorAll(".navBtn").forEach(b=>{
+    b.classList.remove("active");
+  });
+
+  document.querySelectorAll(".navBtn").forEach(b=>{
+    if(b.textContent.toLowerCase().includes(
+      id==="home"?"inicio":
+      id==="games"?"juegos":
+      id==="stats"?"estadísticas":
+      id==="profile"?"perfil":""
+    )){
+      b.classList.add("active");
+    }
+  });
+
+  updateUI();
+
+  window.scrollTo({
+    top:0,
+    behavior:"smooth"
+  });
+}
+
+
+/* =========================================================
+   CARDS
+========================================================= */
+
+function gameCard(game){
+  return `
+    <div class="gameCard">
+      <div class="gameIcon">${game.icon}</div>
+      <h3>${game.name}</h3>
+      <p>${game.description}</p>
+
+      <div class="gameMeta">
+        <span class="difficulty">● ${game.difficulty}</span>
+        <button class="play" onclick="startGame('${game.id}')">
+          Jugar →
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function renderGames(){
+
+  document.getElementById("gamesGrid").innerHTML=
+    games.map(gameCard).join("");
+
+  document.getElementById("homeGamesGrid").innerHTML=
+    games.slice(0,4).map(gameCard).join("");
+}
+
+
+/* =========================================================
+   AUTH
+========================================================= */
+
+let authMode="register";
+
+function toggleAuth(){
+
+  authMode=
+    authMode==="register"
+    ?"login"
+    :"register";
+
+  document.getElementById("authTitle").textContent=
+    authMode==="register"
+    ?"Crear cuenta"
+    :"Iniciar sesión";
+
+  document.getElementById("nameField").classList.toggle(
+    "hidden",
+    authMode==="login"
+  );
+
+  document.getElementById("authButton").textContent=
+    authMode==="register"
+    ?"Crear cuenta"
+    :"Iniciar sesión";
+
+  document.getElementById("authSwitchText").textContent=
+    authMode==="register"
+    ?"¿Ya tienes cuenta?"
+    :"¿No tienes cuenta?";
+
+  document.getElementById("authSwitch").textContent=
+    authMode==="register"
+    ?" Iniciar sesión"
+    :" Crear cuenta";
+}
+
+function openAuth(){
+  showPage("auth");
+}
+
+function submitAuth(){
+
+  const name=document.getElementById("nameInput").value.trim();
+  const email=document.getElementById("emailInput").value.trim().toLowerCase();
+  const password=document.getElementById("passwordInput").value;
+
+  if(!email || !password){
+    toast("Completa todos los campos.");
+    return;
+  }
+
+  const users=getUsers();
+
+  if(authMode==="register"){
+
+    if(!name){
+      toast("Introduce tu nombre.");
+      return;
     }
 
-    memorySecond = card;
-    memoryMoves++;
-
-    document.getElementById('memoryMoves').textContent =
-        memoryMoves;
-
-    if(
-        memoryFirst.dataset.symbol ===
-        memorySecond.dataset.symbol
-    ) {
-
-        memoryFirst.classList.add('matched');
-        memorySecond.classList.add('matched');
-
-        memoryFirst = null;
-        memorySecond = null;
-
-        memoryMatches++;
-
-        if(memoryMatches === memorySymbols.length) {
-
-            setTimeout(() => {
-                alert(
-                    '🎉 ¡Has encontrado todas las parejas!'
-                );
-            }, 200);
-        }
-
-    } else {
-
-        memoryLock = true;
-
-        setTimeout(() => {
-
-            memoryFirst.classList.remove('revealed');
-            memorySecond.classList.remove('revealed');
-
-            memoryFirst.textContent = '❓';
-            memorySecond.textContent = '❓';
-
-            memoryFirst = null;
-            memorySecond = null;
-
-            memoryLock = false;
-
-        }, 800);
-    }
-}
-
-newMemory();
-
-
-/* =====================================================
-   REACCIÓN
-===================================================== */
-
-let reactionTimeout;
-let reactionStart = 0;
-let reactionWaiting = false;
-
-const reactionBox =
-    document.getElementById('reactionBox');
-
-reactionBox.onclick = function() {
-
-    if(!reactionWaiting) {
-
-        if(reactionBox.classList.contains('ready')) {
-
-            const time =
-                Date.now() - reactionStart;
-
-            document.getElementById('reactionTime')
-                .textContent = time + ' ms';
-
-            reactionWaiting = false;
-        }
-
-        return;
+    if(users[email]){
+      toast("Esta cuenta ya existe.");
+      return;
     }
 
-    clearTimeout(reactionTimeout);
-
-    reactionWaiting = false;
-
-    reactionBox.classList.remove('ready');
-
-    reactionBox.textContent =
-        '❌ ¡Demasiado pronto!';
-
-    document.getElementById('reactionTime')
-        .textContent = '-';
-};
-
-function startReaction() {
-
-    clearTimeout(reactionTimeout);
-
-    reactionWaiting = true;
-
-    reactionBox.classList.remove('ready');
-
-    reactionBox.textContent =
-        'Espera...';
-
-    const delay =
-        1500 + Math.random() * 3500;
-
-    reactionTimeout = setTimeout(() => {
-
-        reactionBox.classList.add('ready');
-
-        reactionBox.textContent =
-            '🟢 ¡PULSA!';
-
-        reactionStart = Date.now();
-
-    }, delay);
-}
-
-
-/* =====================================================
-   ADIVINA EL NÚMERO
-===================================================== */
-
-let secretNumber = 0;
-let numberAttempts = 0;
-
-function newNumberGame() {
-
-    secretNumber =
-        Math.floor(Math.random() * 100) + 1;
-
-    numberAttempts = 0;
-
-    document.getElementById('numberAttempts')
-        .textContent = 0;
-
-    document.getElementById('numberResult')
-        .textContent = '¡A jugar!';
-
-    document.getElementById('numberInput')
-        .value = '';
-}
-
-function guessNumber() {
-
-    const input =
-        document.getElementById('numberInput');
-
-    const guess =
-        Number(input.value);
-
-    if(!guess || guess < 1 || guess > 100) {
-
-        document.getElementById('numberResult')
-            .textContent =
-            'Introduce un número entre 1 y 100.';
-
-        return;
-    }
-
-    numberAttempts++;
-
-    document.getElementById('numberAttempts')
-        .textContent = numberAttempts;
-
-    if(guess === secretNumber) {
-
-        document.getElementById('numberResult')
-            .textContent =
-            '🎉 ¡Correcto! El número era ' +
-            secretNumber + '.';
-
-    } else if(guess < secretNumber) {
-
-        document.getElementById('numberResult')
-            .textContent =
-            '⬆️ El número secreto es mayor.';
-
-    } else {
-
-        document.getElementById('numberResult')
-            .textContent =
-            '⬇️ El número secreto es menor.';
-    }
-}
-
-newNumberGame();
-
-
-/* =====================================================
-   SNAKE
-===================================================== */
-
-const canvas =
-    document.getElementById('snakeCanvas');
-
-const ctx = canvas.getContext('2d');
-
-const grid = 18;
-
-let snake = [];
-let food = {};
-let snakeDirection = 'right';
-let nextDirection = 'right';
-let snakeRunning = false;
-let snakeTimer = null;
-let snakeScore = 0;
-
-function resetSnake() {
-
-    snake = [
-        {x:9,y:9},
-        {x:8,y:9},
-        {x:7,y:9}
-    ];
-
-    snakeDirection = 'right';
-    nextDirection = 'right';
-
-    snakeScore = 0;
-
-    document.getElementById('snakeScore')
-        .textContent = 0;
-
-    document.getElementById('snakeResult')
-        .textContent = '';
-
-    createFood();
-    drawSnake();
-}
-
-function createFood() {
-
-    do {
-
-        food = {
-            x: Math.floor(Math.random() * grid),
-            y: Math.floor(Math.random() * grid)
-        };
-
-    } while(
-        snake.some(
-            part => part.x === food.x && part.y === food.y
-        )
-    );
-}
-
-function drawSnake() {
-
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-
-    const cell =
-        canvas.width / grid;
-
-    ctx.fillStyle = '#ef4444';
-
-    ctx.fillRect(
-        food.x * cell,
-        food.y * cell,
-        cell - 1,
-        cell - 1
-    );
-
-    snake.forEach((part, index) => {
-
-        ctx.fillStyle =
-            index === 0 ? '#22c55e' : '#16a34a';
-
-        ctx.fillRect(
-            part.x * cell,
-            part.y * cell,
-            cell - 1,
-            cell - 1
-        );
-    });
-}
-
-function startSnake() {
-
-    if(snakeRunning) return;
-
-    resetSnake();
-
-    snakeRunning = true;
-
-    snakeTimer =
-        setInterval(updateSnake, 120);
-}
-
-function updateSnake() {
-
-    snakeDirection = nextDirection;
-
-    const head = {
-        ...snake[0]
+    users[email]={
+      name,
+      email,
+      password,
+      stats:{
+        games:0,
+        wins:0,
+        score:0,
+        best:0,
+        byGame:{}
+      }
     };
 
-    if(snakeDirection === 'up') head.y--;
-    if(snakeDirection === 'down') head.y++;
-    if(snakeDirection === 'left') head.x--;
-    if(snakeDirection === 'right') head.x++;
+    saveUsers(users);
+
+    currentUser=email;
+    localStorage.setItem("gz_currentUser",email);
+
+    toast("Cuenta creada correctamente 🎉");
+
+  }else{
+
+    if(!users[email] || users[email].password!==password){
+      toast("Email o contraseña incorrectos.");
+      return;
+    }
+
+    currentUser=email;
+    localStorage.setItem("gz_currentUser",email);
+
+    toast("Bienvenido de nuevo 👋");
+  }
+
+  showPage("home");
+}
+
+function logout(){
+
+  currentUser=null;
+  localStorage.removeItem("gz_currentUser");
+
+  toast("Sesión cerrada.");
+
+  showPage("home");
+}
+
+
+/* =========================================================
+   UI
+========================================================= */
+
+function updateUI(){
+
+  renderGames();
+
+  const stats=getStats();
+
+  document.getElementById("homeGames").textContent=stats.games;
+  document.getElementById("homeWins").textContent=stats.wins;
+  document.getElementById("homeScore").textContent=stats.score;
+  document.getElementById("homeBest").textContent=stats.best;
+
+  document.getElementById("totalGames").textContent=stats.games;
+  document.getElementById("totalWins").textContent=stats.wins;
+  document.getElementById("totalScore").textContent=stats.score;
+  document.getElementById("bestScore").textContent=stats.best;
+
+  document.getElementById("profileGames").textContent=stats.games;
+  document.getElementById("profileWins").textContent=stats.wins;
+  document.getElementById("profileScore").textContent=stats.score;
+  document.getElementById("profileBest").textContent=stats.best;
+
+  const users=getUsers();
+
+  let name="Jugador";
+  let email="Sin iniciar sesión";
+
+  if(currentUser && users[currentUser]){
+    name=users[currentUser].name;
+    email=users[currentUser].email;
+  }
+
+  document.getElementById("profileName").textContent=name;
+  document.getElementById("profileEmail").textContent=email;
+
+  const letter=name.charAt(0).toUpperCase();
+
+  document.getElementById("userAvatar").textContent=
+    currentUser ? letter : "?";
+
+  document.getElementById("profileAvatar").textContent=
+    currentUser ? letter : "?";
+
+  const gameStats=document.getElementById("gameStats");
+
+  gameStats.innerHTML=games.map(g=>{
+
+    const s=stats.byGame[g.id] || {
+      games:0,
+      wins:0,
+      score:0,
+      best:0
+    };
+
+    return `
+      <div class="statRow">
+        <span>${g.icon} ${g.name}</span>
+        <span>
+          ${s.games} partidas · ${s.wins} victorias ·
+          <b>${s.best}</b> récord
+        </span>
+      </div>
+    `;
+  }).join("");
+}
+
+function toast(message){
+
+  const el=document.getElementById("toast");
+
+  el.textContent=message;
+  el.classList.add("show");
+
+  clearTimeout(window.toastTimer);
+
+  window.toastTimer=setTimeout(()=>{
+    el.classList.remove("show");
+  },2200);
+}
+
+function toggleTheme(){
+
+  const light=document.body.dataset.theme==="light";
+
+  if(light){
+    document.body.dataset.theme="";
+    document.documentElement.style.setProperty("--bg","#070b17");
+    document.documentElement.style.setProperty("--bg2","#0d1326");
+    document.documentElement.style.setProperty("--text","#f5f7ff");
+    document.documentElement.style.setProperty("--muted","#9da9c7");
+  }else{
+    document.body.dataset.theme="light";
+    document.documentElement.style.setProperty("--bg","#eef2ff");
+    document.documentElement.style.setProperty("--bg2","#f8faff");
+    document.documentElement.style.setProperty("--text","#14182a");
+    document.documentElement.style.setProperty("--muted","#66708c");
+  }
+}
+
+
+/* =========================================================
+   MOTOR DE JUEGOS
+========================================================= */
+
+let currentGame=null;
+let gameTimer=null;
+
+function startGame(id){
+
+  if(!currentUser){
+    toast("Crea una cuenta para guardar tu progreso.");
+    openAuth();
+    return;
+  }
+
+  const game=games.find(g=>g.id===id);
+
+  if(!game)return;
+
+  currentGame=id;
+
+  document.getElementById("gameBadge").textContent=
+    game.icon+" "+game.difficulty;
+
+  document.getElementById("gameTitle").textContent=
+    game.name;
+
+  document.getElementById("gameDescription").textContent=
+    game.description;
+
+  const stats=getStats();
+
+  document.getElementById("gameBest").textContent=
+    stats.byGame[id]?.best || 0;
+
+  document.getElementById("gameScore").textContent="0";
+
+  showPage("gamePage");
+
+  clearInterval(gameTimer);
+
+  const area=document.getElementById("gameArea");
+
+  area.innerHTML="";
+
+  if(id==="puzzle")gamePuzzle(area);
+  if(id==="detective")gameDetective(area);
+  if(id==="memory")gameMemory(area);
+  if(id==="reaction")gameReaction(area);
+  if(id==="number")gameNumber(area);
+  if(id==="snake")gameSnake(area);
+  if(id==="target")gameTarget(area);
+}
+
+function finishGame(score,win=true){
+
+  clearInterval(gameTimer);
+
+  recordGame(currentGame,score,win);
+
+  document.getElementById("gameScore").textContent=score;
+
+  const area=document.getElementById("gameArea");
+
+  area.innerHTML=`
+    <div style="text-align:center">
+      <div style="font-size:65px">${win?"🏆":"💥"}</div>
+      <h2>${win?"¡Enhorabuena!":"Fin de la partida"}</h2>
+      <p class="muted">Has conseguido <b>${score}</b> puntos.</p>
+
+      <button class="primary" onclick="startGame('${currentGame}')">
+        🔄 Jugar otra vez
+      </button>
+
+      <button class="secondary"
+              style="margin-left:7px"
+              onclick="showPage('games')">
+        🎮 Otros juegos
+      </button>
+    </div>
+  `;
+}
+
+
+/* =========================================================
+   1. PUZZLE
+========================================================= */
+
+function gamePuzzle(area){
+
+  let tiles=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,0,15];
+
+  for(let i=0;i<80;i++){
+    const valid=tiles
+      .map((v,index)=>v===0?index:-1)
+      .filter(i=>i>=0)[0];
+
+    const possible=[];
+
+    if(valid>=4)possible.push(valid-4);
+    if(valid<12)possible.push(valid+4);
+    if(valid%4>0)possible.push(valid-1);
+    if(valid%4<3)possible.push(valid+1);
+
+    const r=possible[Math.floor(Math.random()*possible.length)];
+
+    [tiles[valid],tiles[r]]=[tiles[r],tiles[valid]];
+  }
+
+  let moves=0;
+
+  function render(){
+
+    area.innerHTML=`
+      <div class="question">Ordena el tablero</div>
+
+      <div class="puzzle">
+        ${tiles.map((v,i)=>`
+          <button
+            class="tile ${v===0?"empty":""}"
+            onclick="moveTile(${i})">
+            ${v||""}
+          </button>
+        `).join("")}
+      </div>
+
+      <p class="muted">Movimientos: ${moves}</p>
+    `;
+
+    window.moveTile=function(index){
+
+      const empty=tiles.indexOf(0);
+
+      const row=Math.floor(index/4);
+      const col=index%4;
+
+      const er=Math.floor(empty/4);
+      const ec=empty%4;
+
+      if(Math.abs(row-er)+Math.abs(col-ec)!==1)return;
+
+      [tiles[index],tiles[empty]]=
+      [tiles[empty],tiles[index]];
+
+      moves++;
+
+      document.getElementById("gameScore").textContent=
+        Math.max(1000-moves*10,100);
+
+      if(tiles.join(",")===
+        "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,0"){
+
+        finishGame(Math.max(1000-moves*10,100),true);
+        return;
+      }
+
+      render();
+    };
+  }
+
+  render();
+}
+
+
+/* =========================================================
+   2. DETECTIVE
+========================================================= */
+
+function gameDetective(area){
+
+  const cases=[
+    {
+      q:"Un reloj marca las 3:15. ¿Qué ángulo aproximado forman sus agujas?",
+      options:["0°","7,5°","30°","45°"],
+      correct:1
+    },
+    {
+      q:"Un detective tiene 3 sospechosos. Solo uno miente. Ana dice: «Fue Bruno». Bruno dice: «Fue Carlos». Carlos dice: «Bruno miente». ¿Quién es culpable?",
+      options:["Ana","Bruno","Carlos","No se puede determinar"],
+      correct:1
+    },
+    {
+      q:"Si todos los gatos son animales y algunos animales son negros, ¿qué conclusión es segura?",
+      options:[
+        "Todos los gatos son negros",
+        "Algunos gatos son negros",
+        "Los gatos son animales",
+        "Ningún gato es negro"
+      ],
+      correct:2
+    }
+  ];
+
+  let index=0;
+  let score=0;
+
+  function render(){
+
+    if(index>=cases.length){
+      finishGame(score,true);
+      return;
+    }
+
+    const c=cases[index];
+
+    area.innerHTML=`
+      <div class="badge">Caso ${index+1}/${cases.length}</div>
+      <div class="question">${c.q}</div>
+
+      <div class="options">
+        ${c.options.map((o,i)=>`
+          <button class="option" onclick="detectiveAnswer(${i})">
+            ${o}
+          </button>
+        `).join("")}
+      </div>
+    `;
+
+    window.detectiveAnswer=function(i){
+
+      if(i===c.correct){
+        score+=300;
+        toast("¡Correcto! 🕵️");
+      }else{
+        score=Math.max(0,score-100);
+        toast("Respuesta incorrecta");
+      }
+
+      document.getElementById("gameScore").textContent=score;
+
+      index++;
+      render();
+    };
+  }
+
+  render();
+}
+
+
+/* =========================================================
+   3. MEMORIA
+========================================================= */
+
+function gameMemory(area){
+
+  const symbols=["🍎","🚀","🐱","⚽","🎵","🌟","🍕","🎮"];
+
+  let cards=[...symbols,...symbols]
+    .sort(()=>Math.random()-.5);
+
+  let opened=[];
+  let matched=0;
+  let score=800;
+  let locked=false;
+
+  function render(){
+
+    area.innerHTML=`
+      <div class="memoryGrid">
+        ${cards.map((symbol,i)=>`
+          <button
+            class="memoryCard ${
+              opened.includes(i) || cards[i]==="MATCH"
+              ?"open":""
+            }"
+            onclick="memoryClick(${i})">
+            ${
+              opened.includes(i)||cards[i]==="MATCH"
+              ?symbol==="MATCH"?"✓":symbol
+              :"?"
+            }
+          </button>
+        `).join("")}
+      </div>
+
+      <p class="muted">Parejas: ${matched}/${symbols.length}</p>
+    `;
+
+    window.memoryClick=function(i){
+
+      if(locked)return;
+      if(opened.includes(i))return;
+      if(cards[i]==="MATCH")return;
+
+      opened.push(i);
+      render();
+
+      if(opened.length===2){
+
+        locked=true;
+
+        const [a,b]=opened;
+
+        if(cards[a]===cards[b]){
+
+          cards[a]="MATCH";
+          cards[b]="MATCH";
+
+          matched++;
+          score+=100;
+          opened=[];
+          locked=false;
+
+          document.getElementById("gameScore").textContent=score;
+
+          if(matched===symbols.length){
+            finishGame(score,true);
+            return;
+          }
+
+          render();
+
+        }else{
+
+          score=Math.max(0,score-25);
+
+          setTimeout(()=>{
+            opened=[];
+            locked=false;
+            document.getElementById("gameScore").textContent=score;
+            render();
+          },700);
+        }
+      }
+    };
+  }
+
+  render();
+}
+
+
+/* =========================================================
+   4. REACCIÓN
+========================================================= */
+
+function gameReaction(area){
+
+  let state="waiting";
+  let start=0;
+  let score=0;
+
+  area.innerHTML=`
+    <button class="reaction" id="reactionButton">
+      Preparado...
+    </button>
+    <p class="muted">
+      Espera a que cambie y pulsa inmediatamente.
+    </p>
+  `;
+
+  const btn=document.getElementById("reactionButton");
+
+  const delay=1200+Math.random()*2800;
+
+  gameTimer=setTimeout(()=>{
+
+    state="go";
+    start=performance.now();
+
+    btn.textContent="¡AHORA!";
+    btn.style.background=
+      "linear-gradient(135deg,#19b96b,#32d583)";
+
+  },delay);
+
+  btn.onclick=()=>{
+
+    if(state==="waiting"){
+
+      clearTimeout(gameTimer);
+
+      btn.textContent="Demasiado pronto 😅";
+
+      setTimeout(()=>{
+        finishGame(0,false);
+      },700);
+
+      return;
+    }
+
+    if(state==="go"){
+
+      const reaction=Math.round(performance.now()-start);
+
+      score=Math.max(100,1000-reaction*2);
+
+      btn.textContent=
+        reaction+" ms ⚡";
+
+      document.getElementById("gameScore").textContent=score;
+
+      setTimeout(()=>{
+        finishGame(score,true);
+      },700);
+    }
+  };
+}
+
+
+/* =========================================================
+   5. NÚMERO
+========================================================= */
+
+function gameNumber(area){
+
+  let secret=Math.floor(Math.random()*100)+1;
+  let attempts=0;
+
+  area.innerHTML=`
+    <div class="bigNumber">?</div>
+    <div class="question">Estoy pensando en un número del 1 al 100</div>
+
+    <div style="display:flex;gap:10px;width:100%;max-width:450px">
+      <input
+        id="numberInput"
+        type="number"
+        min="1"
+        max="100"
+        placeholder="Introduce un número"
+        style="
+          flex:1;
+          padding:15px;
+          border-radius:13px;
+          border:1px solid var(--border);
+          background:#0c1224;
+          color:white;
+        "
+      >
+
+      <button class="primary" onclick="guessNumber()">
+        Probar
+      </button>
+    </div>
+
+    <p id="numberHint" class="muted">Tienes que encontrarlo.</p>
+  `;
+
+  window.guessNumber=function(){
+
+    const input=document.getElementById("numberInput");
+    const value=Number(input.value);
+
+    if(value<1||value>100){
+      toast("Introduce un número entre 1 y 100.");
+      return;
+    }
+
+    attempts++;
+
+    if(value===secret){
+
+      const score=Math.max(100,1000-attempts*80);
+
+      document.getElementById("gameScore").textContent=score;
+
+      finishGame(score,true);
+
+    }else if(value<secret){
+
+      document.getElementById("numberHint").textContent=
+        "⬆️ El número secreto es mayor.";
+
+    }else{
+
+      document.getElementById("numberHint").textContent=
+        "⬇️ El número secreto es menor.";
+    }
+  };
+}
+
+
+/* =========================================================
+   6. SNAKE
+========================================================= */
+
+function gameSnake(area){
+
+  area.innerHTML=`
+    <canvas id="snakeCanvas"
+            class="snakeCanvas"
+            width="420"
+            height="420"></canvas>
+
+    <p class="muted">
+      Usa las flechas del teclado.
+    </p>
+  `;
+
+  const canvas=document.getElementById("snakeCanvas");
+  const ctx=canvas.getContext("2d");
+
+  const size=21;
+
+  let snake=[
+    {x:10,y:10},
+    {x:9,y:10},
+    {x:8,y:10}
+  ];
+
+  let food={
+    x:Math.floor(Math.random()*size),
+    y:Math.floor(Math.random()*size)
+  };
+
+  let dx=1;
+  let dy=0;
+  let score=0;
+  let running=true;
+
+  function draw(){
+
+    ctx.clearRect(0,0,420,420);
+
+    ctx.fillStyle="#080c18";
+    ctx.fillRect(0,0,420,420);
+
+    ctx.fillStyle="#ff5577";
+
+    ctx.beginPath();
+    ctx.arc(
+      food.x*20+10,
+      food.y*20+10,
+      7,0,Math.PI*2
+    );
+    ctx.fill();
+
+    snake.forEach((part,i)=>{
+
+      ctx.fillStyle=
+        i===0
+        ?" #9b85ff"
+        :" #5f54c9";
+
+      ctx.fillRect(
+        part.x*20+2,
+        part.y*20+2,
+        16,
+        16
+      );
+    });
+  }
+
+  function loop(){
+
+    if(!running)return;
+
+    const head={
+      x:snake[0].x+dx,
+      y:snake[0].y+dy
+    };
 
     if(
-        head.x < 0 ||
-        head.x >= grid ||
-        head.y < 0 ||
-        head.y >= grid ||
-        snake.some(
-            part =>
-            part.x === head.x &&
-            part.y === head.y
-        )
-    ) {
-
-        gameOverSnake();
-        return;
+      head.x<0||
+      head.x>=size||
+      head.y<0||
+      head.y>=size||
+      snake.some(p=>p.x===head.x&&p.y===head.y)
+    ){
+      running=false;
+      finishGame(score,false);
+      return;
     }
 
     snake.unshift(head);
 
-    if(
-        head.x === food.x &&
-        head.y === food.y
-    ) {
+    if(head.x===food.x&&head.y===food.y){
 
-        snakeScore++;
+      score+=100;
 
-        document.getElementById('snakeScore')
-            .textContent = snakeScore;
+      document.getElementById("gameScore").textContent=score;
 
-        createFood();
+      food={
+        x:Math.floor(Math.random()*size),
+        y:Math.floor(Math.random()*size)
+      };
 
-    } else {
-
-        snake.pop();
+    }else{
+      snake.pop();
     }
 
-    drawSnake();
-}
+    draw();
+  }
 
-function gameOverSnake() {
+  document.onkeydown=function(e){
 
-    snakeRunning = false;
-
-    clearInterval(snakeTimer);
-
-    document.getElementById('snakeResult')
-        .textContent =
-        '💥 Game Over. Puntuación: ' +
-        snakeScore;
-}
-
-function changeDirection(direction) {
-
-    const opposite = {
-        up: 'down',
-        down: 'up',
-        left: 'right',
-        right: 'left'
-    };
-
-    if(opposite[direction] !== snakeDirection) {
-        nextDirection = direction;
+    if(e.key==="ArrowUp"&&dy!==1){
+      dx=0;dy=-1;
     }
+
+    if(e.key==="ArrowDown"&&dy!==-1){
+      dx=0;dy=1;
+    }
+
+    if(e.key==="ArrowLeft"&&dx!==1){
+      dx=-1;dy=0;
+    }
+
+    if(e.key==="ArrowRight"&&dx!==-1){
+      dx=1;dy=0;
+    }
+  };
+
+  draw();
+
+  gameTimer=setInterval(loop,120);
 }
 
-document.addEventListener('keydown', function(e) {
 
-    if(e.key === 'ArrowUp') changeDirection('up');
-    if(e.key === 'ArrowDown') changeDirection('down');
-    if(e.key === 'ArrowLeft') changeDirection('left');
-    if(e.key === 'ArrowRight') changeDirection('right');
+/* =========================================================
+   7. OBJETIVO
+========================================================= */
 
-});
+function gameTarget(area){
 
-resetSnake();
+  let score=0;
+  let time=15;
 
+  area.innerHTML=`
+    <div style="width:100%;max-width:600px">
+      <div style="
+        display:flex;
+        justify-content:space-between;
+        margin-bottom:10px">
+        <span>⏱️ Tiempo</span>
+        <b id="targetTime">${time}s</b>
+      </div>
 
-/* =====================================================
-   ATRAPA EL OBJETIVO
-===================================================== */
+      <div class="targetArea" id="targetArea"></div>
+    </div>
+  `;
 
-let targetScore = 0;
-let targetTime = 30;
-let targetTimer = null;
-let targetActive = false;
+  const targetArea=document.getElementById("targetArea");
 
-function startTargetGame() {
+  function placeTarget(){
 
-    clearInterval(targetTimer);
+    const target=document.createElement("button");
 
-    targetScore = 0;
-    targetTime = 30;
-    targetActive = true;
+    target.className="target";
 
-    document.getElementById('targetScore')
-        .textContent = targetScore;
+    target.style.left=
+      Math.random()*(targetArea.clientWidth-55)+"px";
 
-    document.getElementById('targetTime')
-        .textContent = targetTime;
+    target.style.top=
+      Math.random()*(targetArea.clientHeight-55)+"px";
 
-    document.getElementById('targetArea')
-        .innerHTML = '';
+    target.onclick=()=>{
 
-    createTarget();
+      score+=50;
 
-    targetTimer =
-        setInterval(() => {
+      document.getElementById("gameScore").textContent=score;
 
-            targetTime--;
+      target.remove();
 
-            document.getElementById('targetTime')
-                .textContent = targetTime;
-
-            if(targetTime <= 0) {
-                endTargetGame();
-            }
-
-        },1000);
-}
-
-function createTarget() {
-
-    if(!targetActive) return;
-
-    const area =
-        document.getElementById('targetArea');
-
-    const target =
-        document.createElement('div');
-
-    target.className = 'target';
-
-    const maxX =
-        area.clientWidth - 50;
-
-    const maxY =
-        area.clientHeight - 50;
-
-    target.style.left =
-        Math.random() * maxX + 'px';
-
-    target.style.top =
-        Math.random() * maxY + 'px';
-
-    target.onclick = function() {
-
-        if(!targetActive) return;
-
-        targetScore++;
-
-        document.getElementById('targetScore')
-            .textContent = targetScore;
-
-        target.remove();
-
-        createTarget();
+      placeTarget();
     };
 
-    area.appendChild(target);
+    targetArea.appendChild(target);
+  }
+
+  placeTarget();
+
+  gameTimer=setInterval(()=>{
+
+    time--;
+
+    document.getElementById("targetTime").textContent=
+      time+"s";
+
+    if(time<=0){
+
+      clearInterval(gameTimer);
+      finishGame(score,score>0);
+    }
+
+  },1000);
 }
 
-function endTargetGame() {
 
-    targetActive = false;
+/* =========================================================
+   INICIO
+========================================================= */
 
-    clearInterval(targetTimer);
-
-    document.getElementById('targetArea')
-        .innerHTML = '';
-
-    alert(
-        '🎯 Tiempo terminado. Puntuación: ' +
-        targetScore
-    );
-}
+renderGames();
+updateUI();
 
 </script>
 
