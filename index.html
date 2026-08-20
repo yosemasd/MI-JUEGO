@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#111827">
+
+<title>GameZone 🎮</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: linear-gradient(135deg, #0f172a, #312e81, #581c87);
+    color: white;
+    min-height: 100vh;
+}
+
+header {
+    text-align: center;
+    padding: 30px 20px 15px;
+}
+
+header h1 {
+    margin: 0;
+    font-size: clamp(38px, 8vw, 70px);
+}
+
+header p {
+    color: #cbd5e1;
+    font-size: 18px;
+}
+
+.container {
+    width: min(1000px, 94%);
+    margin: auto;
+}
+
+.menu {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 16px;
+    margin: 25px 0;
+}
+
+.game-card {
+    border: 0;
+    border-radius: 22px;
+    padding: 25px 15px;
+    color: white;
+    background: rgba(255,255,255,.12);
+    border: 1px solid rgba(255,255,255,.15);
+    cursor: pointer;
+    font-size: 18px;
+    transition: .2s;
+}
+
+.game-card:hover {
+    transform: translateY(-5px);
+    background: rgba(255,255,255,.2);
+}
+
+.game-card:active {
+    transform: scale(.97);
+}
+
+.game-card .emoji {
+    display: block;
+    font-size: 45px;
+    margin-bottom: 10px;
+}
+
+.game {
+    display: none;
+    background: rgba(15,23,42,.85);
+    border-radius: 28px;
+    padding: 25px;
+    margin: 20px 0 40px;
+    box-shadow: 0 20px 50px rgba(0,0,0,.35);
+}
+
+.game.active {
+    display: block;
+}
+
+.game h2 {
+    text-align: center;
+    font-size: 32px;
+}
+
+.score {
+    text-align: center;
+    font-size: 22px;
+    margin: 15px;
+}
+
+button {
+    border: 0;
+    border-radius: 15px;
+    padding: 14px 22px;
+    margin: 7px;
+    font-size: 17px;
+    font-weight: bold;
+    cursor: pointer;
+    background: #6366f1;
+    color: white;
+}
+
+button:hover {
+    filter: brightness(1.15);
+}
+
+button:active {
+    transform: scale(.95);
+}
+
+.back {
+    background: #334155;
+}
+
+/* ATRAPA */
+
+#targetArea {
+    position: relative;
+    height: 400px;
+    border-radius: 20px;
+    background: #020617;
+    overflow: hidden;
+    margin-top: 20px;
+}
+
+#target {
+    display: none;
+    position: absolute;
+    width: 65px;
+    height: 65px;
+    border-radius: 50%;
+    background: #ef4444;
+    border: 5px solid white;
+    cursor: pointer;
+}
+
+/* NUMERO */
+
+.number-box {
+    text-align: center;
+}
+
+#numberInput {
+    width: 180px;
+    padding: 15px;
+    font-size: 22px;
+    border-radius: 12px;
+    border: 0;
+    text-align: center;
+}
+
+/* PIEDRA */
+
+.rps {
+    text-align: center;
+}
+
+.rps button {
+    font-size: 45px;
+    padding: 20px;
+}
+
+/* REACCION */
+
+.reaction-box {
+    height: 300px;
+    border-radius: 25px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    font-size: 30px;
+    font-weight: bold;
+    background: #334155;
+    cursor: pointer;
+    user-select: none;
+}
+
+footer {
+    text-align: center;
+    padding: 30px;
+    color: #94a3b8;
+}
+
+.message {
+    text-align: center;
+    min-height: 30px;
+    font-size: 20px;
+    color: #facc15;
+}
+
+@media(max-width:600px) {
+    .game {
+        padding: 18px;
+    }
+
+    #targetArea {
+        height: 330px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>🎮 GameZone</h1>
+    <p>Elige un juego y demuestra lo que vales</p>
+</header>
+
+<div class="container">
+
+    <!-- MENÚ -->
+    <div id="menu" class="menu">
+
+        <button class="game-card" onclick="openGame('targetGame')">
+            <span class="emoji">🎯</span>
+            Atrapa el objetivo
+        </button>
+
+        <button class="game-card" onclick="openGame('numberGame')">
+            <span class="emoji">🔢</span>
+            Adivina el número
+        </button>
+
+        <button class="game-card" onclick="openGame('rpsGame')">
+            <span class="emoji">✂️</span>
+            Piedra, papel o tijera
+        </button>
+
+        <button class="game-card" onclick="openGame('reactionGame')">
+            <span class="emoji">⚡</span>
+            Reacción rápida
+        </button>
+
+    </div>
+
+
+    <!-- ATRAPA EL OBJETIVO -->
+
+    <section id="targetGame" class="game">
+
+        <h2>🎯 Atrapa el objetivo</h2>
+
+        <div class="score">
+            Puntos: <span id="targetScore">0</span>
+        </div>
+
+        <div class="message" id="targetMessage">
+            Pulsa comenzar.
+        </div>
+
+        <div style="text-align:center">
+            <button onclick="startTargetGame()">▶ Comenzar</button>
+        </div>
+
+        <div id="targetArea">
+            <div id="target" onclick="hitTarget()"></div>
+        </div>
+
+        <div style="text-align:center">
+            <button class="back" onclick="showMenu()">⬅ Menú</button>
+        </div>
+
+    </section>
+
+
+    <!-- ADIVINA EL NÚMERO -->
+
+    <section id="numberGame" class="game">
+
+        <h2>🔢 Adivina el número</h2>
+
+        <p style="text-align:center">
+            Estoy pensando en un número entre 1 y 100.
+        </p>
+
+        <div class="number-box">
+
+            <input
+                id="numberInput"
+                type="number"
+                min="1"
+                max="100"
+                placeholder="Número"
+            >
+
+            <br>
+
+            <button onclick="guessNumber()">Adivinar</button>
+
+            <button onclick="newNumberGame()">
+                🔄 Nuevo
+            </button>
+
+        </div>
+
+        <div class="message" id="numberMessage"></div>
+
+        <div class="score">
+            Intentos: <span id="attempts">0</span>
+        </div>
+
+        <div style="text-align:center">
+            <button class="back" onclick="showMenu()">⬅ Menú</button>
+        </div>
+
+    </section>
+
+
+    <!-- PIEDRA PAPEL TIJERA -->
+
+    <section id="rpsGame" class="game">
+
+        <h2>✂️ Piedra, papel o tijera</h2>
+
+        <div class="rps">
+
+            <button onclick="playRPS('piedra')">🪨</button>
+            <button onclick="playRPS('papel')">📄</button>
+            <button onclick="playRPS('tijera')">✂️</button>
+
+        </div>
+
+        <div class="message" id="rpsMessage">
+            Elige tu jugada.
+        </div>
+
+        <div class="score">
+            Tú: <span id="playerScore">0</span>
+            -
+            Máquina: <span id="computerScore">0</span>
+        </div>
+
+        <div style="text-align:center">
+            <button onclick="resetRPS()">🔄 Reiniciar</button>
+            <button class="back" onclick="showMenu()">⬅ Menú</button>
+        </div>
+
+    </section>
+
+
+    <!-- REACCIÓN -->
+
+    <section id="reactionGame" class="game">
+
+        <h2>⚡ Reacción rápida</h2>
+
+        <p style="text-align:center">
+            Pulsa cuando el cuadro se ponga verde.
+        </p>
+
+        <div id="reactionBox"
+             class="reaction-box"
+             onclick="reactionClick()">
+            PULSA COMENZAR
+        </div>
+
+        <div class="message" id="reactionMessage"></div>
+
+        <div style="text-align:center">
+            <button onclick="startReaction()">▶ Comenzar</button>
+            <button class="back" onclick="showMenu()">⬅ Menú</button>
+        </div>
+
+    </section>
+
+</div>
+
+<footer>
+    🎮 GameZone — Hecho con HTML, CSS y JavaScript
+</footer>
+
+
+<script>
+
+/* =========================
+   MENÚ
+========================= */
+
+function openGame(id) {
+
+    document.getElementById("menu").style.display = "none";
+
+    document.querySelectorAll(".game").forEach(game => {
+        game.classList.remove("active");
+    });
+
+    document.getElementById(id).classList.add("active");
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+}
+
+function showMenu() {
+
+    document.querySelectorAll(".game").forEach(game => {
+        game.classList.remove("active");
+    });
+
+    document.getElementById("menu").style.display = "grid";
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+}
+
+
+/* =========================
+   ATRAPA EL OBJETIVO
+========================= */
+
+let targetScore = 0;
+let targetRunning = false;
+let targetTimer;
+
+function startTargetGame() {
+
+    targetScore = 0;
+    targetRunning = true;
+
+    document.getElementById("targetScore").textContent = targetScore;
+    document.getElementById("targetMessage").textContent =
+        "¡Atrápalo! Tienes 20 segundos.";
+
+    document.getElementById("target").style.display = "block";
+
+    moveTarget();
+
+    clearTimeout(targetTimer);
+
+    targetTimer = setTimeout(() => {
+
+        targetRunning = false;
+
+        document.getElementById("target").style.display = "none";
+
+        document.getElementById("targetMessage").textContent =
+            "⏱️ Fin del juego. Puntuación: " + targetScore;
+
+    }, 20000);
+}
+
+function moveTarget() {
+
+    if (!targetRunning) return;
+
+    const area = document.getElementById("targetArea");
+    const target = document.getElementById("target");
+
+    const maxX = area.clientWidth - target.offsetWidth;
+    const maxY = area.clientHeight - target.offsetHeight;
+
+    const x = Math.random() * maxX;
+    const y = Math.random() * maxY;
+
+    target.style.left = x + "px";
+    target.style.top = y + "px";
+}
+
+function hitTarget() {
+
+    if (!targetRunning) return;
+
+    targetScore++;
+
+    document.getElementById("targetScore").textContent =
+        targetScore;
+
+    moveTarget();
+}
+
+
+/* =========================
+   ADIVINA EL NÚMERO
+========================= */
+
+let secretNumber;
+let attempts;
+
+function newNumberGame() {
+
+    secretNumber = Math.floor(Math.random() * 100) + 1;
+    attempts = 0;
+
+    document.getElementById("attempts").textContent = "0";
+
+    document.getElementById("numberMessage").textContent =
+        "He elegido un número. ¡Intenta acertarlo!";
+
+    document.getElementById("numberInput").value = "";
+}
+
+function guessNumber() {
+
+    const input = document.getElementById("numberInput");
+    const value = Number(input.value);
+
+    if (!value || value < 1 || value > 100) {
+
+        document.getElementById("numberMessage").textContent =
+            "Introduce un número entre 1 y 100.";
+
+        return;
+    }
+
+    attempts++;
+
+    document.getElementById("attempts").textContent = attempts;
+
+    if (value === secretNumber) {
+
+        document.getElementById("numberMessage").textContent =
+            "🎉 ¡Correcto! Lo has conseguido en " +
+            attempts + " intentos.";
+
+    } else if (value < secretNumber) {
+
+        document.getElementById("numberMessage").textContent =
+            "⬆️ El número es mayor.";
+
+    } else {
+
+        document.getElementById("numberMessage").textContent =
+            "⬇️ El número es menor.";
+    }
+}
+
+newNumberGame();
+
+
+/* =========================
+   PIEDRA PAPEL TIJERA
+========================= */
+
+let playerScore = 0;
+let computerScore = 0;
+
+function playRPS(player) {
+
+    const choices = [
+        "piedra",
+        "papel",
+        "tijera"
+    ];
+
+    const computer =
+        choices[Math.floor(Math.random() * 3)];
+
+    let result;
+
+    if (player === computer) {
+
+        result = "🤝 Empate";
+
+    } else if (
+
+        (player === "piedra" && computer === "tijera") ||
+        (player === "papel" && computer === "piedra") ||
+        (player === "tijera" && computer === "papel")
+
+    ) {
+
+        playerScore++;
+
+        result = "🎉 ¡Has ganado!";
+
+    } else {
+
+        computerScore++;
+
+        result = "😈 Ha ganado la máquina";
+    }
+
+    document.getElementById("rpsMessage").textContent =
+        result +
+        " | Tú: " + player +
+        " | Máquina: " + computer;
+
+    document.getElementById("playerScore").textContent =
+        playerScore;
+
+    document.getElementById("computerScore").textContent =
+        computerScore;
+}
+
+function resetRPS() {
+
+    playerScore = 0;
+    computerScore = 0;
+
+    document.getElementById("playerScore").textContent = "0";
+    document.getElementById("computerScore").textContent = "0";
+
+    document.getElementById("rpsMessage").textContent =
+        "Elige tu jugada.";
+}
+
+
+/* =========================
+   REACCIÓN RÁPIDA
+========================= */
+
+let reactionReady = false;
+let reactionStart;
+let reactionTimeout;
+
+function startReaction() {
+
+    const box = document.getElementById("reactionBox");
+
+    reactionReady = false;
+
+    box.style.background = "#334155";
+    box.textContent = "ESPERA...";
+
+    document.getElementById("reactionMessage").textContent = "";
+
+    const delay = 1000 + Math.random() * 4000;
+
+    clearTimeout(reactionTimeout);
+
+    reactionTimeout = setTimeout(() => {
+
+        reactionReady = true;
+
+        reactionStart = performance.now();
+
+        box.style.background = "#16a34a";
+        box.textContent = "¡PULSA!";
+
+    }, delay);
+}
+
+function reactionClick() {
+
+    const box = document.getElementById("reactionBox");
+
+    if (!reactionReady) {
+
+        document.getElementById("reactionMessage").textContent =
+            "❌ ¡Demasiado pronto!";
+
+        clearTimeout(reactionTimeout);
+
+        box.style.background = "#dc2626";
+        box.textContent = "FALLO";
+
+        return;
+    }
+
+    const time =
+        Math.round(performance.now() - reactionStart);
+
+    reactionReady = false;
+
+    box.style.background = "#334155";
+    box.textContent = time + " ms";
+
+    document.getElementById("reactionMessage").textContent =
+        "⚡ Tu tiempo de reacción: " + time + " ms";
+}
+
+</script>
+
+</body>
+</html>
